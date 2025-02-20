@@ -2,7 +2,7 @@ require("dotenv").config(); // Ensure environment variables are loaded first
 const passport = require("passport");
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const User = require("../models/user");
-const authController = require("../controllers/authController");
+const { generateToken } = require("../controllers/authController");
 
 // Debugging - Log environment variables (remove in production)
 console.log("Google Client ID:", process.env.GOOGLE_CLIENT_ID);
@@ -26,19 +26,16 @@ passport.use(
                 let user = await User.findOne({ email: profile.emails[0].value });
 
                 if (!user) {
-                    user = new User({
+                    user = await User.create({
                         name: profile.displayName,
                         email: profile.emails[0].value,
+                        username: profile.emails[0].value.split('@')[0],
                         googleId: profile.id,
-                        userType: "user",
+                        userType: 'user'
                     });
-                    await user.save();
-                } else if (!user.googleId) {
-                    user.googleId = profile.id;
-                    await user.save();
                 }
 
-                const token = authController.generateToken(user);
+                const token = generateToken(user);
                 user.token = token;
 
                 return done(null, user);

@@ -2,7 +2,6 @@ import "../styles/globals.css";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import Footer from "../components/Footer";
-import NavBar from "../components/Navbar";
 import NProgress from "nprogress";
 import "../public/nprogress.css";
 import { ToastContainer } from "react-toastify";
@@ -34,14 +33,11 @@ export default function App({ Component, pageProps }) {
     };
   }, []);
 
-  // Pages where Navbar and Footer should be hidden
+  // Pages where Footer should be hidden
   const hideElementsPages = ["/dashboard"];
 
   return (
     <>
-      {/* Conditionally Render Navbar */}
-      {!hideElementsPages.includes(router.pathname) && <NavBar />}
-
       {/* Google Analytics Script */}
       <Script strategy="lazyOnload" src={`https://www.googletagmanager.com/gtag/js?id=G-WYTYXQXVK6`} />
       <Script strategy="lazyOnload">

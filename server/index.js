@@ -58,9 +58,8 @@ app.get("/auth/google/callback",
     failureRedirect: "http://localhost:3000/login",
     session: false 
   }),
-  async (req, res) => {
+  (req, res) => {
     try {
-      // Generate token using authController
       const token = req.user.token;
       
       if (!token) {
@@ -68,7 +67,7 @@ app.get("/auth/google/callback",
         return res.redirect("http://localhost:3000/login?error=authentication_failed");
       }
 
-      // Redirect to frontend with token
+      // Redirect to the callback page with the token
       res.redirect(`http://localhost:3000/auth/callback?token=${token}`);
     } catch (error) {
       console.error("Callback error:", error);

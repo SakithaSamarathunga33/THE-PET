@@ -35,49 +35,107 @@ const Dashboard = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [dashboardData, setDashboardData] = useState({
     users: [],
+    employees: [],
+    pets: [],
     appointments: [],
+    inventory: [],
     recentActivities: []
   });
   const router = useRouter();
 
-  // Fetch dashboard data
+  // Fetch all dashboard data
   useEffect(() => {
-    fetchDashboardData();
+    const token = localStorage.getItem('token');
+    if (!token) {
+      router.push('/login');
+      return;
+    }
+    fetchAllData(token);
   }, []);
 
-  const fetchDashboardData = async () => {
+  // Refetch data when active tab changes (to keep data in sync)
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      fetchAllData(token);
+    }
+  }, [activeTab]);
+
+  const fetchAllData = async (token) => {
     try {
-      // Use existing user management endpoint
-      const userResponse = await fetch('http://localhost:8080/api/auth/user', {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-      });
+      const headers = {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      };
 
-      if (!userResponse.ok) throw new Error('Failed to fetch users');
-      const userData = await userResponse.json();
+      // Fetch all data in parallel
+      const [users, employees, pets, appointments, inventory] = await Promise.all([
+        fetch('http://localhost:8080/api/auth/user', { headers }).then(res => res.json()),
+        fetch('http://localhost:8080/api/employees', { headers }).then(res => res.json()),
+        fetch('http://localhost:8080/api/pets', { headers }).then(res => res.json()),
+        fetch('http://localhost:8080/api/appointments', { headers }).then(res => res.json()),
+        fetch('http://localhost:8080/api/inventory', { headers }).then(res => res.json())
+      ]);
 
-      // Calculate user statistics
-      const totalUsers = userData.length;
-      const adminUsers = userData.filter(user => user.userType === 'admin').length;
-      const regularUsers = userData.filter(user => user.userType === 'user').length;
-
-      // Get recent activities from user data
-      const recentActivities = userData
-        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-        .slice(0, 5)
-        .map(user => ({
+      // Get all activities sorted by date
+      const allActivities = [
+        ...users.map(user => ({
           description: `New user registered: ${user.name}`,
           timestamp: new Date(user.createdAt).toLocaleString(),
           type: 'user'
-        }));
+        })),
+        ...appointments.map(apt => ({
+          description: `New appointment: ${apt.petName}`,
+          timestamp: new Date(apt.date).toLocaleString(),
+          type: 'appointment'
+        })),
+        ...pets.map(pet => ({
+          description: `New pet registered: ${pet.name}`,
+          timestamp: new Date(pet.createdAt).toLocaleString(),
+          type: 'pet'
+        }))
+      ].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+       .slice(0, 10);
+
+      // Calculate monthly trends
+      const currentYear = new Date().getFullYear();
+      const monthlyData = {
+        users: Array(6).fill(0),
+        appointments: Array(6).fill(0),
+        pets: Array(6).fill(0)
+      };
+
+      // Process users data
+      users.forEach(user => {
+        const month = new Date(user.createdAt).getMonth();
+        if (month <= 5) monthlyData.users[month]++;
+      });
+
+      // Process appointments data
+      appointments.forEach(apt => {
+        const month = new Date(apt.date).getMonth();
+        if (month <= 5) monthlyData.appointments[month]++;
+      });
+
+      // Process pets data
+      pets.forEach(pet => {
+        const month = new Date(pet.createdAt).getMonth();
+        if (month <= 5) monthlyData.pets[month]++;
+      });
 
       setDashboardData({
-        users: userData,
-        totalUsers,
-        adminUsers,
-        regularUsers,
-        recentActivities
+        users,
+        employees,
+        pets,
+        appointments,
+        inventory,
+        recentActivities: allActivities,
+        totalUsers: users.length,
+        totalEmployees: employees.length,
+        totalPets: pets.length,
+        totalAppointments: appointments.length,
+        totalInventory: inventory.length,
+        monthlyTrends: monthlyData
       });
 
     } catch (error) {
@@ -85,20 +143,35 @@ const Dashboard = () => {
     }
   };
 
-  // Chart data with real appointments data
+  // Update chart data with real data
   const lineChartData = {
     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
     datasets: [
       {
-        label: 'Appointments',
-        data: dashboardData.appointmentTrends || [0, 0, 0, 0, 0, 0],
-        borderColor: '#f97316',
+        label: 'New Users',
+        data: dashboardData.monthlyTrends?.users || Array(6).fill(0),
+        borderColor: '#FF7043',
         tension: 0.4,
         fill: false,
       },
+      {
+        label: 'Appointments',
+        data: dashboardData.monthlyTrends?.appointments || Array(6).fill(0),
+        borderColor: '#4DB6AC',
+        tension: 0.4,
+        fill: false,
+      },
+      {
+        label: 'New Pets',
+        data: dashboardData.monthlyTrends?.pets || Array(6).fill(0),
+        borderColor: '#FFB74D',
+        tension: 0.4,
+        fill: false,
+      }
     ],
   };
 
+  // Update chart options
   const chartOptions = {
     responsive: true,
     plugins: {
@@ -107,12 +180,15 @@ const Dashboard = () => {
       },
       title: {
         display: true,
-        text: 'Monthly Appointment Trends'
+        text: 'Monthly Trends'
       }
     },
     scales: {
       y: {
-        beginAtZero: true
+        beginAtZero: true,
+        ticks: {
+          stepSize: 1
+        }
       }
     }
   };
@@ -145,42 +221,42 @@ const Dashboard = () => {
             title: 'Total Users', 
             value: dashboardData.totalUsers || 0, 
             icon: <FiUsers className="w-6 h-6" />, 
-            color: 'bg-orange-500',
+            color: 'bg-[#FF7043]',
             trend: 'Total registered users'
           },
           { 
             title: 'Employees', 
             value: dashboardData.totalEmployees || 0, 
             icon: <FiUserPlus className="w-6 h-6" />, 
-            color: 'bg-gray-900',
+            color: 'bg-[#4DB6AC]',
             trend: 'Active employees'
           },
           { 
             title: 'Pets', 
             value: dashboardData.totalPets || 0, 
             icon: <MdPets className="w-6 h-6" />, 
-            color: 'bg-orange-500',
+            color: 'bg-[#FF7043]',
             trend: 'Registered pets'
           },
           { 
             title: 'Appointments', 
             value: dashboardData.totalAppointments || 0, 
             icon: <FiCalendar className="w-6 h-6" />, 
-            color: 'bg-gray-900',
+            color: 'bg-[#4DB6AC]',
             trend: 'Total appointments'
           },
           { 
             title: 'Inventory Items', 
             value: dashboardData.totalInventory || 0, 
             icon: <FiPackage className="w-6 h-6" />, 
-            color: 'bg-orange-500',
+            color: 'bg-[#FF7043]',
             trend: 'Available items'
           },
           { 
             title: 'Active Users', 
             value: dashboardData.users?.filter(user => user.isActive)?.length || 0, 
             icon: <FiUsers className="w-6 h-6" />, 
-            color: 'bg-gray-900',
+            color: 'bg-[#4DB6AC]',
             trend: 'Currently active users'
           },
         ].map((stat, index) => (
@@ -217,7 +293,7 @@ const Dashboard = () => {
                   dashboardData.users?.filter(user => new Date(user.createdAt).getMonth() === 4).length || 0,
                   dashboardData.users?.filter(user => new Date(user.createdAt).getMonth() === 5).length || 0,
                 ],
-                borderColor: '#f97316',
+                borderColor: '#FF7043',
                 tension: 0.4,
                 fill: false,
               }]
@@ -252,10 +328,10 @@ const Dashboard = () => {
   return (
     <div className="flex h-screen bg-gray-50">
       {/* Sidebar */}
-      <div className={`${isSidebarOpen ? 'w-64' : 'w-20'} bg-white shadow-lg transition-all duration-300 ease-in-out`}>
+      <div className={`${isSidebarOpen ? 'w-64' : 'w-20'} bg-[#FFF3E0] shadow-lg transition-all duration-300 ease-in-out`}>
         <div className="flex flex-col h-full">
           {/* Logo Area */}
-          <div className="flex items-center justify-between p-4 border-b bg-orange-500">
+          <div className="flex items-center justify-between p-4 border-b bg-[#4DB6AC]">
             {isSidebarOpen && (
               <div className="flex items-center">
                 <MdPets className="w-8 h-8 text-white" />
@@ -264,7 +340,7 @@ const Dashboard = () => {
             )}
             <button 
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="p-2 rounded-lg hover:bg-orange-600 text-white"
+              className="p-2 rounded-lg hover:bg-[#FF7043] text-white"
             >
               <FiMenu className="w-5 h-5" />
             </button>
@@ -279,8 +355,8 @@ const Dashboard = () => {
                     onClick={() => setActiveTab(item.id)}
                     className={`flex items-center w-full p-3 rounded-lg transition-all duration-200
                       ${activeTab === item.id 
-                        ? 'bg-orange-500 text-white shadow-md transform scale-105' 
-                        : 'text-gray-600 hover:bg-orange-50'
+                        ? 'bg-[#4DB6AC] text-white shadow-md transform scale-105' 
+                        : 'text-gray-600 hover:bg-[#FF7043]/10'
                       }`}
                   >
                     {item.icon}
@@ -294,10 +370,10 @@ const Dashboard = () => {
           </nav>
 
           {/* Logout Button */}
-          <div className="p-4 border-t">
+          <div className="p-4 border-t border-[#4DB6AC]/20">
             <button
               onClick={handleLogout}
-              className="flex items-center w-full p-3 text-gray-600 hover:bg-red-50 hover:text-red-500 rounded-lg transition-all duration-200"
+              className="flex items-center w-full p-3 text-gray-600 hover:bg-[#FF7043]/10 hover:text-[#FF7043] rounded-lg transition-all duration-200"
             >
               <FiLogOut className="w-5 h-5" />
               {isSidebarOpen && <span className="ml-3">Logout</span>}
@@ -309,14 +385,14 @@ const Dashboard = () => {
       {/* Main Content */}
       <div className="flex-1 overflow-hidden">
         {/* Header */}
-        <header className="bg-white shadow-sm">
+        <header className="bg-[#FFF3E0] shadow-sm">
           <div className="flex justify-between items-center px-8 py-4">
             <h1 className="text-2xl font-semibold text-gray-800">
               {menuItems.find(item => item.id === activeTab)?.label}
             </h1>
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 rounded-full bg-orange-500 flex items-center justify-center text-white">
+                <div className="w-8 h-8 rounded-full bg-[#4DB6AC] flex items-center justify-center text-white">
                   A
                 </div>
                 <span className="text-gray-700">Admin</span>
@@ -340,3 +416,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+

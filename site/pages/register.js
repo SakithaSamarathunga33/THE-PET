@@ -1,69 +1,61 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useRouter } from 'next/router';
-import { FiUser, FiLock } from 'react-icons/fi';
-import { FcGoogle } from 'react-icons/fc';
+import Link from 'next/link';
+import { FiUser, FiLock, FiMail } from 'react-icons/fi';
 import { MdPets } from 'react-icons/md';
 import NavBar from '../components/Navbar';
-import Link from 'next/link';
 
-const Login = () => {
+const Register = () => {
   const router = useRouter();
   const [formData, setFormData] = useState({
     username: '',
-    password: ''
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: ''
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-
-  useEffect(() => {
-    const token = router.query.token;
-    const error = router.query.error;
-
-    if (token) {
-      localStorage.setItem('token', token);
-      router.push('/');
-    } else if (error) {
-      setError('Google authentication failed. Please try again.');
-    }
-  }, [router.query]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
+    // Password validation
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      setLoading(false);
+      return;
+    }
+
     try {
-      const response = await fetch('http://localhost:8080/api/auth/login', {
+      const response = await fetch('http://localhost:8080/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({
+          username: formData.username,
+          name: formData.name,
+          email: formData.email,
+          password: formData.password
+        })
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        localStorage.setItem('token', data.token);
-        
-        if (data.user && data.user.userType === 'admin') {
-          router.push('/dashboard');
-        } else {
-          router.push('/');
-        }
+        router.push('/login');
       } else {
-        setError(data.message || 'Login failed');
+        setError(data.message || 'Registration failed');
       }
     } catch (error) {
-      console.error('Login error:', error);
-      setError('An error occurred during login');
+      console.error('Registration error:', error);
+      setError('An error occurred during registration');
     } finally {
       setLoading(false);
     }
-  };
-
-  const handleGoogleLogin = () => {
-    window.location.href = 'http://localhost:8080/auth/google';
   };
 
   return (
@@ -72,11 +64,11 @@ const Login = () => {
       <div 
         className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative"
         style={{
-          backgroundImage: "url('https://images.unsplash.com/photo-1548767797-d8c844163c4c?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8')",
+          backgroundImage: "url('https://images.unsplash.com/photo-1548767797-d8c844163c4c?ixlib=rb-4.0.3')",
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat',
-          marginTop: '-64px' // Offset for navbar height
+          marginTop: '-64px'
         }}
       >
         <div className="absolute inset-0 bg-gradient-to-br from-black/60 to-black/40 backdrop-blur-[2px]"></div>
@@ -87,15 +79,15 @@ const Login = () => {
               <MdPets className="h-12 w-12 text-[#4DB6AC]" />
             </div>
             <h2 className="mt-4 text-center text-3xl font-extrabold text-gray-900">
-              PetCare Portal
+              Create an Account
             </h2>
             <p className="mt-2 text-center text-sm text-gray-600">
-              Providing the best care for your furry friends
+              Join our pet-loving community
             </p>
           </div>
 
           {error && (
-            <div className="bg-red-50 border-l-4 border-red-400 text-red-700 p-4 rounded-lg relative">
+            <div className="bg-red-50 border-l-4 border-red-400 text-red-700 p-4 rounded-lg">
               <p className="flex items-center">
                 <span className="mr-2">⚠️</span>
                 {error}
@@ -119,12 +111,55 @@ const Login = () => {
                     type="text"
                     required
                     className="appearance-none relative block w-full px-3 py-2.5 pl-10 border border-gray-300 rounded-lg placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#4DB6AC] focus:border-[#4DB6AC] sm:text-sm transition-all duration-200 ease-in-out hover:border-[#FF7043]"
-                    placeholder="Enter your username"
+                    placeholder="Choose a username"
                     value={formData.username}
                     onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                   />
                 </div>
               </div>
+
+              <div>
+                <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
+                  Full Name
+                </label>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <FiUser className="text-[#4DB6AC] group-hover:text-[#FF7043] transition-colors duration-200" />
+                  </div>
+                  <input
+                    id="name"
+                    name="name"
+                    type="text"
+                    required
+                    className="appearance-none relative block w-full px-3 py-2.5 pl-10 border border-gray-300 rounded-lg placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#4DB6AC] focus:border-[#4DB6AC] sm:text-sm transition-all duration-200 ease-in-out hover:border-[#FF7043]"
+                    placeholder="Enter your full name"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
+                  Email
+                </label>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <FiMail className="text-[#4DB6AC] group-hover:text-[#FF7043] transition-colors duration-200" />
+                  </div>
+                  <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    required
+                    className="appearance-none relative block w-full px-3 py-2.5 pl-10 border border-gray-300 rounded-lg placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#4DB6AC] focus:border-[#4DB6AC] sm:text-sm transition-all duration-200 ease-in-out hover:border-[#FF7043]"
+                    placeholder="Enter your email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  />
+                </div>
+              </div>
+
               <div>
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
                   Password
@@ -139,9 +174,30 @@ const Login = () => {
                     type="password"
                     required
                     className="appearance-none relative block w-full px-3 py-2.5 pl-10 border border-gray-300 rounded-lg placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#4DB6AC] focus:border-[#4DB6AC] sm:text-sm transition-all duration-200 ease-in-out hover:border-[#FF7043]"
-                    placeholder="Enter your password"
+                    placeholder="Create a password"
                     value={formData.password}
                     onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
+                  Confirm Password
+                </label>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <FiLock className="text-[#4DB6AC] group-hover:text-[#FF7043] transition-colors duration-200" />
+                  </div>
+                  <input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type="password"
+                    required
+                    className="appearance-none relative block w-full px-3 py-2.5 pl-10 border border-gray-300 rounded-lg placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#4DB6AC] focus:border-[#4DB6AC] sm:text-sm transition-all duration-200 ease-in-out hover:border-[#FF7043]"
+                    placeholder="Confirm your password"
+                    value={formData.confirmPassword}
+                    onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
                   />
                 </div>
               </div>
@@ -163,43 +219,20 @@ const Login = () => {
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    Signing in...
+                    Creating account...
                   </span>
                 ) : (
-                  'Sign in'
+                  'Create Account'
                 )}
               </button>
             </div>
           </form>
 
-          <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300"></div>
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">
-                  Or continue with
-                </span>
-              </div>
-            </div>
-
-            <div className="mt-6">
-              <button
-                onClick={handleGoogleLogin}
-                className="w-full flex justify-center items-center py-3 px-4 border-2 border-[#FF7043] rounded-lg shadow-sm text-sm font-medium text-[#FF7043] bg-white hover:bg-[#FFF3E0] transform transition-all duration-200 ease-in-out hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#FF7043]"
-              >
-                <FcGoogle className="w-5 h-5 mr-2" />
-                Sign in with Google
-              </button>
-            </div>
-          </div>
-
-          <div className="mt-4 text-center">
+          <div className="text-center">
             <p className="text-sm text-gray-600">
-              Don't have an account?{' '}
-              <Link href="/register" className="font-medium text-[#4DB6AC] hover:text-[#FF7043] transition-colors duration-200">
-                Register here
+              Already have an account?{' '}
+              <Link href="/login" className="font-medium text-[#4DB6AC] hover:text-[#FF7043] transition-colors duration-200">
+                Sign in here
               </Link>
             </p>
           </div>
@@ -209,4 +242,4 @@ const Login = () => {
   );
 };
 
-export default Login; 
+export default Register; 
