@@ -8,6 +8,7 @@ const authRoutes = require("./routes/authRoutes");
 const petRoutes = require("./routes/petRoutes");
 const appointmentRoutes = require("./routes/appointmentRoutes");
 const inventoryRoutes = require("./routes/inventoryRoutes");
+const employeeRoutes = require('./routes/employeeRoutes');
 
 dotenv.config();
 const app = express();
@@ -88,6 +89,7 @@ app.use("/api/auth", authRoutes); // Authentication & User Management
 app.use("/api/pets", petRoutes);
 app.use("/api/appointments", appointmentRoutes);
 app.use("/api/inventory", inventoryRoutes); // Inventory Management
+app.use('/api/employees', employeeRoutes);
 
 // 🔹 Home Route
 app.get("/", (req, res) => {

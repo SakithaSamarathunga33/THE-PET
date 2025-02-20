@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import UserManagement from "../components/user/UserManagement";
-import SupplierManagement from "../components/supplier/SupplierManagement";
+import EmployeeManagement from "../components/employee/EmployeeManagement";
+import PetManagement from "../components/pet/petManagement";
 import InventoryManagement from "../components/inventory/InventoryManagement";
 import AppointmentManagement from "../components/appointment/AppointmentManagement";
-import { FiUsers, FiPackage, FiShoppingBag, FiCalendar, FiLogOut, FiMenu, FiTrendingUp, FiDollarSign } from 'react-icons/fi';
+import { FiUsers, FiPackage, FiShoppingBag, FiCalendar, FiLogOut, FiMenu, FiTrendingUp, FiUserPlus } from 'react-icons/fi';
 import { MdPets } from 'react-icons/md';
 import { Line } from 'react-chartjs-2';
 import {
@@ -119,8 +120,9 @@ const Dashboard = () => {
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: <FiTrendingUp className="w-5 h-5" /> },
     { id: "user", label: "Users", icon: <FiUsers className="w-5 h-5" /> },
-    { id: "supplier", label: "Suppliers", icon: <FiPackage className="w-5 h-5" /> },
-    { id: "inventory", label: "Inventory", icon: <FiShoppingBag className="w-5 h-5" /> },
+    { id: "employee", label: "Employees", icon: <FiUserPlus className="w-5 h-5" /> },
+    { id: "pet", label: "Pets", icon: <MdPets className="w-5 h-5" /> },
+    { id: "inventory", label: "Inventory", icon: <FiPackage className="w-5 h-5" /> },
     { id: "appointment", label: "Appointments", icon: <FiCalendar className="w-5 h-5" /> },
   ];
 
@@ -137,7 +139,7 @@ const Dashboard = () => {
   const DashboardContent = () => (
     <div className="space-y-6 animate-fadeIn">
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
         {[
           { 
             title: 'Total Users', 
@@ -147,18 +149,32 @@ const Dashboard = () => {
             trend: 'Total registered users'
           },
           { 
-            title: 'Admin Users', 
-            value: dashboardData.adminUsers || 0, 
-            icon: <FiUsers className="w-6 h-6" />, 
+            title: 'Employees', 
+            value: dashboardData.totalEmployees || 0, 
+            icon: <FiUserPlus className="w-6 h-6" />, 
             color: 'bg-gray-900',
-            trend: 'Administrator accounts'
+            trend: 'Active employees'
           },
           { 
-            title: 'Regular Users', 
-            value: dashboardData.regularUsers || 0, 
-            icon: <FiUsers className="w-6 h-6" />, 
+            title: 'Pets', 
+            value: dashboardData.totalPets || 0, 
+            icon: <MdPets className="w-6 h-6" />, 
             color: 'bg-orange-500',
-            trend: 'Standard user accounts'
+            trend: 'Registered pets'
+          },
+          { 
+            title: 'Appointments', 
+            value: dashboardData.totalAppointments || 0, 
+            icon: <FiCalendar className="w-6 h-6" />, 
+            color: 'bg-gray-900',
+            trend: 'Total appointments'
+          },
+          { 
+            title: 'Inventory Items', 
+            value: dashboardData.totalInventory || 0, 
+            icon: <FiPackage className="w-6 h-6" />, 
+            color: 'bg-orange-500',
+            trend: 'Available items'
           },
           { 
             title: 'Active Users', 
@@ -313,7 +329,8 @@ const Dashboard = () => {
         <main className="p-8 overflow-auto" style={{ height: 'calc(100vh - 4rem)' }}>
           {activeTab === "dashboard" && <DashboardContent />}
           {activeTab === "user" && <UserManagement />}
-          {activeTab === "supplier" && <SupplierManagement />}
+          {activeTab === "employee" && <EmployeeManagement />}
+          {activeTab === "pet" && <PetManagement />}
           {activeTab === "inventory" && <InventoryManagement />}
           {activeTab === "appointment" && <AppointmentManagement />}
         </main>
