@@ -1,13 +1,13 @@
 import "../styles/globals.css";
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
+import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 import Footer from "../components/Footer";
 import NavBar from "../components/Navbar";
-import NProgress from 'nprogress';
-import '../public/nprogress.css';
-import { ToastContainer} from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import Script from 'next/script';
+import NProgress from "nprogress";
+import "../public/nprogress.css";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import Script from "next/script";
 
 export default function App({ Component, pageProps }) {
   const [isLoading, setIsLoading] = useState(false);
@@ -23,36 +23,49 @@ export default function App({ Component, pageProps }) {
       NProgress.done();
     };
 
-    router.events.on('routeChangeStart', handleStart);
-    router.events.on('routeChangeComplete', handleComplete);
-    router.events.on('routeChangeError', handleComplete);
+    router.events.on("routeChangeStart", handleStart);
+    router.events.on("routeChangeComplete", handleComplete);
+    router.events.on("routeChangeError", handleComplete);
 
     return () => {
-      router.events.off('routeChangeStart', handleStart);
-      router.events.off('routeChangeComplete', handleComplete);
-      router.events.off('routeChangeError', handleComplete);
+      router.events.off("routeChangeStart", handleStart);
+      router.events.off("routeChangeComplete", handleComplete);
+      router.events.off("routeChangeError", handleComplete);
     };
   }, []);
 
-  return(
-    <>
-    <NavBar/>
-    <Script strategy="lazyOnload" src={`https://www.googletagmanager.com/gtag/js?id=G-WYTYXQXVK6`} />
-    <Script strategy="lazyOnload">
-                {`
-                    window.dataLayer = window.dataLayer || [];
-                    function gtag(){dataLayer.push(arguments);}
-                    gtag('js', new Date());
-                    gtag('config', 'G-WYTYXQXVK6', {
-                    page_path: window.location.pathname,
-                    });
-                `}
-    </Script>
-    <Component {...pageProps} />
-    <ToastContainer />
-    {isLoading && <div className="nprogress-custom-parent"><div className="nprogress-custom-bar"/></div>}
-    <Footer/>
+  // Pages where Navbar and Footer should be hidden
+  const hideElementsPages = ["/dashboard"];
 
+  return (
+    <>
+      {/* Conditionally Render Navbar */}
+      {!hideElementsPages.includes(router.pathname) && <NavBar />}
+
+      {/* Google Analytics Script */}
+      <Script strategy="lazyOnload" src={`https://www.googletagmanager.com/gtag/js?id=G-WYTYXQXVK6`} />
+      <Script strategy="lazyOnload">
+        {`
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-WYTYXQXVK6', {
+            page_path: window.location.pathname,
+          });
+        `}
+      </Script>
+
+      {/* Page Content */}
+      <Component {...pageProps} />
+
+      {/* Toast Notifications */}
+      <ToastContainer />
+
+      {/* Loading Indicator */}
+      {isLoading && <div className="nprogress-custom-parent"><div className="nprogress-custom-bar"/></div>}
+
+      {/* Conditionally Render Footer */}
+      {!hideElementsPages.includes(router.pathname) && <Footer />}
     </>
-  ) 
+  );
 }

@@ -1,17 +1,55 @@
 import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { useEffect, useState } from "react";
+import { FiUser, FiLogOut } from 'react-icons/fi';
 
 const NavBar = () => {
     const router = useRouter()
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [user, setUser] = useState(null);
+
+    useEffect(() => {
+        setMobileMenuOpen(false);
+        checkAuthStatus();
+    }, [router.asPath]);
+
+    const checkAuthStatus = async () => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            try {
+                const response = await fetch('http://localhost:8080/api/auth/me', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                if (response.ok) {
+                    const userData = await response.json();
+                    setUser(userData);
+                } else {
+                    localStorage.removeItem('token');
+                    setUser(null);
+                }
+            } catch (error) {
+                console.error('Auth check error:', error);
+                localStorage.removeItem('token');
+                setUser(null);
+            }
+        }
+    };
+
+    const handleLogout = () => {
+        localStorage.removeItem('token');
+        setUser(null);
+        router.push('/login');
+    };
 
     const toggleMobileMenu = () => {
         setMobileMenuOpen(!mobileMenuOpen);
     };
-    useEffect(()=>{
-        setMobileMenuOpen(false);
-    }, [router.asPath])
+
+    if (router.pathname.startsWith('/admin')) {
+        return null;
+    }
 
     return (
     <>    
@@ -42,6 +80,45 @@ const NavBar = () => {
                 <li>
                 <Link href="#" className="block py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">Contact</Link>
                 </li>
+                {user ? (
+                    <>
+                        <li className="flex items-center">
+                            <span className="block py-2 pl-3 pr-4 text-gray-900 md:p-0 dark:text-white">
+                                <FiUser className="inline mr-2" />
+                                {user.name}
+                            </span>
+                        </li>
+                        {user.userType === 'admin' && (
+                            <li>
+                                <Link 
+                                    href="/dashboard" 
+                                    className="block py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500"
+                                >
+                                    Admin Panel
+                                </Link>
+                            </li>
+                        )}
+                        <li>
+                            <button
+                                onClick={handleLogout}
+                                className="flex items-center py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500"
+                            >
+                                <FiLogOut className="mr-2" />
+                                Logout
+                            </button>
+                        </li>
+                    </>
+                ) : (
+                    <li>
+                        <Link 
+                            href="/login"
+                            className="flex items-center py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500"
+                        >
+                            <FiUser className="mr-2" />
+                            Login
+                        </Link>
+                    </li>
+                )}
             </ul>
             </div>
         </div>

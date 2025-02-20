@@ -23,11 +23,24 @@ passport.use(
         },
         async (accessToken, refreshToken, profile, done) => {
             try {
-                const user = await authController.handleGoogleAuth({
-                    id: profile.id,
-                    name: profile.displayName,
-                    email: profile.emails[0].value,
-                });
+                let user = await User.findOne({ email: profile.emails[0].value });
+
+                if (!user) {
+                    user = new User({
+                        name: profile.displayName,
+                        email: profile.emails[0].value,
+                        googleId: profile.id,
+                        userType: "user",
+                    });
+                    await user.save();
+                } else if (!user.googleId) {
+                    user.googleId = profile.id;
+                    await user.save();
+                }
+
+                const token = authController.generateToken(user);
+                user.token = token;
+
                 return done(null, user);
             } catch (error) {
                 return done(error, null);

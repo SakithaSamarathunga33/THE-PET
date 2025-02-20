@@ -15,7 +15,7 @@ const app = express();
 // 🔹 MongoDB Connection
 mongoose
   .connect(process.env.MONGO_URI, {
-    
+   
   })
   .then(() => console.log("✅ MongoDB connected successfully"))
   .catch((err) => {
@@ -25,14 +25,25 @@ mongoose
 
 // 🔹 Middleware
 app.use(express.json());
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+  })
+);
 
 // 🔹 Session Middleware (Required for Passport)
 app.use(
   session({
-    secret: "your-secret-key", // Change this in production
+    secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: true,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 24 * 60 * 60 * 1000,
+    },
   })
 );
 
@@ -41,6 +52,38 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 // 🔹 Routes
+app.get("/auth/google/callback", 
+  passport.authenticate("google", { 
+    failureRedirect: "http://localhost:3000/login",
+    session: false 
+  }),
+  async (req, res) => {
+    try {
+      // Generate token using authController
+      const token = req.user.token;
+      
+      if (!token) {
+        console.error("No token generated for user");
+        return res.redirect("http://localhost:3000/login?error=authentication_failed");
+      }
+
+      // Redirect to frontend with token
+      res.redirect(`http://localhost:3000/auth/callback?token=${token}`);
+    } catch (error) {
+      console.error("Callback error:", error);
+      res.redirect("http://localhost:3000/login?error=server_error");
+    }
+  }
+);
+
+// Google auth route
+app.get("/auth/google",
+  passport.authenticate("google", {
+    scope: ["profile", "email"],
+    session: false
+  })
+);
+
 app.use("/api/auth", authRoutes); // Authentication & User Management
 app.use("/api/pets", petRoutes);
 app.use("/api/appointments", appointmentRoutes);
@@ -51,8 +94,18 @@ app.get("/", (req, res) => {
   res.send("🚀 Pet Care System API is Running...");
 });
 
+// 🔹 Error Handler
+app.use((err, req, res, next) => {
+  console.error("Server Error:", err);
+  res.status(500).json({ 
+    message: "Internal Server Error",
+    error: process.env.NODE_ENV === "development" ? err.message : undefined
+  });
+});
+
 // 🔹 Server Setup
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 5000; // Changed to 5000 to match frontend config
 app.listen(PORT, () => {
   console.log(`🚀 Server is running on port ${PORT}`);
+  console.log(`🔑 Google Auth callback URL: ${process.env.GOOGLE_CALLBACK_URL}`);
 });

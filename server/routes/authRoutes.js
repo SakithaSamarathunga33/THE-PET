@@ -13,14 +13,21 @@ router.get("/me", authMiddleware, authController.getUser); // Get Current User (
 // 🔹 Google Authentication Routes
 router.get(
     "/google",
-    passport.authenticate("google", { scope: ["profile", "email"] })
+    passport.authenticate("google", { 
+        scope: ["profile", "email"],
+        session: false 
+    })
 );
 
 router.get(
     "/google/callback",
-    passport.authenticate("google", { failureRedirect: "/login" }),
+    passport.authenticate("google", { 
+        session: false,
+        failureRedirect: "http://localhost:3000/login" 
+    }),
     (req, res) => {
-        res.redirect("http://localhost:3000/home"); // Redirect to frontend
+        const token = req.user.token;
+        res.redirect(`http://localhost:3000/auth/callback?token=${token}`);
     }
 );
 

@@ -1,7 +1,10 @@
 import Link from 'next/link'
 import MyHead from '../components/MyHead'
+import { useState } from 'react'
 
 export default function Home() {
+  const [isLoading, setIsLoading] = useState(true);
+
   return (
     <>
       <MyHead
