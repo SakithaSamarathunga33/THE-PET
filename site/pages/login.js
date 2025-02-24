@@ -9,7 +9,7 @@ import Link from 'next/link';
 const Login = () => {
   const router = useRouter();
   const [formData, setFormData] = useState({
-    username: '',
+    username: '',  // This will handle both email and username
     password: ''
   });
   const [loading, setLoading] = useState(false);
@@ -33,23 +33,38 @@ const Login = () => {
     setError('');
 
     try {
+      // Check for admin credentials
+      if ((formData.username === 'admin' || formData.username === 'admin@gmail.com') && formData.password === 'admin123') {
+        console.log('Admin credentials detected');
+      }
+
       const response = await fetch('http://localhost:8080/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify({
+          identifier: formData.username,
+          password: formData.password
+        })
       });
 
       const data = await response.json();
 
       if (response.ok) {
         localStorage.setItem('token', data.token);
+        localStorage.setItem('userType', data.user.userType);
         
-        if (data.user && data.user.userType === 'admin') {
-          router.push('/dashboard');
+        console.log('Login successful, user type:', data.user.userType);
+        
+        if (data.user.userType === 'admin' || 
+            formData.username === 'admin' || 
+            formData.username === 'admin@gmail.com') {
+          console.log('Redirecting to admin dashboard...');
+          await router.push('/dashboard');
         } else {
-          router.push('/');
+          console.log('Redirecting to home...');
+          await router.push('/');
         }
       } else {
         setError(data.message || 'Login failed');
@@ -107,7 +122,7 @@ const Login = () => {
             <div className="space-y-4">
               <div>
                 <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
-                  Username
+                  Username or Email
                 </label>
                 <div className="relative group">
                   <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -119,7 +134,7 @@ const Login = () => {
                     type="text"
                     required
                     className="appearance-none relative block w-full px-3 py-2.5 pl-10 border border-gray-300 rounded-lg placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#4DB6AC] focus:border-[#4DB6AC] sm:text-sm transition-all duration-200 ease-in-out hover:border-[#FF7043]"
-                    placeholder="Enter your username"
+                    placeholder="Enter your username or email"
                     value={formData.username}
                     onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                   />

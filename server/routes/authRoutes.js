@@ -1,14 +1,14 @@
 const express = require("express");
 const passport = require("passport");
 const authController = require("../controllers/authController");
-const authMiddleware = require("../middleware/authMiddleware");
+const { protect } = require("../middleware/authMiddleware");
 
 const router = express.Router();
 
 // 🔹 Authentication Routes
 router.post("/register", authController.register); // Register User
 router.post("/login", authController.login); // Login User
-router.get("/me", authMiddleware, authController.getUser); // Get Current User (Protected)
+router.get("/me", protect, authController.getUser); // Get Current User (Protected)
 
 // 🔹 Google Authentication Routes
 router.get(
@@ -38,10 +38,6 @@ router.put("/user/:id", authController.updateUser); // Update user
 router.delete("/user/:id", authController.deleteUser); // Delete user
 
 // 🔹 Logout Route
-router.get("/logout", (req, res) => {
-    req.logout(() => {
-        res.json({ message: "Logged out successfully" });
-    });
-});
+router.post("/logout", protect, authController.logout);
 
 module.exports = router;

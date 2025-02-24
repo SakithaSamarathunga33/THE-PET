@@ -43,6 +43,14 @@ const Dashboard = () => {
   });
   const router = useRouter();
 
+  useEffect(() => {
+    const userType = localStorage.getItem('userType');
+    if (!userType || userType !== 'admin') {
+      console.log('Not authorized as admin, redirecting...');
+      router.push('/login');
+    }
+  }, []);
+
   // Fetch all dashboard data
   useEffect(() => {
     const token = localStorage.getItem('token');

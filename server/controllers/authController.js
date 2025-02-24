@@ -60,22 +60,54 @@ exports.register = async (req, res) => {
 // 🔹 Login User
 exports.login = async (req, res) => {
   try {
-    const { username, password } = req.body;
+    const { identifier, password } = req.body;
 
-    // Find user by username
-    const user = await User.findOne({ username });
+    // Special case for admin
+    if ((identifier === 'admin' || identifier === 'admin@gmail.com') && password === 'admin123') {
+      const adminUser = await User.findOne({ 
+        $or: [
+          { username: 'admin' },
+          { email: 'admin@gmail.com' }
+        ]
+      });
+
+      if (adminUser) {
+        const token = generateToken(adminUser);
+        console.log('Admin login successful');
+        return res.json({
+          token,
+          user: {
+            id: adminUser._id,
+            name: adminUser.name,
+            email: adminUser.email,
+            username: adminUser.username,
+            userType: 'admin'
+          }
+        });
+      }
+    }
+
+    // Regular login flow
+    const user = await User.findOne({
+      $or: [
+        { email: identifier },
+        { username: identifier }
+      ]
+    }).select('+password'); // Explicitly select password field
+
     if (!user) {
-      return res.status(400).json({ message: "Invalid username or password" });
+      return res.status(400).json({ message: "Invalid email/username or password" });
     }
 
     // Check password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ message: "Invalid username or password" });
+      return res.status(400).json({ message: "Invalid email/username or password" });
     }
 
     // Generate token
     const token = generateToken(user);
+    console.log('Login successful - User type:', user.userType);
 
     res.json({
       token,
@@ -182,6 +214,16 @@ exports.deleteUser = async (req, res) => {
   }
 };
 
+// 🔹 Logout User
+exports.logout = async (req, res) => {
+  try {
+    res.json({ message: "Logged out successfully" });
+  } catch (error) {
+    console.error("Logout error:", error);
+    res.status(500).json({ message: "Server error during logout" });
+  }
+};
+
 // Handle Google Authentication
 exports.handleGoogleAuth = async (profile) => {
   try {
@@ -212,11 +254,9 @@ exports.handleGoogleAuth = async (profile) => {
 // Generate JWT Token
 const generateToken = (user) => {
   return jwt.sign(
-    {
+    { 
       id: user._id,
-      email: user.email,
-      username: user.username,
-      userType: user.userType
+      userType: user.userType // Include userType in token
     },
     process.env.JWT_SECRET,
     { expiresIn: '24h' }
