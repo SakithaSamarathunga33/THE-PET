@@ -154,12 +154,12 @@ const deletePost = async (req, res) => {
             return res.status(403).json({ message: 'Not authorized' });
         }
 
-        post.status = 'deleted';
-        await post.save();
+        // Actually delete the post instead of updating status
+        await ForumPost.findByIdAndDelete(req.params.postId);
         res.json({ message: 'Post deleted successfully' });
     } catch (error) {
         console.error('Error deleting post:', error);
-        res.status(500).json({ message: 'Server error' });
+        res.status(500).json({ message: error.message });
     }
 };
 

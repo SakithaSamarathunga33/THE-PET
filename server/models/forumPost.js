@@ -41,7 +41,7 @@ const forumPostSchema = new mongoose.Schema({
     category: {
         type: String,
         required: true,
-        enum: ['General', 'Health', 'Training', 'Behavior', 'Nutrition', 'Grooming', 'Other']
+        enum: ['Pet Care', 'Pet Health', 'Training', 'General Discussion']
     },
     tags: [{
         type: String,

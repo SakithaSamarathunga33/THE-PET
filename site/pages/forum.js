@@ -18,51 +18,116 @@ export default function Forum() {
   const [reply, setReply] = useState('')
 
   useEffect(() => {
-    fetchPosts()
-    checkAuthStatus()
-  }, [])
+    const initializePage = async () => {
+      setLoading(true);
+      try {
+        await Promise.all([fetchPosts(), checkAuthStatus()]);
+      } catch (error) {
+        console.error('Error initializing page:', error);
+        setError('Failed to initialize page. Please refresh.');
+      }
+    };
+
+    initializePage();
+
+    // Set up polling interval
+    const interval = setInterval(fetchPosts, 5000);
+
+    // Cleanup interval on component unmount
+    return () => clearInterval(interval);
+  }, []);
 
   const checkAuthStatus = async () => {
-    const token = localStorage.getItem('token')
-    if (token) {
-      try {
-        const response = await fetch('http://localhost:8080/api/auth/me', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        })
-        if (response.ok) {
-          const userData = await response.json()
-          setUser(userData)
+    const token = localStorage.getItem('token');
+    if (!token) {
+      setUser(null);
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:8080/api/auth/me', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include'
+      });
+
+      if (response.ok) {
+        const userData = await response.json();
+        setUser(userData);
+      } else {
+        // Don't remove token on network errors or temporary issues
+        if (response.status === 401) {
+          localStorage.removeItem('token');
+          setUser(null);
         }
-      } catch (error) {
-        console.error('Auth check error:', error)
+      }
+    } catch (err) {
+      console.error('Error checking auth status:', err);
+      // Don't remove token on network errors
+      if (err.message.includes('401')) {
+        localStorage.removeItem('token');
+        setUser(null);
       }
     }
-  }
+  };
 
   const fetchPosts = async () => {
     try {
-      const response = await fetch('http://localhost:8080/api/forum/posts')
-      if (!response.ok) {
-        throw new Error('Failed to fetch posts')
+      const token = localStorage.getItem('token');
+      const headers = {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      };
+
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
       }
-      const data = await response.json()
-      setPosts(data)
-      setLoading(false)
+
+      const response = await fetch('http://localhost:8080/api/forum/posts', {
+        headers,
+        credentials: 'include'
+      });
+
+      if (!response.ok) {
+        // Don't throw error on auth issues for public routes
+        if (response.status === 401) {
+          console.warn('Not authenticated, showing public posts');
+        } else {
+          throw new Error('Failed to fetch posts');
+        }
+      }
+
+      const data = await response.json();
+      console.log('Fetched posts:', data);
+
+      if (Array.isArray(data)) {
+        // Sort posts by date, newest first
+        const sortedPosts = data.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+        setPosts(sortedPosts);
+        setError(null);
+      } else {
+        console.error('Invalid posts data received:', data);
+        setPosts([]);
+        setError('Error loading discussions. Invalid data format.');
+      }
     } catch (err) {
-      console.error('Error fetching posts:', err)
-      setError('Failed to load discussions. Please try again later.')
-      setLoading(false)
+      console.error('Error fetching posts:', err);
+      setError('Failed to load discussions. Please try again later.');
+      setPosts([]);
+    } finally {
+      setLoading(false);
     }
-  }
+  };
 
   const handleCreatePost = async (e) => {
-    e.preventDefault()
-    const token = localStorage.getItem('token')
+    e.preventDefault();
+    const token = localStorage.getItem('token');
     if (!token) {
-      setError('Please log in to create a post')
-      return
+      setError('Please log in to create a post');
+      return;
     }
 
     try {
@@ -70,23 +135,32 @@ export default function Forum() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Authorization': `Bearer ${token}`,
+          'Accept': 'application/json'
         },
+        credentials: 'include',
         body: JSON.stringify(newPost)
-      })
+      });
 
-      const data = await response.json()
-      
-      if (response.ok) {
-        setPosts([data, ...posts])
-        setNewPost({ title: '', content: '', category: 'Pet Care' })
-        setShowNewPostForm(false)
-      } else {
-        setError(data.message)
+      if (!response.ok) {
+        if (response.status === 401) {
+          localStorage.removeItem('token');
+          setUser(null);
+          setError('Your session has expired. Please log in again.');
+          return;
+        }
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to create post');
       }
+
+      const data = await response.json();
+      setPosts(prevPosts => [data, ...prevPosts]);
+      setNewPost({ title: '', content: '', category: 'Pet Care' });
+      setShowNewPostForm(false);
+      setError(null);
     } catch (err) {
-      console.error('Error creating post:', err)
-      setError('Failed to create post. Please try again.')
+      console.error('Error creating post:', err);
+      setError(err.message || 'Failed to create post. Please try again.');
     }
   }
 
@@ -206,6 +280,23 @@ export default function Forum() {
         url="https://thepet.com/forum"
       />
       <NavBar />
+
+      {error && (
+        <div className="max-w-7xl mx-auto px-4 mt-4">
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+            <span className="block sm:inline">{error}</span>
+            <button
+              className="absolute top-0 bottom-0 right-0 px-4 py-3"
+              onClick={() => setError(null)}
+            >
+              <span className="sr-only">Close</span>
+              <svg className="fill-current h-6 w-6 text-red-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Hero Section */}
       <section className="relative py-16 bg-[#FFF3E0]">
@@ -332,18 +423,32 @@ export default function Forum() {
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-3xl font-bold">Recent Discussions</h2>
             <div className="flex space-x-4">
-              <button className="flex items-center text-gray-600 hover:text-[#4DB6AC]">
-                <MdTrendingUp className="mr-2" /> Trending
-              </button>
-              <button className="flex items-center text-gray-600 hover:text-[#4DB6AC]">
-                <MdAccessTime className="mr-2" /> Latest
+              <button 
+                onClick={fetchPosts}
+                className="flex items-center text-gray-600 hover:text-[#4DB6AC]"
+              >
+                <MdAccessTime className="mr-2" /> Refresh
               </button>
             </div>
           </div>
 
-          {error ? (
+          {loading ? (
+            <div className="flex justify-center py-8">
+              <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#4DB6AC]"></div>
+            </div>
+          ) : error ? (
             <div className="text-center text-red-500 py-8">
               <p>{error}</p>
+              <button 
+                onClick={fetchPosts}
+                className="mt-4 px-4 py-2 bg-[#4DB6AC] text-white rounded-lg hover:bg-[#4DB6AC]/90"
+              >
+                Try Again
+              </button>
+            </div>
+          ) : posts.length === 0 ? (
+            <div className="text-center text-gray-500 py-8">
+              <p>No discussions yet. Be the first to start a conversation!</p>
             </div>
           ) : (
             <div className="space-y-6">
@@ -360,7 +465,7 @@ export default function Forum() {
                     </div>
                     <div className="flex-grow">
                       <div className="flex items-center space-x-2 mb-2">
-                        <span className="font-semibold">{post.author?.name}</span>
+                        <span className="font-semibold">{post.author?.name || 'Anonymous'}</span>
                         <span className="text-gray-400">•</span>
                         <span className="text-gray-500 text-sm">{formatDate(post.createdAt)}</span>
                         <span className="text-gray-400">•</span>

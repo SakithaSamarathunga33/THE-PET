@@ -5,8 +5,9 @@ import EmployeeManagement from "../components/employee/EmployeeManagement";
 import PetManagement from "../components/pet/petManagement";
 import InventoryManagement from "../components/inventory/InventoryManagement";
 import AppointmentManagement from "../components/appointment/AppointmentManagement";
+import ForumManagement from "../components/forum/ForumManagement";
 import { FiUsers, FiPackage, FiShoppingBag, FiCalendar, FiLogOut, FiMenu, FiTrendingUp, FiUserPlus } from 'react-icons/fi';
-import { MdPets } from 'react-icons/md';
+import { MdPets, MdForum } from 'react-icons/md';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -208,6 +209,7 @@ const Dashboard = () => {
     { id: "pet", label: "Pets", icon: <MdPets className="w-5 h-5" /> },
     { id: "inventory", label: "Inventory", icon: <FiPackage className="w-5 h-5" /> },
     { id: "appointment", label: "Appointments", icon: <FiCalendar className="w-5 h-5" /> },
+    { id: "forum", label: "Forum", icon: <MdForum className="w-5 h-5" /> },
   ];
 
   const handleLogout = async () => {
@@ -417,6 +419,7 @@ const Dashboard = () => {
           {activeTab === "pet" && <PetManagement />}
           {activeTab === "inventory" && <InventoryManagement />}
           {activeTab === "appointment" && <AppointmentManagement />}
+          {activeTab === "forum" && <ForumManagement />}
         </main>
       </div>
     </div>
