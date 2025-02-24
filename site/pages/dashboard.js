@@ -18,7 +18,6 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
-import ChatBot from "../components/chat/ChatBot";
 
 // Register ChartJS components
 ChartJS.register(
@@ -412,7 +411,6 @@ const Dashboard = () => {
           {activeTab === "appointment" && <AppointmentManagement />}
         </main>
       </div>
-      <ChatBot />
     </div>
   );
 };
