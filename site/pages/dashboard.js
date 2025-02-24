@@ -18,6 +18,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
+import ChatBot from "../components/chat/ChatBot";
 
 // Register ChartJS components
 ChartJS.register(
@@ -326,7 +327,7 @@ const Dashboard = () => {
   );
 
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
       <div className={`${isSidebarOpen ? 'w-64' : 'w-20'} bg-[#FFF3E0] shadow-lg transition-all duration-300 ease-in-out`}>
         <div className="flex flex-col h-full">
@@ -411,9 +412,9 @@ const Dashboard = () => {
           {activeTab === "appointment" && <AppointmentManagement />}
         </main>
       </div>
+      <ChatBot />
     </div>
   );
 };
 
 export default Dashboard;
-

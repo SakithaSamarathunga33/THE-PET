@@ -5,6 +5,7 @@ import NavBar from '../components/Navbar'
 import Image from 'next/image'
 import { FaPaw } from 'react-icons/fa'
 import { MdPets, MdHealthAndSafety, MdGroups } from 'react-icons/md'
+import ChatBot from '../components/chat/ChatBot'
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
@@ -159,6 +160,8 @@ export default function Home() {
           </Link>
         </div>
       </section>
+      {/* Add ChatBot */}
+      <ChatBot />
     </>
   )
 }

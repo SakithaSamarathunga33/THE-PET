@@ -7,8 +7,9 @@ const passport = require("./config/passport"); // Import Passport
 const authRoutes = require("./routes/authRoutes");
 const petRoutes = require("./routes/petRoutes");
 const appointmentRoutes = require("./routes/appointmentRoutes");
-const inventoryRoutes = require("./routes/inventoryRoutes");
+const inventoryRoutes = require("./routes/inventoryRoutes"); // Inventory Management
 const employeeRoutes = require('./routes/employeeRoutes');
+const chatbotRoutes = require('./routes/chatbotRoutes');
 
 dotenv.config();
 const app = express();
@@ -89,6 +90,7 @@ app.use("/api/pets", petRoutes);
 app.use("/api/appointments", appointmentRoutes);
 app.use("/api/inventory", inventoryRoutes); // Inventory Management
 app.use('/api/employees', employeeRoutes);
+app.use('/api/chatbot', chatbotRoutes);
 
 // 🔹 Home Route
 app.get("/", (req, res) => {
