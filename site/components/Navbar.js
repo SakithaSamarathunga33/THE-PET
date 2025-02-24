@@ -119,6 +119,18 @@ const NavBar = () => {
                     </li>
                     <li>
                         <Link 
+                            href="/emergency" 
+                            className={`block transition-colors duration-200 ${
+                                router.pathname === "/emergency" 
+                                ? "text-[#FF7043] font-semibold" 
+                                : "text-red-600 hover:text-red-700"
+                            }`}
+                        >
+                            Emergency
+                        </Link>
+                    </li>
+                    <li>
+                        <Link 
                             href="/forum" 
                             className={`block transition-colors duration-200 ${
                                 router.pathname === "/forum" 
@@ -180,6 +192,18 @@ const NavBar = () => {
                             } md:p-0`}
                         >
                             Services
+                        </Link>
+                    </li>
+                    <li>
+                        <Link 
+                            href="/emergency" 
+                            className={`block py-2 pl-3 pr-4 rounded transition-colors duration-200 ${
+                                router.pathname === "/emergency" 
+                                ? "text-[#FF7043] font-semibold" 
+                                : "text-red-600 hover:text-red-700"
+                            } md:p-0`}
+                        >
+                            Emergency
                         </Link>
                     </li>
                     <li>
