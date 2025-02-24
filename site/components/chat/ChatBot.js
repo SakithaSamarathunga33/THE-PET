@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { FiMessageSquare, FiX, FiSend, FiSmile } from 'react-icons/fi';
+import { FiMessageSquare, FiX, FiSend, FiSmile, FiPaperclip } from 'react-icons/fi';
 import { MdPets } from 'react-icons/md';
 
 const ChatBot = () => {
@@ -13,6 +13,13 @@ const ChatBot = () => {
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
+  const [suggestions] = useState([
+    "What services do you offer?",
+    "How much is grooming?",
+    "Book an appointment",
+    "Emergency services",
+    "Opening hours"
+  ]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -56,6 +63,12 @@ const ChatBot = () => {
     setIsLoading(false);
   };
 
+  // Add quick reply function
+  const handleQuickReply = (suggestion) => {
+    setInputMessage(suggestion);
+    handleSendMessage({ preventDefault: () => {} });
+  };
+
   return (
     <div className="fixed bottom-4 right-4 z-[9999]">
       {!isOpen ? (
@@ -67,7 +80,7 @@ const ChatBot = () => {
           <span className="text-sm font-medium hidden group-hover:inline">Chat with Buddy</span>
         </button>
       ) : (
-        <div className="bg-white rounded-2xl shadow-2xl w-96 h-[500px] flex flex-col animate-fade-in">
+        <div className="bg-white rounded-2xl shadow-2xl w-96 h-[600px] flex flex-col animate-fade-in">
           {/* Chat Header */}
           <div className="bg-gradient-to-r from-[#4DB6AC] to-[#26A69A] text-white p-4 rounded-t-2xl flex justify-between items-center">
             <div className="flex items-center gap-3">
@@ -87,7 +100,7 @@ const ChatBot = () => {
             </button>
           </div>
 
-          {/* Chat Messages */}
+          {/* Enhanced Chat Messages */}
           <div className="flex-1 overflow-y-auto p-4 bg-gradient-to-b from-teal-50/50 to-white">
             <div className="space-y-4">
               {messages.map((message, index) => (
@@ -107,7 +120,7 @@ const ChatBot = () => {
                         : 'bg-gradient-to-r from-[#4DB6AC] to-[#26A69A] text-white'
                     }`}
                   >
-                    <p className="text-sm">{message.text}</p>
+                    <p className="text-sm whitespace-pre-line">{message.text}</p>
                   </div>
                 </div>
               ))}
@@ -129,7 +142,22 @@ const ChatBot = () => {
             <div ref={messagesEndRef} />
           </div>
 
-          {/* Chat Input */}
+          {/* Quick Replies */}
+          <div className="p-2 bg-gray-50 border-t border-gray-100">
+            <div className="flex flex-wrap gap-2">
+              {suggestions.map((suggestion, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleQuickReply(suggestion)}
+                  className="text-xs bg-white border border-teal-200 text-teal-600 px-3 py-1.5 rounded-full hover:bg-teal-50 transition-colors duration-200"
+                >
+                  {suggestion}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Enhanced Chat Input */}
           <div className="p-4 bg-white rounded-b-2xl border-t border-gray-100">
             <form onSubmit={handleSendMessage} className="flex items-center gap-2">
               <input

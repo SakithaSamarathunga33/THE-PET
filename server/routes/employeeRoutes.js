@@ -5,13 +5,34 @@ const {
     getEmployees,
     getEmployeeById,
     updateEmployee,
-    deleteEmployee
+    deleteEmployee,
+    recordAttendance,
+    applyLeave,
+    updateLeaveStatus,
+    recordOvertime,
+    updateOvertimeStatus,
+    getMonthlySalary
 } = require("../controllers/employeeController");
 
+// Basic CRUD routes
 router.post("/", addEmployee);
 router.get("/", getEmployees);
 router.get("/:id", getEmployeeById);
 router.put("/:id", updateEmployee);
 router.delete("/:id", deleteEmployee);
 
-module.exports = router; 
+// Attendance routes
+router.post("/attendance", recordAttendance);
+
+// Leave management routes
+router.post("/leave", applyLeave);
+router.put("/leave/status", updateLeaveStatus);
+
+// Overtime routes
+router.post("/overtime", recordOvertime);
+router.put("/overtime/status", updateOvertimeStatus);
+
+// Salary routes
+router.get("/salary/:employeeId/:year/:month", getMonthlySalary);
+
+module.exports = router;
