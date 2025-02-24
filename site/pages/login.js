@@ -3,8 +3,8 @@ import { useRouter } from 'next/router';
 import { FiUser, FiLock } from 'react-icons/fi';
 import { FcGoogle } from 'react-icons/fc';
 import { MdPets } from 'react-icons/md';
-import NavBar from '../components/Navbar';
 import Link from 'next/link';
+import NavBar from '../components/Navbar';
 
 const Login = () => {
   const router = useRouter();
@@ -49,12 +49,21 @@ const Login = () => {
         })
       });
 
-      const data = await response.json();
-
       if (response.ok) {
+        const data = await response.json();
         localStorage.setItem('token', data.token);
-        localStorage.setItem('userType', data.user.userType);
-        
+        // Fetch user data immediately after login
+        const userResponse = await fetch('http://localhost:8080/api/auth/me', {
+          headers: {
+            'Authorization': `Bearer ${data.token}`
+          }
+        });
+        if (userResponse.ok) {
+          const userData = await userResponse.json();
+          localStorage.setItem('username', userData.name);
+          localStorage.setItem('email', userData.email);
+          localStorage.setItem('userType', userData.userType);
+        }
         console.log('Login successful, user type:', data.user.userType);
         
         if (data.user.userType === 'admin' || 
@@ -81,9 +90,23 @@ const Login = () => {
     window.location.href = 'http://localhost:8080/auth/google';
   };
 
+  const isBrowser = typeof window !== 'undefined';
+
   return (
     <>
-      <NavBar />
+      <NavBar>
+        {isBrowser && localStorage.getItem('token') && (
+          <nav>
+            <ul>
+              <li>
+                <Link href="/profile">
+                  <a>{localStorage.getItem('username')}</a>
+                </Link>
+              </li>
+            </ul>
+          </nav>
+        )}
+      </NavBar>
       <div 
         className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative"
         style={{
@@ -211,12 +234,16 @@ const Login = () => {
           </div>
 
           <div className="mt-4 text-center">
-            <p className="text-sm text-gray-600">
-              Don't have an account?{' '}
-              <Link href="/register" className="font-medium text-[#4DB6AC] hover:text-[#FF7043] transition-colors duration-200">
-                Register here
+            <div className="text-sm">
+              <Link href="/forgot-password" className="font-medium text-indigo-600 hover:text-indigo-500">
+                Forgot your password?
               </Link>
-            </p>
+            </div>
+            <div className="text-sm">
+              <Link href="/register" className="font-medium text-indigo-600 hover:text-indigo-500">
+                Don't have an account? Register
+              </Link>
+            </div>
           </div>
         </div>
       </div>
