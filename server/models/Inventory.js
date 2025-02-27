@@ -40,7 +40,7 @@ const inventorySchema = new mongoose.Schema({
     ref: "Supplier",
     validate: {
       validator: async function(value) {
-        // Only validate if a supplier is provided
+        // Only validate if a supplier is provided.
         if (!value) return true;
         const Supplier = mongoose.model('Supplier');
         const supplierExists = await Supplier.findById(value);
