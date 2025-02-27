@@ -16,15 +16,52 @@ const Register = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  // Add validation functions
+  const validateForm = () => {
+    // Username validation
+    if (formData.username.length < 3) {
+      setError('Username must be at least 3 characters long');
+      return false;
+    }
+
+    // Name validation
+    if (formData.name.length < 2) {
+      setError('Name must be at least 2 characters long');
+      return false;
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      setError('Please enter a valid email address');
+      return false;
+    }
+
+    // Password validation
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!passwordRegex.test(formData.password)) {
+      setError('Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character');
+      return false;
+    }
+
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      return false;
+    }
+
+    return true;
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setSuccess('');
 
-    // Password validation
-    if (formData.password !== formData.confirmPassword) {
-      setError('Passwords do not match');
+    // Validate form before submission
+    if (!validateForm()) {
       setLoading(false);
       return;
     }
@@ -36,9 +73,9 @@ const Register = () => {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          username: formData.username,
-          name: formData.name,
-          email: formData.email,
+          username: formData.username.trim(),
+          name: formData.name.trim(),
+          email: formData.email.trim().toLowerCase(),
           password: formData.password
         })
       });
@@ -46,7 +83,11 @@ const Register = () => {
       const data = await response.json();
 
       if (response.ok) {
-        router.push('/login');
+        setSuccess('Registration successful! Redirecting to login page...');
+        // Delay redirect to show success message
+        setTimeout(() => {
+          router.push('/login');
+        }, 2000);
       } else {
         setError(data.message || 'Registration failed');
       }
@@ -56,6 +97,13 @@ const Register = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Add input validation handlers
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+    setError(''); // Clear error when user types
   };
 
   return (
@@ -87,10 +135,19 @@ const Register = () => {
           </div>
 
           {error && (
-            <div className="bg-red-50 border-l-4 border-red-400 text-red-700 p-4 rounded-lg">
+            <div className="bg-red-50 border-l-4 border-red-400 text-red-700 p-4 rounded-lg animate-fade-in">
               <p className="flex items-center">
                 <span className="mr-2">⚠️</span>
                 {error}
+              </p>
+            </div>
+          )}
+
+          {success && (
+            <div className="bg-green-50 border-l-4 border-green-400 text-green-700 p-4 rounded-lg animate-fade-in">
+              <p className="flex items-center">
+                <span className="mr-2">✅</span>
+                {success}
               </p>
             </div>
           )}
@@ -110,10 +167,11 @@ const Register = () => {
                     name="username"
                     type="text"
                     required
+                    minLength="3"
                     className="appearance-none relative block w-full px-3 py-2.5 pl-10 border border-gray-300 rounded-lg placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#4DB6AC] focus:border-[#4DB6AC] sm:text-sm transition-all duration-200 ease-in-out hover:border-[#FF7043]"
-                    placeholder="Choose a username"
+                    placeholder="Choose a username (min. 3 characters)"
                     value={formData.username}
-                    onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                    onChange={handleInputChange}
                   />
                 </div>
               </div>
@@ -131,10 +189,11 @@ const Register = () => {
                     name="name"
                     type="text"
                     required
+                    minLength="2"
                     className="appearance-none relative block w-full px-3 py-2.5 pl-10 border border-gray-300 rounded-lg placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#4DB6AC] focus:border-[#4DB6AC] sm:text-sm transition-all duration-200 ease-in-out hover:border-[#FF7043]"
-                    placeholder="Enter your full name"
+                    placeholder="Enter your full name (min. 2 characters)"
                     value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    onChange={handleInputChange}
                   />
                 </div>
               </div>
@@ -152,10 +211,11 @@ const Register = () => {
                     name="email"
                     type="email"
                     required
+                    pattern="[^\s@]+@[^\s@]+\.[^\s@]+"
                     className="appearance-none relative block w-full px-3 py-2.5 pl-10 border border-gray-300 rounded-lg placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#4DB6AC] focus:border-[#4DB6AC] sm:text-sm transition-all duration-200 ease-in-out hover:border-[#FF7043]"
                     placeholder="Enter your email"
                     value={formData.email}
-                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    onChange={handleInputChange}
                   />
                 </div>
               </div>
@@ -173,12 +233,16 @@ const Register = () => {
                     name="password"
                     type="password"
                     required
+                    minLength="8"
                     className="appearance-none relative block w-full px-3 py-2.5 pl-10 border border-gray-300 rounded-lg placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#4DB6AC] focus:border-[#4DB6AC] sm:text-sm transition-all duration-200 ease-in-out hover:border-[#FF7043]"
-                    placeholder="Create a password"
+                    placeholder="Create a strong password (min. 8 characters)"
                     value={formData.password}
-                    onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    onChange={handleInputChange}
                   />
                 </div>
+                <p className="mt-1 text-xs text-gray-500">
+                  Password must contain at least 8 characters, including uppercase, lowercase, number, and special character
+                </p>
               </div>
 
               <div>
@@ -206,9 +270,9 @@ const Register = () => {
             <div>
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || success}
                 className={`group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white ${
-                  loading 
+                  loading || success
                     ? 'bg-[#4DB6AC]/70 cursor-not-allowed'
                     : 'bg-[#4DB6AC] hover:bg-[#FF7043]'
                 } transform transition-all duration-200 ease-in-out hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4DB6AC]`}
@@ -221,6 +285,8 @@ const Register = () => {
                     </svg>
                     Creating account...
                   </span>
+                ) : success ? (
+                  'Registration Successful'
                 ) : (
                   'Create Account'
                 )}
@@ -238,6 +304,16 @@ const Register = () => {
           </div>
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(-10px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+          animation: fadeIn 0.3s ease-out forwards;
+        }
+      `}</style>
     </>
   );
 };

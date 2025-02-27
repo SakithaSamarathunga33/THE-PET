@@ -48,9 +48,54 @@ const AppointmentManagement = () => {
     }
   };
 
+  // Add validation functions
+  const validateAppointmentForm = () => {
+    // Pet name validation
+    if (formData.petName.trim().length < 2) {
+      setError('Pet name must be at least 2 characters long');
+      return false;
+    }
+
+    // Owner name validation
+    if (formData.ownerName.trim().length < 2) {
+      setError('Owner name must be at least 2 characters long');
+      return false;
+    }
+
+    // Contact number validation
+    const phoneRegex = /^\+?[\d\s-]{10,}$/;
+    if (!phoneRegex.test(formData.contactNumber.trim())) {
+      setError('Please enter a valid contact number (minimum 10 digits)');
+      return false;
+    }
+
+    // Date validation
+    const appointmentDate = new Date(formData.appointmentDate);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (appointmentDate < today) {
+      setError('Appointment date cannot be in the past');
+      return false;
+    }
+
+    // Reason validation
+    if (formData.reason.trim().length < 10) {
+      setError('Please provide a detailed reason for the appointment (minimum 10 characters)');
+      return false;
+    }
+
+    return true;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Validate form before submission
+      if (!validateAppointmentForm()) {
+        return;
+      }
+
       const url = selectedAppointment
         ? `http://localhost:8080/api/appointments/${selectedAppointment._id}`
         : 'http://localhost:8080/api/appointments';
@@ -61,7 +106,13 @@ const AppointmentManagement = () => {
         method,
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          petName: formData.petName.trim(),
+          ownerName: formData.ownerName.trim(),
+          contactNumber: formData.contactNumber.trim(),
+          reason: formData.reason.trim()
+        }),
       });
 
       const data = await response.json();
@@ -160,6 +211,13 @@ const AppointmentManagement = () => {
       case 'Cancelled': return 'bg-red-100 text-red-800';
       default: return 'bg-gray-100 text-gray-800';
     }
+  };
+
+  // Add input validation handlers
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+    setError(''); // Clear error when user types
   };
 
   return (
@@ -274,58 +332,74 @@ const AppointmentManagement = () => {
                   <label className="block text-sm font-medium text-gray-700">Pet Name</label>
                   <input
                     type="text"
-                    value={formData.petName}
-                    onChange={(e) => setFormData({...formData, petName: e.target.value})}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                    name="petName"
                     required
+                    minLength="2"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                    value={formData.petName}
+                    onChange={handleInputChange}
+                    placeholder="Enter pet name (min. 2 characters)"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Owner Name</label>
                   <input
                     type="text"
-                    value={formData.ownerName}
-                    onChange={(e) => setFormData({...formData, ownerName: e.target.value})}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                    name="ownerName"
                     required
+                    minLength="2"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                    value={formData.ownerName}
+                    onChange={handleInputChange}
+                    placeholder="Enter owner name (min. 2 characters)"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Contact Number</label>
                   <input
                     type="tel"
-                    value={formData.contactNumber}
-                    onChange={(e) => setFormData({...formData, contactNumber: e.target.value})}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                    name="contactNumber"
                     required
+                    pattern="[\d\s-+]{10,}"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                    value={formData.contactNumber}
+                    onChange={handleInputChange}
+                    placeholder="Enter contact number (min. 10 digits)"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Appointment Date</label>
                   <input
                     type="date"
-                    value={formData.appointmentDate}
-                    onChange={(e) => setFormData({...formData, appointmentDate: e.target.value})}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                    name="appointmentDate"
                     required
+                    min={new Date().toISOString().split('T')[0]}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                    value={formData.appointmentDate}
+                    onChange={handleInputChange}
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Reason</label>
                   <textarea
-                    value={formData.reason}
-                    onChange={(e) => setFormData({...formData, reason: e.target.value})}
+                    name="reason"
+                    required
+                    minLength="10"
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
                     rows="3"
-                    required
+                    value={formData.reason}
+                    onChange={handleInputChange}
+                    placeholder="Enter reason for appointment (min. 10 characters)"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Status</label>
                   <select
+                    name="status"
                     value={formData.status}
-                    onChange={(e) => setFormData({...formData, status: e.target.value})}
+                    onChange={handleInputChange}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                    required
                   >
                     <option value="Pending">Pending</option>
                     <option value="Confirmed">Confirmed</option>

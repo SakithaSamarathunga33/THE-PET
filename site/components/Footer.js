@@ -1,5 +1,5 @@
-import React from 'react'
-import Link from 'next/link'
+import React from 'react';
+import Link from 'next/link';
 import { MdPets } from 'react-icons/md';
 
 const Footer = () => {
@@ -10,7 +10,7 @@ const Footer = () => {
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
             <div>
               <div className="flex items-center">
-                <MdPets className="h-8 w-8 text-[#4DB6AC]" />
+                <MdPets className="h-8 w-8 text-[#4DB6AC] animate-bounce" />
                 <span className="ml-2 text-xl font-semibold text-white">PetCare Portal</span>
               </div>
               

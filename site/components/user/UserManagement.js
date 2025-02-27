@@ -58,9 +58,47 @@ const UserManagement = () => {
     }
   };
 
+  // Add validation functions
+  const validateUserForm = () => {
+    // Username validation
+    if (formData.username.trim().length < 3) {
+      setError('Username must be at least 3 characters long');
+      return false;
+    }
+
+    // Name validation
+    if (formData.name.trim().length < 2) {
+      setError('Name must be at least 2 characters long');
+      return false;
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email.trim())) {
+      setError('Please enter a valid email address');
+      return false;
+    }
+
+    // Password validation for new users
+    if (!selectedUser && formData.password) {
+      const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+      if (!passwordRegex.test(formData.password)) {
+        setError('Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character');
+        return false;
+      }
+    }
+
+    return true;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Validate form before submission
+      if (!validateUserForm()) {
+        return;
+      }
+
       const url = selectedUser 
         ? `http://localhost:8080/api/auth/user/${selectedUser._id}`
         : 'http://localhost:8080/api/auth/register';
@@ -71,7 +109,12 @@ const UserManagement = () => {
         method,
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          username: formData.username.trim(),
+          name: formData.name.trim(),
+          email: formData.email.trim().toLowerCase()
+        }),
       });
 
       const data = await response.json();
@@ -88,6 +131,13 @@ const UserManagement = () => {
       console.error('Save error:', err);
       setError(err.message || 'Error saving user');
     }
+  };
+
+  // Add input validation handlers
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+    setError(''); // Clear error when user types
   };
 
   const handleEdit = (user) => {
@@ -366,30 +416,39 @@ const UserManagement = () => {
                   <label className="block text-sm font-medium text-gray-700">Username</label>
                   <input
                     type="text"
-                    value={formData.username}
-                    onChange={(e) => setFormData({...formData, username: e.target.value})}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                    name="username"
                     required
+                    minLength="3"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                    value={formData.username}
+                    onChange={handleInputChange}
+                    placeholder="Enter username (min. 3 characters)"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Name</label>
                   <input
                     type="text"
-                    value={formData.name}
-                    onChange={(e) => setFormData({...formData, name: e.target.value})}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                    name="name"
                     required
+                    minLength="2"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    placeholder="Enter full name (min. 2 characters)"
                   />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Email</label>
                   <input
                     type="email"
-                    value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                    name="email"
                     required
+                    pattern="[^\s@]+@[^\s@]+\.[^\s@]+"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    placeholder="Enter email address"
                   />
                 </div>
                 {!selectedUser && (
@@ -397,19 +456,27 @@ const UserManagement = () => {
                     <label className="block text-sm font-medium text-gray-700">Password</label>
                     <input
                       type="password"
-                      value={formData.password}
-                      onChange={(e) => setFormData({...formData, password: e.target.value})}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                      name="password"
                       required={!selectedUser}
+                      minLength="8"
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                      value={formData.password}
+                      onChange={handleInputChange}
+                      placeholder="Create password (min. 8 characters)"
                     />
+                    <p className="mt-1 text-xs text-gray-500">
+                      Password must contain uppercase, lowercase, number, and special character
+                    </p>
                   </div>
                 )}
                 <div>
                   <label className="block text-sm font-medium text-gray-700">User Type</label>
                   <select
+                    name="userType"
                     value={formData.userType}
-                    onChange={(e) => setFormData({...formData, userType: e.target.value})}
+                    onChange={handleInputChange}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                    required
                   >
                     <option value="user">User</option>
                     <option value="admin">Admin</option>

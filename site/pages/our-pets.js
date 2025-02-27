@@ -7,6 +7,7 @@ import { MdPets } from 'react-icons/md'
 import Link from 'next/link'
 import { FiX } from 'react-icons/fi'
 import { useRouter } from 'next/router'
+import { motion } from 'framer-motion'
 
 export default function OurPets() {
   const [pets, setPets] = useState([])
@@ -26,6 +27,30 @@ export default function OurPets() {
 
   const router = useRouter()
   const [currentUser, setCurrentUser] = useState(null)
+
+  // Animation variants
+  const fadeInUp = {
+    initial: { y: 60, opacity: 0 },
+    animate: { y: 0, opacity: 1 },
+    transition: { duration: 0.6 }
+  };
+
+  const staggerContainer = {
+    animate: {
+      transition: {
+        staggerChildren: 0.2
+      }
+    }
+  };
+
+  const cardVariants = {
+    initial: { scale: 0.9, opacity: 0 },
+    animate: { scale: 1, opacity: 1 },
+    hover: { 
+      scale: 1.05,
+      transition: { duration: 0.2 }
+    }
+  };
 
   useEffect(() => {
     fetchPets()
@@ -149,50 +174,96 @@ export default function OurPets() {
       <NavBar />
 
       {/* Hero Section */}
-      <section className="relative py-20 bg-[#FFF3E0]">
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          <MdPets className="w-16 h-16 mx-auto mb-6 text-[#FF7043]" />
-          <h1 className="text-4xl md:text-5xl font-bold mb-6">
+      <motion.section 
+        className="relative py-20 bg-[#FFF3E0]"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8 }}
+      >
+        <motion.div 
+          className="max-w-7xl mx-auto px-4 text-center"
+          variants={staggerContainer}
+          initial="initial"
+          animate="animate"
+        >
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            <MdPets className="w-16 h-16 mx-auto mb-6 text-[#FF7043]" />
+          </motion.div>
+          <motion.h1 
+            className="text-4xl md:text-5xl font-bold mb-6"
+            variants={fadeInUp}
+          >
             Meet Our <span className="text-[#4DB6AC]">Wonderful Pets</span>
-          </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          </motion.h1>
+          <motion.p 
+            className="text-xl text-gray-600 max-w-2xl mx-auto"
+            variants={fadeInUp}
+          >
             Each of our pets has a unique personality and is waiting for their perfect match. 
             Could you be the one they're looking for?
-          </p>
-        </div>
-      </section>
+          </motion.p>
+        </motion.div>
+      </motion.section>
 
       {/* Pets Grid Section */}
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4">
           {error ? (
-            <div className="text-center text-red-500">
+            <motion.div 
+              className="text-center text-red-500"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
               <p>{error}</p>
-            </div>
+            </motion.div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {pets.map((pet) => (
-                <div 
+            <motion.div 
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+              variants={staggerContainer}
+              initial="initial"
+              animate="animate"
+            >
+              {pets.map((pet, index) => (
+                <motion.div 
                   key={pet.id} 
-                  className="bg-white rounded-xl overflow-hidden shadow-lg transform transition-all duration-300 hover:scale-105"
+                  className="bg-white rounded-xl overflow-hidden shadow-lg"
+                  variants={cardVariants}
+                  whileHover="hover"
+                  custom={index}
                 >
-                  <div className="relative h-64">
+                  <motion.div 
+                    className="relative h-64"
+                    whileHover={{ scale: 1.05 }}
+                    transition={{ duration: 0.3 }}
+                  >
                     <Image
-                      src={pet.imageUrl || "https://images.unsplash.com/photo-1548767797-d8c844163c4c"} // fallback image
+                      src={pet.imageUrl || "https://images.unsplash.com/photo-1548767797-d8c844163c4c"}
                       alt={pet.name}
                       fill
                       className="object-cover"
                     />
-                  </div>
+                  </motion.div>
                   <div className="p-6">
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="text-xl font-semibold flex items-center">
-                        <FaPaw className="text-[#4DB6AC] mr-2" />
+                        <motion.div
+                          animate={{ rotate: [0, 15, -15, 0] }}
+                          transition={{ duration: 1, repeat: Infinity }}
+                        >
+                          <FaPaw className="text-[#4DB6AC] mr-2" />
+                        </motion.div>
                         {pet.name}
                       </h3>
-                      <span className="bg-[#FFF3E0] text-[#FF7043] px-3 py-1 rounded-full text-sm">
+                      <motion.span 
+                        className="bg-[#FFF3E0] text-[#FF7043] px-3 py-1 rounded-full text-sm"
+                        whileHover={{ scale: 1.1 }}
+                      >
                         {pet.status}
-                      </span>
+                      </motion.span>
                     </div>
                     <div className="space-y-2">
                       <p className="text-gray-600">
@@ -208,41 +279,78 @@ export default function OurPets() {
                         {pet.description}
                       </p>
                     </div>
-                    <div className="mt-6">
+                    <motion.div 
+                      className="mt-6"
+                      whileHover={{ scale: 1.02 }}
+                    >
                       <button 
                         className="w-full bg-[#4DB6AC] hover:bg-[#4DB6AC]/90 text-white py-2 px-4 rounded-lg transition-all duration-300 flex items-center justify-center"
                         onClick={() => handleAppointmentClick(pet)}
                       >
-                        <MdPets className="mr-2" />
+                        <motion.div
+                          animate={{ x: [0, 5, 0] }}
+                          transition={{ duration: 1.5, repeat: Infinity }}
+                        >
+                          <MdPets className="mr-2" />
+                        </motion.div>
                         Book Appointment
                       </button>
-                    </div>
+                    </motion.div>
                   </div>
-                </div>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           )}
         </div>
       </section>
 
       {/* CTA Section */}
-      <section className="bg-[#FFF3E0] py-20">
-        <div className="max-w-4xl mx-auto text-center px-4">
-          <h2 className="text-3xl font-bold mb-6">
+      <motion.section 
+        className="bg-[#FFF3E0] py-20"
+        initial={{ opacity: 0 }}
+        whileInView={{ opacity: 1 }}
+        viewport={{ once: true }}
+      >
+        <motion.div 
+          className="max-w-4xl mx-auto text-center px-4"
+          variants={staggerContainer}
+          initial="initial"
+          whileInView="animate"
+          viewport={{ once: true }}
+        >
+          <motion.h2 
+            className="text-3xl font-bold mb-6"
+            variants={fadeInUp}
+          >
             Can't Find What You're Looking For?
-          </h2>
-          <p className="text-gray-600 mb-8">
+          </motion.h2>
+          <motion.p 
+            className="text-gray-600 mb-8"
+            variants={fadeInUp}
+          >
             New pets become available for adoption regularly. Contact us to learn more about our upcoming arrivals!
-          </p>
-          <Link href="/contact" className="bg-[#FF7043] hover:bg-[#FF7043]/90 text-white px-8 py-3 rounded-lg transition-all duration-300 transform hover:scale-105">
-            Contact Us
-          </Link>
-        </div>
-      </section>
+          </motion.p>
+          <motion.div variants={fadeInUp}>
+            <Link href="/contact" className="bg-[#FF7043] hover:bg-[#FF7043]/90 text-white px-8 py-3 rounded-lg transition-all duration-300 transform hover:scale-105">
+              Contact Us
+            </Link>
+          </motion.div>
+        </motion.div>
+      </motion.section>
 
       {showAppointmentModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-md">
+        <motion.div 
+          className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <motion.div 
+            className="bg-white rounded-lg shadow-xl w-full max-w-md"
+            initial={{ scale: 0.9, y: 20 }}
+            animate={{ scale: 1, y: 0 }}
+            exit={{ scale: 0.9, y: 20 }}
+          >
             <div className="p-6">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-xl font-semibold text-gray-900">
@@ -319,19 +427,29 @@ export default function OurPets() {
                 </div>
               </form>
             </div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       )}
 
       {success && (
-        <div className="fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded z-50">
+        <motion.div 
+          className="fixed top-4 right-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded z-50"
+          initial={{ x: 100, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          exit={{ x: 100, opacity: 0 }}
+        >
           {success}
-        </div>
+        </motion.div>
       )}
       {error && (
-        <div className="fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded z-50">
+        <motion.div 
+          className="fixed top-4 right-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded z-50"
+          initial={{ x: 100, opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          exit={{ x: 100, opacity: 0 }}
+        >
           {error}
-        </div>
+        </motion.div>
       )}
     </>
   )

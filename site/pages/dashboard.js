@@ -160,22 +160,31 @@ const Dashboard = () => {
         label: 'New Users',
         data: dashboardData.monthlyTrends?.users || Array(6).fill(0),
         borderColor: '#FF7043',
+        backgroundColor: 'rgba(255, 112, 67, 0.2)',
         tension: 0.4,
-        fill: false,
+        fill: true,
+        pointHoverRadius: 8,
+        pointHoverBackgroundColor: '#FF7043',
       },
       {
         label: 'Appointments',
         data: dashboardData.monthlyTrends?.appointments || Array(6).fill(0),
         borderColor: '#4DB6AC',
+        backgroundColor: 'rgba(77, 182, 172, 0.2)',
         tension: 0.4,
-        fill: false,
+        fill: true,
+        pointHoverRadius: 8,
+        pointHoverBackgroundColor: '#4DB6AC',
       },
       {
         label: 'New Pets',
         data: dashboardData.monthlyTrends?.pets || Array(6).fill(0),
         borderColor: '#FFB74D',
+        backgroundColor: 'rgba(255, 183, 77, 0.2)',
         tension: 0.4,
-        fill: false,
+        fill: true,
+        pointHoverRadius: 8,
+        pointHoverBackgroundColor: '#FFB74D',
       }
     ],
   };
@@ -190,7 +199,15 @@ const Dashboard = () => {
       title: {
         display: true,
         text: 'Monthly Trends'
-      }
+      },
+      tooltip: {
+        mode: 'index',
+        intersect: false,
+      },
+    },
+    hover: {
+      mode: 'nearest',
+      intersect: true,
     },
     scales: {
       y: {
@@ -291,23 +308,7 @@ const Dashboard = () => {
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
           <h3 className="text-lg font-semibold mb-4">User Registration Trends</h3>
           <Line 
-            data={{
-              labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-              datasets: [{
-                label: 'New Users',
-                data: [
-                  dashboardData.users?.filter(user => new Date(user.createdAt).getMonth() === 0).length || 0,
-                  dashboardData.users?.filter(user => new Date(user.createdAt).getMonth() === 1).length || 0,
-                  dashboardData.users?.filter(user => new Date(user.createdAt).getMonth() === 2).length || 0,
-                  dashboardData.users?.filter(user => new Date(user.createdAt).getMonth() === 3).length || 0,
-                  dashboardData.users?.filter(user => new Date(user.createdAt).getMonth() === 4).length || 0,
-                  dashboardData.users?.filter(user => new Date(user.createdAt).getMonth() === 5).length || 0,
-                ],
-                borderColor: '#FF7043',
-                tension: 0.4,
-                fill: false,
-              }]
-            }} 
+            data={lineChartData} 
             options={chartOptions} 
           />
         </div>

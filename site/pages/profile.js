@@ -123,9 +123,9 @@ const Profile = () => {
         <>
             <NavBar />
             <div 
-                className="min-h-screen bg-cover bg-center bg-fixed"
+                className="min-h-screen bg-cover bg-center bg-fixed pt-16"
                 style={{
-                    backgroundImage: 'url("https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?ixlib=rb-4.0.3")',
+                    backgroundImage: 'url("https://images.unsplash.com/photo-1444212477490-ca407925329e?ixlib=rb-4.0.3")',
                 }}
             >
                 <div className="min-h-screen bg-gradient-to-br from-[#FF7043]/90 via-white/80 to-[#FF5722]/90 backdrop-blur-sm py-12 px-4 sm:px-6 lg:px-8">
