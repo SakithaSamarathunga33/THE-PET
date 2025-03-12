@@ -11,6 +11,7 @@ const inventoryRoutes = require("./routes/inventoryRoutes"); // Inventory Manage
 const employeeRoutes = require('./routes/employeeRoutes');
 const chatbotRoutes = require('./routes/chatbotRoutes');
 const forumRoutes = require('./routes/forumRoutes');
+const analyticsRoutes = require('./routes/api/analytics');
 
 dotenv.config();
 const app = express();
@@ -93,6 +94,7 @@ app.use("/api/inventory", inventoryRoutes); // Inventory Management
 app.use('/api/employees', employeeRoutes);
 app.use('/api/chatbot', chatbotRoutes);
 app.use('/api/forum', forumRoutes);
+app.use('/api/analytics', analyticsRoutes); // Add analytics routes
 
 // 🔹 Home Route
 app.get("/", (req, res) => {

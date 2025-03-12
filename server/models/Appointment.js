@@ -22,6 +22,11 @@ const appointmentSchema = new mongoose.Schema(
       type: String,
       required: true
     },
+    branch: {
+      type: String,
+      required: true,
+      enum: ['Colombo Branch', 'Kandy Branch', 'Galle Branch', 'Jaffna Branch']
+    },
     status: {
       type: String,
       enum: ["Pending", "Confirmed", "Completed", "Cancelled"],

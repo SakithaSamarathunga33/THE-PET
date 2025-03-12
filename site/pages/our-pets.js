@@ -21,6 +21,7 @@ export default function OurPets() {
     contactNumber: '',
     appointmentDate: '',
     reason: '',
+    branch: '', // Add branch field
     status: 'Pending'
   })
   const [success, setSuccess] = useState(null)
@@ -106,7 +107,8 @@ export default function OurPets() {
       petName: pet.name,
       reason: `Interested in adopting ${pet.name}`,
       ownerName: currentUser?.name || '',
-      contactNumber: currentUser?.phoneNumber || ''
+      contactNumber: currentUser?.phoneNumber || '',
+      branch: '' // Reset branch selection
     }))
     setShowAppointmentModal(true)
   }
@@ -118,6 +120,12 @@ export default function OurPets() {
     if (!token) {
       setError('Please login to book an appointment')
       router.push('/login?redirect=/our-pets')
+      return
+    }
+
+    // Add branch validation
+    if (!appointmentForm.branch) {
+      setError('Please select a branch')
       return
     }
 
@@ -145,6 +153,7 @@ export default function OurPets() {
         contactNumber: '',
         appointmentDate: '',
         reason: '',
+        branch: '', // Reset branch
         status: 'Pending'
       })
       
@@ -410,6 +419,22 @@ export default function OurPets() {
                   />
                 </div>
 
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Select Branch</label>
+                  <select
+                    required
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#4DB6AC] focus:ring-[#4DB6AC]"
+                    value={appointmentForm.branch}
+                    onChange={(e) => setAppointmentForm({...appointmentForm, branch: e.target.value})}
+                  >
+                    <option value="">Select a branch</option>
+                    <option value="Colombo Branch">Colombo Branch</option>
+                    <option value="Kandy Branch">Kandy Branch</option>
+                    <option value="Galle Branch">Galle Branch</option>
+                    <option value="Jaffna Branch">Jaffna Branch</option>
+                  </select>
+                </div>
+
                 <div className="flex justify-end space-x-3 mt-6">
                   <button
                     type="button"
@@ -453,4 +478,4 @@ export default function OurPets() {
       )}
     </>
   )
-} 
+}

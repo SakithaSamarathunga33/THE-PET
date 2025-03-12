@@ -6,13 +6,15 @@ import PetManagement from "../components/pet/petManagement";
 import InventoryManagement from "../components/inventory/InventoryManagement";
 import AppointmentManagement from "../components/appointment/AppointmentManagement";
 import ForumManagement from "../components/forum/ForumManagement";
-import { FiUsers, FiPackage, FiShoppingBag, FiCalendar, FiLogOut, FiMenu, FiTrendingUp, FiUserPlus } from 'react-icons/fi';
+import BranchAnalytics from "../components/dashboard/BranchAnalytics";
+import { FiUsers, FiPackage, FiShoppingBag, FiCalendar, FiLogOut, FiMenu, FiTrendingUp, FiUserPlus, FiBarChart2 } from 'react-icons/fi';
 import { MdPets, MdForum } from 'react-icons/md';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
+  BarElement,
   PointElement,
   LineElement,
   Title,
@@ -24,6 +26,7 @@ import {
 ChartJS.register(
   CategoryScale,
   LinearScale,
+  BarElement,
   PointElement,
   LineElement,
   Title,
@@ -41,6 +44,16 @@ const Dashboard = () => {
     appointments: [],
     inventory: [],
     recentActivities: []
+  });
+  const [analyticsData, setAnalyticsData] = useState(null);
+  const [analytics, setAnalytics] = useState({
+    currentMetrics: {},
+    predictions: {
+      'Colombo Branch': { total: 0, byPetType: {} },
+      'Kandy Branch': { total: 0, byPetType: {} },
+      'Galle Branch': { total: 0, byPetType: {} },
+      'Jaffna Branch': { total: 0, byPetType: {} }
+    }
   });
   const router = useRouter();
 
@@ -69,6 +82,31 @@ const Dashboard = () => {
       fetchAllData(token);
     }
   }, [activeTab]);
+
+  // Add effect to fetch analytics when tab changes to analytics
+  useEffect(() => {
+    if (activeTab === 'analytics') {
+      const token = localStorage.getItem('token');
+      if (token) {
+        fetchAnalytics(token);
+      }
+    }
+  }, [activeTab]);
+
+  // Enhanced analytics update handling
+  useEffect(() => {
+    const handleAppointmentUpdate = async () => {
+      const token = localStorage.getItem('token');
+      if (token) {
+        await fetchAnalytics(token);
+      }
+    };
+
+    window.addEventListener('appointmentUpdated', handleAppointmentUpdate);
+    return () => {
+      window.removeEventListener('appointmentUpdated', handleAppointmentUpdate);
+    };
+  }, []); // Remove activeTab dependency to always listen
 
   const fetchAllData = async (token) => {
     try {
@@ -152,6 +190,27 @@ const Dashboard = () => {
     }
   };
 
+  // Fetch analytics data
+  const fetchAnalytics = async (token) => {
+    try {
+      const response = await fetch('http://localhost:8080/api/analytics/branch', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include'
+      });
+
+      if (!response.ok) throw new Error(`Analytics fetch failed: ${response.statusText}`);
+
+      const data = await response.json();
+      setAnalyticsData(data);
+      setAnalytics(data);
+    } catch (error) {
+      console.error('Error fetching analytics:', error);
+    }
+  };
+
   // Update chart data with real data
   const lineChartData = {
     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
@@ -221,6 +280,7 @@ const Dashboard = () => {
 
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: <FiTrendingUp className="w-5 h-5" /> },
+    { id: "analytics", label: "Analytics", icon: <FiBarChart2 className="w-5 h-5" /> },
     { id: "user", label: "Users", icon: <FiUsers className="w-5 h-5" /> },
     { id: "employee", label: "Employees", icon: <FiUserPlus className="w-5 h-5" /> },
     { id: "pet", label: "Pets", icon: <MdPets className="w-5 h-5" /> },
@@ -336,6 +396,63 @@ const Dashboard = () => {
     </div>
   );
 
+  const AnalyticsContent = () => (
+    <div className="space-y-6">
+      {!analyticsData ? (
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#4DB6AC]"></div>
+        </div>
+      ) : Object.keys(analyticsData.currentMetrics || {}).length === 0 ? (
+        <div className="text-center text-gray-500 py-8">
+          No analytics data available. Please make sure there are appointments in the system.
+        </div>
+      ) : (
+        <>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {Object.entries(analyticsData.currentMetrics).map(([branch, data]) => (
+              <div key={branch} className="bg-white p-6 rounded-lg shadow-sm">
+                <h3 className="font-medium text-gray-900">{branch}</h3>
+                <p className="text-2xl font-bold text-[#4DB6AC] mt-2">{data.total}</p>
+                <p className="text-sm text-gray-500">Total Appointments</p>
+                <p className="text-sm text-orange-500 mt-2">
+                  Prediction: {analyticsData.predictions[branch]?.total || 0} next month
+                </p>
+              </div>
+            ))}
+          </div>
+
+          <BranchAnalytics 
+            branchMetrics={analyticsData.currentMetrics} 
+            predictions={analyticsData.predictions} 
+          />
+        </>
+      )}
+    </div>
+  );
+
+  const renderContent = () => {
+    switch (activeTab) {
+      case "dashboard":
+        return <DashboardContent />;
+      case "analytics":
+        return <AnalyticsContent />;
+      case "user":
+        return <UserManagement />;
+      case "employee":
+        return <EmployeeManagement />;
+      case "pet":
+        return <PetManagement />;
+      case "inventory":
+        return <InventoryManagement />;
+      case "appointment":
+        return <AppointmentManagement />;
+      case "forum":
+        return <ForumManagement />;
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
@@ -414,13 +531,7 @@ const Dashboard = () => {
 
         {/* Content Area */}
         <main className="p-8 overflow-auto" style={{ height: 'calc(100vh - 4rem)' }}>
-          {activeTab === "dashboard" && <DashboardContent />}
-          {activeTab === "user" && <UserManagement />}
-          {activeTab === "employee" && <EmployeeManagement />}
-          {activeTab === "pet" && <PetManagement />}
-          {activeTab === "inventory" && <InventoryManagement />}
-          {activeTab === "appointment" && <AppointmentManagement />}
-          {activeTab === "forum" && <ForumManagement />}
+          {renderContent()}
         </main>
       </div>
     </div>

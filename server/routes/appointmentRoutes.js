@@ -5,7 +5,8 @@ const {
   getAllAppointments,
   getAppointmentById,
   updateAppointment,
-  deleteAppointment
+  deleteAppointment,
+  getAppointmentsByBranch
 } = require("../controllers/appointmentController");
 
 router.post("/", createAppointment);
@@ -13,5 +14,6 @@ router.get("/", getAllAppointments);
 router.get("/:id", getAppointmentById);
 router.put("/:id", updateAppointment);
 router.delete("/:id", deleteAppointment);
+router.get("/branch/:branchName", getAppointmentsByBranch);
 
 module.exports = router;

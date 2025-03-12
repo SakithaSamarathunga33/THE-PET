@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FiEdit2, FiTrash2, FiPlus, FiDownload, FiSearch, FiCalendar } from 'react-icons/fi';
+import BranchAnalytics from '../dashboard/BranchAnalytics';
 
 const AppointmentManagement = () => {
   const [appointments, setAppointments] = useState([]);
@@ -15,6 +16,7 @@ const AppointmentManagement = () => {
     contactNumber: '',
     appointmentDate: '',
     reason: '',
+    branch: '',
     status: 'Pending'
   });
 
@@ -88,6 +90,14 @@ const AppointmentManagement = () => {
     return true;
   };
 
+  // Add function to notify parent of changes
+  const notifyAnalyticsUpdate = () => {
+    const event = new CustomEvent('appointmentUpdated', {
+      detail: { timestamp: new Date().getTime() }
+    });
+    window.dispatchEvent(event);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -121,7 +131,8 @@ const AppointmentManagement = () => {
       setSuccess(data.message);
       setShowModal(false);
       resetForm();
-      fetchAppointments();
+      await fetchAppointments();
+      notifyAnalyticsUpdate(); // Notify that appointments changed
     } catch (err) {
       setError(err.message);
     }
@@ -140,7 +151,8 @@ const AppointmentManagement = () => {
       if (!response.ok) throw new Error(data.error);
       
       setSuccess(data.message);
-      fetchAppointments();
+      await fetchAppointments();
+      notifyAnalyticsUpdate(); // Notify that appointments changed
     } catch (err) {
       setError(err.message);
     }
@@ -154,6 +166,7 @@ const AppointmentManagement = () => {
       contactNumber: appointment.contactNumber || '',
       appointmentDate: new Date(appointment.appointmentDate).toISOString().split('T')[0],
       reason: appointment.reason || '',
+      branch: appointment.branch || '',
       status: appointment.status || 'Pending'
     });
     setShowModal(true);
@@ -166,6 +179,7 @@ const AppointmentManagement = () => {
       contactNumber: '',
       appointmentDate: '',
       reason: '',
+      branch: '',
       status: 'Pending'
     });
     setSelectedAppointment(null);
@@ -176,6 +190,7 @@ const AppointmentManagement = () => {
       'Pet Name': apt.petName,
       'Owner Name': apt.ownerName,
       'Contact': apt.contactNumber,
+      'Branch': apt.branch,
       'Date': new Date(apt.appointmentDate).toLocaleDateString(),
       'Reason': apt.reason,
       'Status': apt.status
@@ -221,7 +236,7 @@ const AppointmentManagement = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
       {/* Notifications */}
       {error && (
         <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
@@ -275,6 +290,7 @@ const AppointmentManagement = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Pet Name</th>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Owner</th>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Contact</th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Branch</th>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Date</th>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Reason</th>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Status</th>
@@ -287,6 +303,7 @@ const AppointmentManagement = () => {
                   <td className="px-6 py-4 whitespace-nowrap">{appointment.petName}</td>
                   <td className="px-6 py-4 whitespace-nowrap">{appointment.ownerName}</td>
                   <td className="px-6 py-4 whitespace-nowrap">{appointment.contactNumber}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{appointment.branch}</td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     {new Date(appointment.appointmentDate).toLocaleDateString()}
                   </td>
@@ -391,6 +408,22 @@ const AppointmentManagement = () => {
                     onChange={handleInputChange}
                     placeholder="Enter reason for appointment (min. 10 characters)"
                   />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Branch</label>
+                  <select
+                    name="branch"
+                    required
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                    value={formData.branch}
+                    onChange={handleInputChange}
+                  >
+                    <option value="">Select a branch</option>
+                    <option value="Colombo Branch">Colombo Branch</option>
+                    <option value="Kandy Branch">Kandy Branch</option>
+                    <option value="Galle Branch">Galle Branch</option>
+                    <option value="Jaffna Branch">Jaffna Branch</option>
+                  </select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Status</label>
