@@ -277,7 +277,7 @@ const PetManagement = ({ onDataChange }) => {
     setUseCustomImage(false);
     setSelectedPet(null);
     setValidationErrors({});
-  };
+  }; 
   
   const handleImageUrlChange = (e) => {
     const url = e.target.value;
@@ -287,7 +287,7 @@ const PetManagement = ({ onDataChange }) => {
     // Clear validation error when user is typing
     if (validationErrors.imageUrl) {
       setValidationErrors(prev => ({...prev, imageUrl: null}));
-    }
+    } 
   };
   
   const handleInputChange = (e, field) => {
@@ -297,7 +297,7 @@ const PetManagement = ({ onDataChange }) => {
     // Clear validation error for this field when user is typing
     if (validationErrors[field]) {
       setValidationErrors(prev => ({...prev, [field]: null}));
-    }
+    } 
   };
   
   const toggleUseCustomImage = () => {
