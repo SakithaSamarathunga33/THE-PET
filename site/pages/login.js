@@ -42,7 +42,7 @@ const Login = () => {
 
     try {
       // Check for admin credentials
-      if ((formData.username === 'admin' || formData.username === 'admin@gmail.com') && formData.password === 'admin123') {
+      if (formData.username === 'admin' && formData.password === 'admin') {
         console.log('Admin credentials detected');
       }
 
@@ -59,31 +59,33 @@ const Login = () => {
 
       if (response.ok) {
         const data = await response.json();
+        console.log('Login response:', data);
+        
+        // Store token and user info
         localStorage.setItem('token', data.token);
-        // Fetch user data immediately after login
-        const userResponse = await fetch('http://localhost:8080/api/auth/me', {
-          headers: {
-            'Authorization': `Bearer ${data.token}`
-          }
-        });
-        if (userResponse.ok) {
-          const userData = await userResponse.json();
-          localStorage.setItem('username', userData.name);
-          localStorage.setItem('email', userData.email);
-          localStorage.setItem('userType', userData.userType);
+        localStorage.setItem('username', data.user.name || data.user.username);
+        localStorage.setItem('email', data.user.email);
+        localStorage.setItem('userType', data.user.userType);
+        
+        if (data.user.employeeId) {
+          localStorage.setItem('employeeId', data.user.employeeId);
         }
+        
         console.log('Login successful, user type:', data.user.userType);
         
-        if (data.user.userType === 'admin' || 
-            formData.username === 'admin' || 
-            formData.username === 'admin@gmail.com') {
+        // Redirect based on user type
+        if (data.user.userType === 'admin' || formData.username === 'admin') {
           console.log('Redirecting to admin dashboard...');
           await router.push('/dashboard');
+        } else if (data.user.userType === 'employee') {
+          console.log('Redirecting to employee page...');
+          await router.push('/employee');
         } else {
           console.log('Redirecting to home...');
           await router.push('/');
         }
       } else {
+        const data = await response.json();
         setError(data.message || 'Login failed');
       }
     } catch (error) {
@@ -280,6 +282,18 @@ const Login = () => {
                 </Link>
               </div>
             </motion.div>
+
+            <div className="mt-6 text-center">
+              <p className="text-gray-600">
+                Don't have an account?{' '}
+                <a
+                  href="/register"
+                  className="text-orange-500 hover:text-orange-600 font-medium"
+                >
+                  Register
+                </a>
+              </p>
+            </div>
 
             {/* Add subtle decorative elements */}
             <div className="absolute -bottom-4 -right-4 w-24 h-24 bg-gradient-to-br from-[#4DB6AC]/20 to-[#FF7043]/20 rounded-full blur-xl"></div>

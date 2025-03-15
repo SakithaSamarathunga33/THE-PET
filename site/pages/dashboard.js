@@ -21,6 +21,7 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
+import Link from "next/link";
 
 // Register ChartJS components
 ChartJS.register(
@@ -392,6 +393,43 @@ const Dashboard = () => {
             )}
           </div>
         </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+        {/* Employee Management Card */}
+        <Link href="/employee-management" className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
+          <div className="flex items-center mb-4">
+            <div className="p-3 rounded-full bg-[#FFF3E0] text-[#FF7043]">
+              <FiUsers className="w-6 h-6" />
+            </div>
+            <h3 className="ml-4 text-xl font-semibold text-gray-800">Employee Management</h3>
+          </div>
+          <p className="text-gray-600">Manage employees, attendance, leaves, and calculate salaries.</p>
+        </Link>
+
+        {/* Create Employee User Card */}
+        <Link href="/create-employee-user" className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
+          <div className="flex items-center mb-4">
+            <div className="p-3 rounded-full bg-[#E0F7FA] text-[#00ACC1]">
+              <FiUserPlus className="w-6 h-6" />
+            </div>
+            <h3 className="ml-4 text-xl font-semibold text-gray-800">Create Employee Account</h3>
+          </div>
+          <p className="text-gray-600">Create a new employee with login access in one step.</p>
+        </Link>
+        
+        {/* User Management Card */}
+        <Link href="/user-management" className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
+          <div className="flex items-center mb-4">
+            <div className="p-3 rounded-full bg-[#E8F5E9] text-[#43A047]">
+              <FiUsers className="w-6 h-6" />
+            </div>
+            <h3 className="ml-4 text-xl font-semibold text-gray-800">User Management</h3>
+          </div>
+          <p className="text-gray-600">Manage user accounts, roles, and permissions.</p>
+        </Link>
+        
+        {/* ... other cards ... */}
       </div>
     </div>
   );

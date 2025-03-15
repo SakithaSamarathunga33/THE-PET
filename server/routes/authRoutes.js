@@ -37,6 +37,12 @@ router.get("/user/:id", authController.getUserById); // Get user by ID
 router.put("/user/:id", authController.updateUser); // Update user
 router.delete("/user/:id", authController.deleteUser); // Delete user
 
+// 🔹 Employee User Management
+router.post("/link-employee", protect, authController.linkUserToEmployee); // Link user to employee
+
+// 🔹 Sample Data (For Testing)
+router.post("/create-sample-employee", authController.createSampleEmployeeUser); // Create sample employee user
+
 // 🔹 Logout Route
 router.post("/logout", protect, authController.logout);
 
