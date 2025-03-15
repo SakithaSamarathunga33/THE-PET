@@ -11,7 +11,7 @@ const PetManagement = () => {
   const [selectedPet, setSelectedPet] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [formData, setFormData] = useState({
-    name: '',
+    type: '',
     breed: '',
     age: '',
     weight: '',
@@ -100,7 +100,7 @@ const PetManagement = () => {
   const handleEdit = (pet) => {
     setSelectedPet(pet);
     setFormData({
-      name: pet.name || '',
+      type: pet.type || '',
       breed: pet.breed || '',
       age: pet.age || '',
       weight: pet.weight || '',
@@ -112,7 +112,7 @@ const PetManagement = () => {
 
   const resetForm = () => {
     setFormData({
-      name: '',
+      type: '',
       breed: '',
       age: '',
       weight: '',
@@ -124,7 +124,7 @@ const PetManagement = () => {
 
   const generateReport = () => {
     const report = pets.map(pet => ({
-      'Pet Name': pet.name,
+      'Pet Type': pet.type,
       'Breed': pet.breed,
       'Age': pet.age,
       'Weight': `${pet.weight} kg`,
@@ -153,7 +153,7 @@ const PetManagement = () => {
     if (!pet) return false;
     const searchLower = searchTerm.toLowerCase();
     return (
-      (pet.name?.toLowerCase() || '').includes(searchLower) ||
+      (pet.type?.toLowerCase() || '').includes(searchLower) ||
       (pet.breed?.toLowerCase() || '').includes(searchLower) ||
       (pet.owner?.toLowerCase() || '').includes(searchLower)
     );
@@ -219,7 +219,7 @@ const PetManagement = () => {
           <table className="min-w-full divide-y divide-gray-200">
             <thead>
               <tr className="bg-gray-900 text-white">
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Name</th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Type</th>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Breed</th>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Age</th>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Weight (kg)</th>
@@ -230,7 +230,7 @@ const PetManagement = () => {
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredPets.map((pet) => (
                 <tr key={pet._id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">{pet.name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{pet.type}</td>
                   <td className="px-6 py-4 whitespace-nowrap">{pet.breed}</td>
                   <td className="px-6 py-4 whitespace-nowrap">{pet.age}</td>
                   <td className="px-6 py-4 whitespace-nowrap">{pet.weight}</td>
@@ -268,11 +268,11 @@ const PetManagement = () => {
               </h3>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Name</label>
+                  <label className="block text-sm font-medium text-gray-700">Type</label>
                   <input
                     type="text"
-                    value={formData.name}
-                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                    value={formData.type}
+                    onChange={(e) => setFormData({...formData, type: e.target.value})}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
                     required
                   />
