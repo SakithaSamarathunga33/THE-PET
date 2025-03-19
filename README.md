@@ -141,16 +141,6 @@ The application uses JWT (JSON Web Tokens) for authentication and supports:
 - **Social Sharing**: Share pet listings on social media
 
 
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 📧 Contact
-
-Your Name – sakithaudarashmika63@gmail.com
-
-Project Link: (https://github.com/SakithaSamarathunga33/THE-PET.git)
-
 ---
 
 <p align="center">Made with ❤️ for pets and their owners</p> 
