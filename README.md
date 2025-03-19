@@ -89,7 +89,6 @@ A comprehensive pet care management system that connects pet owners with pet sho
 ```bash
 # Clone the repository
 git clone (https://github.com/SakithaSamarathunga33/THE-PET.git)
-cd pet-care-management
 
 # Install backend dependencies
 cd server
