@@ -36,31 +36,6 @@ A comprehensive pet care management system that connects pet owners with pet sho
 - **Employee Management**: Manage employee records and assignments
 - **Analytics Dashboard**: Visualize sales, appointments, and popular pet types with predictions
 
-## 🖼️ Screenshots
-
-<table>
-  <tr>
-    <td>
-      <strong>Pet Listings</strong><br>
-      <img src="https://images.unsplash.com/photo-1526336024174-e58f5cdd8e13?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&h=300&q=80" alt="Pet Listings" />
-    </td>
-    <td>
-      <strong>Admin Dashboard</strong><br>
-      <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&h=300&q=80" alt="Admin Dashboard" />
-    </td>
-  </tr>
-  <tr>
-    <td>
-      <strong>User Profile</strong><br>
-      <img src="https://images.unsplash.com/photo-1537151625747-768eb6cf92b2?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&h=300&q=80" alt="User Profile" />
-    </td>
-    <td>
-      <strong>Appointment Booking</strong><br>
-      <img src="https://images.unsplash.com/photo-1516371535707-512a1e83bb9a?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&h=300&q=80" alt="Booking" />
-    </td>
-  </tr>
-</table>
-
 ## 🛠️ Technologies
 
 ### Frontend
@@ -157,10 +132,6 @@ The application uses JWT (JSON Web Tokens) for authentication and supports:
 - Google OAuth login (for customer accounts)
 - Role-based access control for protected routes
 
-## 📱 Mobile Responsive
-
-The application is fully responsive and optimized for both desktop and mobile devices.
-
 ## 🔮 Future Features
 
 - **Pet Health Records**: Track pet vaccinations and medical history
@@ -169,15 +140,6 @@ The application is fully responsive and optimized for both desktop and mobile de
 - **Push Notifications**: Send reminders for appointments
 - **Social Sharing**: Share pet listings on social media
 
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
 
 ## 📄 License
 
@@ -185,9 +147,9 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 
 ## 📧 Contact
 
-Your Name – your.email@example.com
+Your Name – sakithaudarashmika63@gmail.com
 
-Project Link: [https://github.com/yourusername/pet-care-management](https://github.com/yourusername/pet-care-management)
+Project Link: (https://github.com/SakithaSamarathunga33/THE-PET.git)
 
 ---
 
