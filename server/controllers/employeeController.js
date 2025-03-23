@@ -110,18 +110,22 @@ exports.recordAttendance = async (req, res) => {
 // Apply for leave
 exports.applyLeave = async (req, res) => {
     try {
-        const { employeeId, type, startDate, endDate, paid } = req.body;
+        const { employeeId, type, startDate, endDate, reason } = req.body;
         const employee = await Employee.findById(employeeId);
         
         if (!employee) {
             return res.status(404).json({ message: "Employee not found" });
         }
 
+        // Determine default paid status based on leave type
+        const defaultPaid = type === 'Vacation' || type === 'Sick';
+
         const leave = {
             type,
             startDate: new Date(startDate),
             endDate: new Date(endDate),
-            paid: paid !== undefined ? paid : true,
+            reason,
+            paid: defaultPaid, // Default based on type
             approved: false
         };
 
@@ -137,7 +141,7 @@ exports.applyLeave = async (req, res) => {
 // Approve/Reject leave
 exports.updateLeaveStatus = async (req, res) => {
     try {
-        const { employeeId, leaveId, approved } = req.body;
+        const { employeeId, leaveId, approved, paid, comment } = req.body;
         const employee = await Employee.findById(employeeId);
         
         if (!employee) {
@@ -150,8 +154,27 @@ exports.updateLeaveStatus = async (req, res) => {
         }
 
         leave.approved = approved;
+        
+        // Update paid status if provided
+        if (paid !== undefined) {
+            leave.paid = paid;
+        }
+        
+        // Add comment if provided
+        if (comment) {
+            leave.comment = comment;
+        }
+
+        // Update employee status if leave is approved and longer than 3 days
         if (approved) {
-            employee.status = 'On Leave';
+            const startDate = new Date(leave.startDate);
+            const endDate = new Date(leave.endDate);
+            const diffTime = Math.abs(endDate - startDate);
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            if (diffDays >= 3) {
+                employee.status = 'On Leave';
+            }
         }
 
         await employee.save();
@@ -228,36 +251,60 @@ exports.getMonthlySalary = async (req, res) => {
             return res.status(404).json({ message: "Employee not found" });
         }
 
-        // Get the virtual monthlySalary
-        const salary = employee.monthlySalary;
-
+        // Get the virtual monthlySalary - let's calculate it here instead
+        const baseSalary = employee.baseSalary;
+        const dailyRate = baseSalary / 30; // Assuming 30 days in a month
+        const hourlyRate = employee.hourlyRate || dailyRate / 8; // Use hourly rate if available
+        
         // Get detailed breakdown
         const startDate = new Date(year, month - 1, 1);
         const endDate = new Date(year, month, 0);
 
+        // Filter approved leaves for the month
         const approvedLeaves = employee.leaves.filter(leave => 
             leave.approved && 
-            leave.startDate >= startDate && 
-            leave.endDate <= endDate
+            new Date(leave.startDate) <= endDate && 
+            new Date(leave.endDate) >= startDate
         );
 
+        // Calculate unpaid leave deductions
+        const unpaidLeaveDeduction = approvedLeaves
+            .filter(leave => !leave.paid)
+            .reduce((total, leave) => {
+                const leaveStart = new Date(Math.max(leave.startDate, startDate));
+                const leaveEnd = new Date(Math.min(leave.endDate, endDate));
+                const diffTime = Math.abs(leaveEnd - leaveStart);
+                const days = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+                return total + (days * dailyRate);
+            }, 0);
+
+        // Filter approved overtime for the month
         const approvedOvertime = employee.overtime.filter(ot => 
             ot.approved && 
-            ot.date >= startDate && 
-            ot.date <= endDate
+            new Date(ot.date) >= startDate && 
+            new Date(ot.date) <= endDate
         );
 
+        // Calculate overtime pay
+        const overtimePay = approvedOvertime.reduce((total, ot) => {
+            return total + (hourlyRate * ot.hours * ot.rate);
+        }, 0);
+
+        // Calculate total salary
+        const totalSalary = baseSalary + overtimePay - unpaidLeaveDeduction;
+
+        // Get attendance for the month
         const attendance = employee.attendance.filter(att => 
-            att.date >= startDate && 
-            att.date <= endDate
+            new Date(att.date) >= startDate && 
+            new Date(att.date) <= endDate
         );
 
         res.status(200).json({
             employeeName: employee.name,
             month: month,
             year: year,
-            baseSalary: employee.baseSalary,
-            totalSalary: salary,
+            baseSalary: baseSalary,
+            totalSalary: totalSalary,
             breakdown: {
                 leaves: approvedLeaves,
                 overtime: approvedOvertime,

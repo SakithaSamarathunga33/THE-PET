@@ -65,7 +65,18 @@ const employeeSchema = new mongoose.Schema({
         },
         paid: {
             type: Boolean,
-            default: true
+            default: function() {
+                // Default to paid for Vacation and Sick, unpaid for other types
+                return this.type === 'Vacation' || this.type === 'Sick';
+            }
+        },
+        reason: {
+            type: String,
+            default: ''
+        },
+        comment: {
+            type: String,
+            default: ''
         }
     }],
     overtime: [{

@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { FiEdit2, FiTrash2, FiPlus, FiDownload, FiSearch } from 'react-icons/fi';
+import { FiEdit2, FiTrash2, FiPlus, FiDownload, FiSearch, FiImage } from 'react-icons/fi';
 import { MdPets } from 'react-icons/md';
 
-const PetManagement = () => {
+const PetManagement = ({ onDataChange }) => {
   const [pets, setPets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -11,16 +11,33 @@ const PetManagement = () => {
   const [selectedPet, setSelectedPet] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [formData, setFormData] = useState({
-    type: '',
+    type: 'Dog',
     breed: '',
     age: '',
     weight: '',
-    owner: '',
+    gender: 'Male',
+    price: '',
+    status: 'Available',
+    description: '',
     medicalHistory: ''
+    // imageUrl is intentionally omitted to use default images based on type
   });
+  
+  // Store default images for each pet type
+  const [defaultImages, setDefaultImages] = useState({
+    Dog: 'https://images.unsplash.com/photo-1561037404-61cd46aa615b?ixlib=rb-4.0.3',
+    Cat: 'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?ixlib=rb-4.0.3',
+    Bird: 'https://images.unsplash.com/photo-1522858547137-f1dcec554f55?ixlib=rb-4.0.3',
+    Fish: 'https://images.unsplash.com/photo-1520302519878-3fba5b003eed?ixlib=rb-4.0.3',
+    Rabbit: 'https://images.unsplash.com/photo-1535241749838-299277b6305f?ixlib=rb-4.0.3'
+  });
+  
+  // Track if user has manually set an image
+  const [useCustomImage, setUseCustomImage] = useState(false);
 
   useEffect(() => {
     fetchPets();
+    fetchDefaultImages();
   }, []);
 
   // Auto-dismiss notifications
@@ -33,6 +50,33 @@ const PetManagement = () => {
       return () => clearTimeout(timer);
     }
   }, [error, success]);
+  
+  // When type changes, update the image URL if not using custom image
+  useEffect(() => {
+    if (!useCustomImage && formData.type) {
+      setFormData(prev => ({
+        ...prev,
+        imageUrl: defaultImages[formData.type] || ''
+      }));
+    }
+  }, [formData.type, useCustomImage, defaultImages]);
+
+  const fetchDefaultImages = async () => {
+    try {
+      const response = await fetch('http://localhost:8080/api/pets/samples', {
+        credentials: 'include',
+      });
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.defaultImages) {
+          setDefaultImages(data.defaultImages);
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching default images:', err);
+    }
+  };
 
   const fetchPets = async () => {
     try {
@@ -59,11 +103,17 @@ const PetManagement = () => {
       
       const method = selectedPet ? 'PUT' : 'POST';
       
+      // If not using custom image, remove imageUrl to let server assign default
+      const submitData = { ...formData };
+      if (!useCustomImage) {
+        delete submitData.imageUrl;
+      }
+      
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify(formData),
+        body: JSON.stringify(submitData),
       });
 
       const data = await response.json();
@@ -72,7 +122,10 @@ const PetManagement = () => {
       setSuccess(data.message);
       setShowModal(false);
       resetForm();
-      fetchPets();
+      await fetchPets();
+      
+      // Notify parent component of data change
+      if (onDataChange) onDataChange();
     } catch (err) {
       setError(err.message);
     }
@@ -91,7 +144,10 @@ const PetManagement = () => {
       if (!response.ok) throw new Error(data.error);
       
       setSuccess(data.message);
-      fetchPets();
+      await fetchPets();
+      
+      // Notify parent component of data change
+      if (onDataChange) onDataChange();
     } catch (err) {
       setError(err.message);
     }
@@ -99,27 +155,62 @@ const PetManagement = () => {
 
   const handleEdit = (pet) => {
     setSelectedPet(pet);
+    
+    // Check if pet has a custom image (not one of the default images)
+    const isCustomImage = pet.imageUrl && !Object.values(defaultImages).includes(pet.imageUrl);
+    setUseCustomImage(isCustomImage);
+    
     setFormData({
-      type: pet.type || '',
+      type: pet.type || 'Dog',
       breed: pet.breed || '',
       age: pet.age || '',
       weight: pet.weight || '',
-      owner: pet.owner || '',
+      gender: pet.gender || 'Male',
+      price: pet.price || '',
+      status: pet.status || 'Available',
+      imageUrl: pet.imageUrl || defaultImages[pet.type] || '',
+      description: pet.description || '',
       medicalHistory: pet.medicalHistory || ''
     });
+    
     setShowModal(true);
   };
 
   const resetForm = () => {
     setFormData({
-      type: '',
+      type: 'Dog',
       breed: '',
       age: '',
       weight: '',
-      owner: '',
+      gender: 'Male',
+      price: '',
+      status: 'Available',
+      description: '',
       medicalHistory: ''
+      // imageUrl is intentionally omitted to use defaults
     });
+    setUseCustomImage(false);
     setSelectedPet(null);
+  };
+  
+  const handleImageUrlChange = (e) => {
+    const url = e.target.value;
+    setUseCustomImage(!!url); // If URL is provided, use custom image
+    setFormData({...formData, imageUrl: url});
+  };
+  
+  const toggleUseCustomImage = () => {
+    if (useCustomImage) {
+      // Switch back to default image
+      setUseCustomImage(false);
+      setFormData(prev => ({
+        ...prev,
+        imageUrl: defaultImages[prev.type] || ''
+      }));
+    } else {
+      // Enable custom image input
+      setUseCustomImage(true);
+    }
   };
 
   const generateReport = () => {
@@ -128,7 +219,9 @@ const PetManagement = () => {
       'Breed': pet.breed,
       'Age': pet.age,
       'Weight': `${pet.weight} kg`,
-      'Owner': pet.owner || 'N/A',
+      'Gender': pet.gender,
+      'Price': `Rs. ${pet.price}`,
+      'Status': pet.status,
       'Medical History': pet.medicalHistory || 'None'
     }));
 
@@ -155,7 +248,8 @@ const PetManagement = () => {
     return (
       (pet.type?.toLowerCase() || '').includes(searchLower) ||
       (pet.breed?.toLowerCase() || '').includes(searchLower) ||
-      (pet.owner?.toLowerCase() || '').includes(searchLower)
+      (pet.status?.toLowerCase() || '').includes(searchLower) ||
+      (pet.description?.toLowerCase() || '').includes(searchLower)
     );
   });
 
@@ -222,8 +316,9 @@ const PetManagement = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Type</th>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Breed</th>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Age</th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Weight (kg)</th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Owner</th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Gender</th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Price (Rs.)</th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Status</th>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
@@ -233,8 +328,17 @@ const PetManagement = () => {
                   <td className="px-6 py-4 whitespace-nowrap">{pet.type}</td>
                   <td className="px-6 py-4 whitespace-nowrap">{pet.breed}</td>
                   <td className="px-6 py-4 whitespace-nowrap">{pet.age}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{pet.weight}</td>
-                  <td className="px-6 py-4 whitespace-nowrap">{pet.owner || 'N/A'}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{pet.gender}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">Rs. {pet.price}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`px-2 py-1 rounded-full text-xs ${
+                      pet.status === 'Available' ? 'bg-green-100 text-green-800' : 
+                      pet.status === 'Reserved' ? 'bg-yellow-100 text-yellow-800' : 
+                      'bg-red-100 text-red-800'
+                    }`}>
+                      {pet.status}
+                    </span>
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex space-x-3">
                       <button
@@ -260,23 +364,43 @@ const PetManagement = () => {
 
       {/* Add/Edit Pet Modal */}
       {showModal && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
-          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+          <div className="relative top-20 mx-auto p-5 border max-w-xl w-full shadow-lg rounded-md bg-white">
             <div className="mt-3">
               <h3 className="text-lg font-medium text-gray-900 mb-4">
                 {selectedPet ? 'Edit Pet' : 'Add New Pet'}
               </h3>
               <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700">Type</label>
-                  <input
-                    type="text"
-                    value={formData.type}
-                    onChange={(e) => setFormData({...formData, type: e.target.value})}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
-                    required
-                  />
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Type</label>
+                    <select
+                      value={formData.type}
+                      onChange={(e) => setFormData({...formData, type: e.target.value})}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                      required
+                    >
+                      <option value="Dog">Dog</option>
+                      <option value="Cat">Cat</option>
+                      <option value="Bird">Bird</option>
+                      <option value="Fish">Fish</option>
+                      <option value="Rabbit">Rabbit</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Gender</label>
+                    <select
+                      value={formData.gender}
+                      onChange={(e) => setFormData({...formData, gender: e.target.value})}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                      required
+                    >
+                      <option value="Male">Male</option>
+                      <option value="Female">Female</option>
+                    </select>
+                  </div>
                 </div>
+                
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Breed</label>
                   <input
@@ -287,7 +411,8 @@ const PetManagement = () => {
                     required
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                
+                <div className="grid grid-cols-3 gap-4">
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Age</label>
                     <input
@@ -311,23 +436,79 @@ const PetManagement = () => {
                       min="0"
                     />
                   </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Price (Rs.)</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={formData.price}
+                      onChange={(e) => setFormData({...formData, price: e.target.value})}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                      required
+                      min="0"
+                    />
+                  </div>
                 </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Status</label>
+                    <select
+                      value={formData.status}
+                      onChange={(e) => setFormData({...formData, status: e.target.value})}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                      required
+                    >
+                      <option value="Available">Available</option>
+                      <option value="Reserved">Reserved</option>
+                      <option value="Sold">Sold</option>
+                    </select>
+                  </div>
+                  <div>
+                    <div className="flex justify-between">
+                      <label className="block text-sm font-medium text-gray-700">Image URL</label>
+                      <button 
+                        type="button" 
+                        onClick={toggleUseCustomImage}
+                        className="text-xs text-orange-500 hover:text-orange-700"
+                      >
+                        {useCustomImage ? "Use Default Image" : "Use Custom Image"}
+                      </button>
+                    </div>
+                    {useCustomImage ? (
+                      <input
+                        type="text"
+                        value={formData.imageUrl || ''}
+                        onChange={handleImageUrlChange}
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                        placeholder="https://example.com/image.jpg"
+                      />
+                    ) : (
+                      <div className="mt-1 flex items-center p-2 border border-gray-300 rounded-md bg-gray-50">
+                        <FiImage className="text-gray-400 mr-2" />
+                        <span className="text-sm text-gray-500">Using default image for {formData.type}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Owner</label>
-                  <input
-                    type="text"
-                    value={formData.owner}
-                    onChange={(e) => setFormData({...formData, owner: e.target.value})}
+                  <label className="block text-sm font-medium text-gray-700">Description</label>
+                  <textarea
+                    value={formData.description}
+                    onChange={(e) => setFormData({...formData, description: e.target.value})}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                    rows="2"
                   />
                 </div>
+                
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Medical History</label>
                   <textarea
                     value={formData.medicalHistory}
                     onChange={(e) => setFormData({...formData, medicalHistory: e.target.value})}
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
-                    rows="3"
+                    rows="2"
                   />
                 </div>
                 <div className="flex justify-end space-x-3">
