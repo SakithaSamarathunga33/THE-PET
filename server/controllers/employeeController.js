@@ -33,28 +33,28 @@ exports.getEmployeeById = async (req, res) => {
 };
 
 // Update employee
-exports.updateEmployee = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const updateData = req.body;
+exports.updateEmployee = async (req, res) => { 
+    try { 
+        const { id } = req.params; 
+        const updateData = req.body; 
 
-        const employee = await Employee.findById(id);
+        const employee = await Employee.findById(id); 
         if (!employee) {
-            return res.status(404).json({ error: "Employee not found" });
-        }
+            return res.status(404).json({ error: "Employee not found" }); 
+        } 
 
         // Handle salary update
-        if (updateData.calculatedSalary !== undefined) {
-            employee.calculatedSalary = updateData.calculatedSalary;
+        if (updateData.calculatedSalary !== undefined) { 
+            employee.calculatedSalary = updateData.calculatedSalary; 
         } else {
-            // Handle other updates
+            // Handle other updates 
             Object.assign(employee, updateData);
         }
-
+ 
         await employee.save();
-        res.status(200).json({
+        res.status(200).json({ 
             message: "Employee updated successfully",
-            employee
+            employee 
         });
     } catch (error) {
         console.error('Update error:', error);
