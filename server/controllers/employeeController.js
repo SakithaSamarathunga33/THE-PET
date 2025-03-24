@@ -37,7 +37,7 @@ exports.updateEmployee = async (req, res) => {
     try {
         const { id } = req.params;
         const updateData = req.body;
-        
+
         const employee = await Employee.findById(id);
         if (!employee) {
             return res.status(404).json({ error: "Employee not found" });
@@ -52,9 +52,9 @@ exports.updateEmployee = async (req, res) => {
         }
 
         await employee.save();
-        res.status(200).json({ 
-            message: "Employee updated successfully", 
-            employee 
+        res.status(200).json({
+            message: "Employee updated successfully",
+            employee
         });
     } catch (error) {
         console.error('Update error:', error);
@@ -78,7 +78,7 @@ exports.recordAttendance = async (req, res) => {
     try {
         const { employeeId, date, present, checkIn, checkOut } = req.body;
         const employee = await Employee.findById(employeeId);
-        
+
         if (!employee) {
             return res.status(404).json({ message: "Employee not found" });
         }
@@ -112,7 +112,7 @@ exports.applyLeave = async (req, res) => {
     try {
         const { employeeId, type, startDate, endDate, reason } = req.body;
         const employee = await Employee.findById(employeeId);
-        
+
         if (!employee) {
             return res.status(404).json({ message: "Employee not found" });
         }
@@ -143,7 +143,7 @@ exports.updateLeaveStatus = async (req, res) => {
     try {
         const { employeeId, leaveId, approved, paid, comment } = req.body;
         const employee = await Employee.findById(employeeId);
-        
+
         if (!employee) {
             return res.status(404).json({ message: "Employee not found" });
         }
@@ -154,12 +154,12 @@ exports.updateLeaveStatus = async (req, res) => {
         }
 
         leave.approved = approved;
-        
+
         // Update paid status if provided
         if (paid !== undefined) {
             leave.paid = paid;
         }
-        
+
         // Add comment if provided
         if (comment) {
             leave.comment = comment;
@@ -171,7 +171,7 @@ exports.updateLeaveStatus = async (req, res) => {
             const endDate = new Date(leave.endDate);
             const diffTime = Math.abs(endDate - startDate);
             const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            
+
             if (diffDays >= 3) {
                 employee.status = 'On Leave';
             }
@@ -179,9 +179,9 @@ exports.updateLeaveStatus = async (req, res) => {
 
         await employee.save();
 
-        res.status(200).json({ 
-            message: `Leave ${approved ? 'approved' : 'rejected'} successfully`, 
-            leave 
+        res.status(200).json({
+            message: `Leave ${approved ? 'approved' : 'rejected'} successfully`,
+            leave
         });
     } catch (error) {
         res.status(400).json({ error: error.message });
@@ -193,7 +193,7 @@ exports.recordOvertime = async (req, res) => {
     try {
         const { employeeId, date, hours, rate } = req.body;
         const employee = await Employee.findById(employeeId);
-        
+
         if (!employee) {
             return res.status(404).json({ message: "Employee not found" });
         }
@@ -219,7 +219,7 @@ exports.updateOvertimeStatus = async (req, res) => {
     try {
         const { employeeId, overtimeId, approved } = req.body;
         const employee = await Employee.findById(employeeId);
-        
+
         if (!employee) {
             return res.status(404).json({ message: "Employee not found" });
         }
@@ -232,9 +232,9 @@ exports.updateOvertimeStatus = async (req, res) => {
         overtime.approved = approved;
         await employee.save();
 
-        res.status(200).json({ 
-            message: `Overtime ${approved ? 'approved' : 'rejected'} successfully`, 
-            overtime 
+        res.status(200).json({
+            message: `Overtime ${approved ? 'approved' : 'rejected'} successfully`,
+            overtime
         });
     } catch (error) {
         res.status(400).json({ error: error.message });
@@ -246,7 +246,7 @@ exports.getMonthlySalary = async (req, res) => {
     try {
         const { employeeId, month, year } = req.params;
         const employee = await Employee.findById(employeeId);
-        
+
         if (!employee) {
             return res.status(404).json({ message: "Employee not found" });
         }
@@ -255,15 +255,15 @@ exports.getMonthlySalary = async (req, res) => {
         const baseSalary = employee.baseSalary;
         const dailyRate = baseSalary / 30; // Assuming 30 days in a month
         const hourlyRate = employee.hourlyRate || dailyRate / 8; // Use hourly rate if available
-        
+
         // Get detailed breakdown
         const startDate = new Date(year, month - 1, 1);
         const endDate = new Date(year, month, 0);
 
         // Filter approved leaves for the month
-        const approvedLeaves = employee.leaves.filter(leave => 
-            leave.approved && 
-            new Date(leave.startDate) <= endDate && 
+        const approvedLeaves = employee.leaves.filter(leave =>
+            leave.approved &&
+            new Date(leave.startDate) <= endDate &&
             new Date(leave.endDate) >= startDate
         );
 
@@ -279,9 +279,9 @@ exports.getMonthlySalary = async (req, res) => {
             }, 0);
 
         // Filter approved overtime for the month
-        const approvedOvertime = employee.overtime.filter(ot => 
-            ot.approved && 
-            new Date(ot.date) >= startDate && 
+        const approvedOvertime = employee.overtime.filter(ot =>
+            ot.approved &&
+            new Date(ot.date) >= startDate &&
             new Date(ot.date) <= endDate
         );
 
@@ -294,8 +294,8 @@ exports.getMonthlySalary = async (req, res) => {
         const totalSalary = baseSalary + overtimePay - unpaidLeaveDeduction;
 
         // Get attendance for the month
-        const attendance = employee.attendance.filter(att => 
-            new Date(att.date) >= startDate && 
+        const attendance = employee.attendance.filter(att =>
+            new Date(att.date) >= startDate &&
             new Date(att.date) <= endDate
         );
 
