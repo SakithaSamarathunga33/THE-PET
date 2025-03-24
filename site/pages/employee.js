@@ -96,7 +96,7 @@ const EmployeePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-blue-50">
       {/* Navigation Bar */}
           <nav className="bg-white shadow-md">
           <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10">
@@ -128,10 +128,11 @@ const EmployeePage = () => {
             </div>
           </div>
         </nav>
-
-        <div className="flex justify-center items-center mb-6">
+        <div className="container mx-auto px-4 py-8">
+        <div className="flex justify-center items-center">
             <h1 className="text-3xl font-extrabold text-gray-900 tracking-wide">Employee Profile</h1>
           </div>
+        </div>
           <div className="container mx-auto px-4 py-8">
             {/* Employee Profile */}
           <div className="bg-white shadow-xl rounded-2xl p-6 mb-6 transition-all hover:shadow-2xl">
