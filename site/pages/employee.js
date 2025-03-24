@@ -96,7 +96,7 @@ const EmployeePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-blue-50">
+    <div className="min-h-screen bg-green-100">
       {/* Navigation Bar */}
           <nav className="bg-white shadow-md">
           <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10">
@@ -130,8 +130,10 @@ const EmployeePage = () => {
         </nav>
         <div className="container mx-auto px-4 py-8">
         <div className="flex justify-center items-center">
-            <h1 className="text-3xl font-extrabold text-gray-900 tracking-wide">Employee Profile</h1>
-          </div>
+        <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#42A5F5] to-[#00796B] tracking-wide animate-fadeInUp">
+          Employee Profile
+        </h1>
+        </div>
         </div>
           <div className="container mx-auto px-4 py-8">
             {/* Employee Profile */}
