@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { FiUser, FiCalendar, FiClock, FiDollarSign, FiFileText, FiLogOut, FiHome, FiMenu } from 'react-icons/fi';
 import Link from 'next/link';
+import Calendar from 'react-calendar'; 
+import 'react-calendar/dist/Calendar.css'; 
 
 const EmployeePage = () => {
   const router = useRouter();
@@ -9,6 +11,7 @@ const EmployeePage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [username, setUsername] = useState('');
+  const [date, setDate] = useState(new Date());
 
   useEffect(() => {
     // Check if user is logged in and is an employee
@@ -87,7 +90,19 @@ const EmployeePage = () => {
       </div>
     );
   }
+  const isAttendanceDate = (date) => {
+    if (!employee || !employee.attendance) return false;
 
+    // Check if the current date is present in the attendance data
+    return employee.attendance.some(att => {
+      const attDate = new Date(att.date);
+      return (
+        attDate.getDate() === date.getDate() &&
+        attDate.getMonth() === date.getMonth() &&
+        attDate.getFullYear() === date.getFullYear()
+      );
+    });
+  };
   return (
     <div className="min-h-screen bg-gray-100">
       {/* Navigation Bar */}
@@ -299,6 +314,43 @@ const EmployeePage = () => {
               <p className="text-gray-500 text-center py-4">No attendance records found</p>
             )}
           </div>
+          <div className="container mx-auto px-4 py-8">
+        {/* Other content */}
+
+        {/* Attendance Calendar */}
+        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">Attendance Calendar</h3>
+          <Calendar
+            onChange={setDate} // Set selected date on calendar click
+            value={date} // The selected date state
+            minDate={new Date('2023-01-01')} // Min Date you want to allow
+            maxDate={new Date()} // Max Date to prevent future dates
+            tileClassName={({ date, view }) => {
+              // Mark attendance dates with different colors
+              if (view === 'month' && isAttendanceDate(date)) {
+                const attendance = employee.attendance.find(att => {
+                  const attDate = new Date(att.date);
+                  return (
+                    attDate.getDate() === date.getDate() &&
+                    attDate.getMonth() === date.getMonth() &&
+                    attDate.getFullYear() === date.getFullYear()
+                  );
+                });
+                
+                // If present, mark with a green background, otherwise red
+                return attendance && attendance.present
+                  ? 'bg-green-200'
+                  : 'bg-red-200';
+              }
+            }}
+          />
+          <div className="mt-4 text-center">
+            <p className="text-gray-600">Selected Date: {date.toLocaleDateString()}</p>
+          </div>
+        </div>
+
+      </div>
+        
         </div>
       </div>
     </div>
