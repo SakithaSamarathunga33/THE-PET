@@ -9,4 +9,5 @@ router.put("/:id", inventoryController.updateItem);
 router.delete("/:id", inventoryController.deleteItem);
 router.post("/:id/restock", inventoryController.restockItem);
 
+//Export the router
 module.exports = router;

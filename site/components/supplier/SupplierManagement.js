@@ -118,7 +118,7 @@ const SupplierManagement = () => {
       setError(err.message);
     }
   };
-
+  //If admin needs to delete the supplier 
   const handleDelete = async (id) => {
     if (!window.confirm('Are you sure you want to delete this supplier?')) return;
     

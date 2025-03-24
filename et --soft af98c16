@@ -1,0 +1,46 @@
+[33m02c1c1e[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m Started project
+[33maf98c16[m fixed user
+[33m5dfcb00[m Update appointmentController.js
+[33mee6b12b[m update the setup  and start instructions
+[33mc5dd39d[m appointment prediction system uses Facebook Prophet AI
+[33mf5ab3e9[m Validations updated
+[33me49dc16[m validations
+[33m3342d0c[m fix validations
+[33mbd9a1be[m changed the theme
+[33mca11bbd[m ui changes
+[33m0e9bde6[m fixed some errors
+[33m429782b[m Merge pull request #1 from SakithaSamarathunga33/Chamodi
+[33m6c48e01[m[33m ([m[1;31morigin/Chamodi[m[33m)[m Merge branch 'master' into Chamodi
+[33m1165cc5[m css modify
+[33mb2d3ab4[m styles change
+[33mbe0f106[m modify employee profile page
+[33m0b8bccb[m update
+[33m171e3a4[m i add to calender
+[33m343d7e3[m change some file
+[33m664cad6[m age, weight  fixed
+[33m73fa650[m add validations
+[33mcf4df21[m .js added
+[33m9e66c71[m added some fixers
+[33ma1873c8[m added inventory
+[33mfbc103a[m Update README.md
+[33m334bdc3[m Update README.md
+[33md9a8b40[m Update README.md
+[33m284db68[m Update README.md
+[33m139f028[m Create README.md
+[33m1d602c3[m removed some files
+[33m5aeeffd[m[33m ([m[1;31morigin/Gangani[m[33m)[m fixed employee
+[33m2a834a4[m analityics added
+[33m4117b96[m Update package-lock.json
+[33md515cbe[m improved ui
+[33m4f1df12[m fixed employee and added appointments
+[33m3559fa9[m added user profile
+[33md083fc7[m[33m ([m[1;31morigin/Haritha[m[33m)[m fixed forum
+[33m00e7f43[m added forums
+[33md6ef735[m added Emergency Services
+[33m0580192[m removed chat bot from dashboard
+[33m9f723a4[m added chat bot
+[33m504bdd1[m removed doc,apply.features
+[33m65c1cfd[m done 75%
+[33m190793e[m backend dont 50%
+[33m4c492d8[m 2nd time
+[33m74cb0ca[m first commit
