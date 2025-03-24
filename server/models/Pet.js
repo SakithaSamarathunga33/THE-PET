@@ -33,13 +33,13 @@ const petSchema = new mongoose.Schema({
         type: Number, 
         required: [true, "Age is required"],
         min: [0, "Age cannot be negative"],
-        max: [100, "Age value is too high"]
+        max: [15, "Age value is too high"]
     },
     weight: { 
         type: Number, 
         required: [true, "Weight is required"],
         min: [0, "Weight cannot be negative"],
-        max: [1000, "Weight value is too high"]
+        max: [100, "Weight value is too high"]
     },
     gender: { 
         type: String, 
