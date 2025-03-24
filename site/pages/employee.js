@@ -315,8 +315,7 @@ const EmployeePage = () => {
             )}
           </div>
           <div className="container mx-auto px-4 py-8">
-        {/* Other content */}
-
+       
         {/* Attendance Calendar */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <h3 className="text-lg font-semibold text-gray-800 mb-4">Attendance Calendar</h3>
