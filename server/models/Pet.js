@@ -16,25 +16,51 @@ const getDefaultImageForType = function(type) {
 const petSchema = new mongoose.Schema({
     type: { 
         type: String, 
-        required: true,
-        enum: ['Dog', 'Cat', 'Bird', 'Fish', 'Rabbit']
+        required: [true, "Pet type is required"],
+        enum: {
+            values: ['Dog', 'Cat', 'Bird', 'Fish', 'Rabbit'],
+            message: "{VALUE} is not a valid pet type"
+        }
     },
-    breed: { type: String, required: true },
-    age: { type: Number, required: true },
-    weight: { type: Number, required: true },
+    breed: { 
+        type: String, 
+        required: [true, "Breed is required"],
+        trim: true,
+        minlength: [2, "Breed must be at least 2 characters long"],
+        maxlength: [50, "Breed cannot exceed 50 characters"]
+    },
+    age: { 
+        type: Number, 
+        required: [true, "Age is required"],
+        min: [0, "Age cannot be negative"],
+        max: [100, "Age value is too high"]
+    },
+    weight: { 
+        type: Number, 
+        required: [true, "Weight is required"],
+        min: [0, "Weight cannot be negative"],
+        max: [1000, "Weight value is too high"]
+    },
     gender: { 
         type: String, 
-        required: true,
-        enum: ['Male', 'Female']
+        required: [true, "Gender is required"],
+        enum: {
+            values: ['Male', 'Female'],
+            message: "{VALUE} is not a valid gender"
+        }
     },
     price: { 
         type: Number, 
-        required: true 
+        required: [true, "Price is required"],
+        min: [0, "Price cannot be negative"]
     },
     status: {
         type: String,
-        required: true,
-        enum: ['Available', 'Sold', 'Reserved'],
+        required: [true, "Status is required"],
+        enum: {
+            values: ['Available', 'Sold', 'Reserved'],
+            message: "{VALUE} is not a valid status"
+        },
         default: 'Available'
     },
     imageUrl: { 
@@ -43,8 +69,16 @@ const petSchema = new mongoose.Schema({
             return getDefaultImageForType(this.type);
         }
     },
-    description: { type: String },
-    medicalHistory: { type: String },
+    description: { 
+        type: String,
+        trim: true,
+        maxlength: [1000, "Description cannot exceed 1000 characters"]
+    },
+    medicalHistory: { 
+        type: String,
+        trim: true,
+        maxlength: [1000, "Medical history cannot exceed 1000 characters"]
+    },
 }, { timestamps: true });
 
 // Make the default image function available outside the schema

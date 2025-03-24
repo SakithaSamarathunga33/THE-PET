@@ -7,23 +7,56 @@ const VALID_BRANCHES = ['Colombo Branch', 'Kandy Branch', 'Galle Branch', 'Jaffn
 // @route   POST /api/appointments
 exports.createAppointment = async (req, res) => {
   try {
-    const { branch } = req.body;
+    const { petName, contactNumber, appointmentDate, reason, branch } = req.body;
     
-    // Validate branch
+    // Enhanced validation
+    
+    // 1. Validate branch
     if (!branch || !VALID_BRANCHES.includes(branch)) {
       return res.status(400).json({ 
         error: 'Invalid branch selection. Please select a valid branch.' 
       });
     }
-
+    
+    // 2. Validate contact number format
+    const phoneRegex = /^(?:\+\d{1,3})?\s?\d{9,15}$/;
+    if (!contactNumber || !phoneRegex.test(contactNumber)) {
+      return res.status(400).json({
+        error: 'Please provide a valid contact number'
+      });
+    }
+    
+    // 3. Validate appointment date (not in the past)
+    const currentDate = new Date();
+    currentDate.setHours(0, 0, 0, 0);  // Start of today
+    
+    if (!appointmentDate || new Date(appointmentDate) < currentDate) {
+      return res.status(400).json({
+        error: 'Appointment date cannot be in the past'
+      });
+    }
+    
+    // 4. Validate basic fields
+    if (!petName || petName.trim().length < 2) {
+      return res.status(400).json({
+        error: 'Pet name is required and must be at least 2 characters long'
+      });
+    }
+    
+    if (!reason || reason.trim().length < 5) {
+      return res.status(400).json({
+        error: 'Reason is required and must be at least 5 characters long'
+      });
+    }
+    
     // If a user is logged in, use their name as the owner name
     const appointmentData = { ...req.body };
     
     if (req.user) {
       appointmentData.ownerName = req.user.name;
-    } else if (!appointmentData.ownerName) {
+    } else if (!appointmentData.ownerName || appointmentData.ownerName.trim().length < 2) {
       return res.status(400).json({
-        error: 'Owner name is required when not logged in'
+        error: 'Owner name is required when not logged in and must be at least 2 characters long'
       });
     }
 
@@ -38,6 +71,12 @@ exports.createAppointment = async (req, res) => {
       appointment: savedAppointment
     });
   } catch (error) {
+    // Check for Mongoose validation errors
+    if (error.name === 'ValidationError') {
+      const messages = Object.values(error.errors).map(val => val.message);
+      return res.status(400).json({ error: messages[0] });
+    }
+    
     res.status(400).json({ error: error.message });
   }
 };

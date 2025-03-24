@@ -3,7 +3,39 @@ const Pet = require("../models/Pet");
 // Add new pet
 exports.addPet = async (req, res) => {
     try {
+        const { type, breed, age, weight, gender, price } = req.body;
         const petData = { ...req.body };
+        
+        // Enhanced validation
+        // 1. Validate pet type
+        if (!type || !['Dog', 'Cat', 'Bird', 'Fish', 'Rabbit'].includes(type)) {
+            return res.status(400).json({ error: 'Invalid pet type' });
+        }
+        
+        // 2. Validate required fields with length/value checks
+        if (!breed || breed.trim().length < 2 || breed.trim().length > 50) {
+            return res.status(400).json({ error: 'Breed is required and must be between 2 and 50 characters' });
+        }
+        
+        // 3. Validate age
+        if (age === undefined || age === null || isNaN(age) || age < 0 || age > 100) {
+            return res.status(400).json({ error: 'Age is required and must be between 0 and 100' });
+        }
+        
+        // 4. Validate weight
+        if (weight === undefined || weight === null || isNaN(weight) || weight < 0 || weight > 1000) {
+            return res.status(400).json({ error: 'Weight is required and must be between 0 and 1000' });
+        }
+        
+        // 5. Validate gender
+        if (!gender || !['Male', 'Female'].includes(gender)) {
+            return res.status(400).json({ error: 'Gender must be either Male or Female' });
+        }
+        
+        // 6. Validate price
+        if (price === undefined || price === null || isNaN(price) || price < 0) {
+            return res.status(400).json({ error: 'Price is required and must be a positive number' });
+        }
         
         // If no image URL is provided, use the default image for the pet type
         if (!petData.imageUrl && petData.type) {
@@ -14,6 +46,12 @@ exports.addPet = async (req, res) => {
         await pet.save();
         res.status(201).json({ message: "Pet added successfully", pet });
     } catch (error) {
+        // Check for Mongoose validation errors
+        if (error.name === 'ValidationError') {
+            const messages = Object.values(error.errors).map(val => val.message);
+            return res.status(400).json({ error: messages[0] });
+        }
+        
         res.status(400).json({ error: error.message });
     }
 };
@@ -88,7 +126,33 @@ exports.getPetById = async (req, res) => {
 // Update pet
 exports.updatePet = async (req, res) => {
     try {
+        const { type, breed, age, weight, gender, price } = req.body;
         const petData = { ...req.body };
+        
+        // Enhanced validation for update operation
+        if (type && !['Dog', 'Cat', 'Bird', 'Fish', 'Rabbit'].includes(type)) {
+            return res.status(400).json({ error: 'Invalid pet type' });
+        }
+        
+        if (breed && (breed.trim().length < 2 || breed.trim().length > 50)) {
+            return res.status(400).json({ error: 'Breed must be between 2 and 50 characters' });
+        }
+        
+        if (age !== undefined && (isNaN(age) || age < 0 || age > 100)) {
+            return res.status(400).json({ error: 'Age must be between 0 and 100' });
+        }
+        
+        if (weight !== undefined && (isNaN(weight) || weight < 0 || weight > 1000)) {
+            return res.status(400).json({ error: 'Weight must be between 0 and 1000' });
+        }
+        
+        if (gender && !['Male', 'Female'].includes(gender)) {
+            return res.status(400).json({ error: 'Gender must be either Male or Female' });
+        }
+        
+        if (price !== undefined && (isNaN(price) || price < 0)) {
+            return res.status(400).json({ error: 'Price must be a positive number' });
+        }
         
         // If type is being changed and no new image URL is provided, use default image for the new type
         if (petData.type && !petData.imageUrl) {
@@ -98,10 +162,16 @@ exports.updatePet = async (req, res) => {
             }
         }
         
-        const pet = await Pet.findByIdAndUpdate(req.params.id, petData, { new: true });
+        const pet = await Pet.findByIdAndUpdate(req.params.id, petData, { new: true, runValidators: true });
         if (!pet) return res.status(404).json({ message: "Pet not found" });
         res.status(200).json({ message: "Pet updated successfully", pet });
     } catch (error) {
+        // Check for Mongoose validation errors
+        if (error.name === 'ValidationError') {
+            const messages = Object.values(error.errors).map(val => val.message);
+            return res.status(400).json({ error: messages[0] });
+        }
+        
         res.status(400).json({ error: error.message });
     }
 };

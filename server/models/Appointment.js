@@ -4,32 +4,56 @@ const appointmentSchema = new mongoose.Schema(
   {
     petName: {
       type: String,
-      required: true
+      required: [true, "Pet name is required"],
+      trim: true,
+      minlength: [2, "Pet name must be at least 2 characters long"],
+      maxlength: [50, "Pet name cannot exceed 50 characters"]
     },
     ownerName: {
       type: String,
-      required: true
+      required: [true, "Owner name is required"],
+      trim: true,
+      minlength: [2, "Owner name must be at least 2 characters long"],
+      maxlength: [50, "Owner name cannot exceed 50 characters"]
     },
     contactNumber: {
       type: String,
-      required: true
+      required: [true, "Contact number is required"],
+      trim: true,
+      match: [/^(?:\+\d{1,3})?\s?\d{9,15}$/, "Please provide a valid contact number"]
     },
     appointmentDate: {
       type: Date,
-      required: true
+      required: [true, "Appointment date is required"],
+      validate: {
+        validator: function(value) {
+          // Allow appointments from today onwards
+          return value >= new Date(new Date().setHours(0, 0, 0, 0));
+        },
+        message: "Appointment date cannot be in the past"
+      }
     },
     reason: {
       type: String,
-      required: true
+      required: [true, "Reason is required"],
+      trim: true,
+      minlength: [5, "Reason must be at least 5 characters long"],
+      maxlength: [500, "Reason cannot exceed 500 characters"]
     },
     branch: {
       type: String,
-      required: true,
-      enum: ['Colombo Branch', 'Kandy Branch', 'Galle Branch', 'Jaffna Branch']
+      required: [true, "Branch is required"],
+      enum: {
+        values: ['Colombo Branch', 'Kandy Branch', 'Galle Branch', 'Jaffna Branch'],
+        message: "{VALUE} is not a valid branch"
+      }
     },
     status: {
       type: String,
-      enum: ["Pending", "Confirmed", "Completed", "Cancelled"],
+      enum: {
+        values: ["Pending", "Confirmed", "Completed", "Cancelled"],
+        message: "{VALUE} is not a valid status"
+      },
       default: "Pending"
     }
   },
