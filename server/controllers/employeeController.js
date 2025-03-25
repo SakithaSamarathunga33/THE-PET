@@ -74,20 +74,20 @@ exports.deleteEmployee = async (req, res) => {
 };
 
 // Record attendance
-exports.recordAttendance = async (req, res) => {
-    try {
-        const { employeeId, date, present, checkIn, checkOut } = req.body;
-        const employee = await Employee.findById(employeeId);
+exports.recordAttendance = async (req, res) => { 
+    try { 
+        const { employeeId, date, present, checkIn, checkOut } = req.body; 
+        const employee = await Employee.findById(employeeId); 
 
-        if (!employee) {
-            return res.status(404).json({ message: "Employee not found" });
-        }
+        if (!employee) { 
+            return res.status(404).json({ message: "Employee not found" }); 
+        } 
 
         let hoursWorked = 0;
         if (checkIn && checkOut) {
-            const checkInTime = new Date(checkIn);
+            const checkInTime = new Date(checkIn); 
             const checkOutTime = new Date(checkOut);
-            hoursWorked = (checkOutTime - checkInTime) / (1000 * 60 * 60);
+            hoursWorked = (checkOutTime - checkInTime) / (1000 * 60 * 60); 
         }
 
         const attendance = {
@@ -96,14 +96,14 @@ exports.recordAttendance = async (req, res) => {
             checkIn: checkIn ? new Date(checkIn) : null,
             checkOut: checkOut ? new Date(checkOut) : null,
             hoursWorked
-        };
+        }; 
 
         employee.attendance.push(attendance);
         await employee.save();
 
         res.status(200).json({ message: "Attendance recorded successfully", attendance });
-    } catch (error) {
-        res.status(400).json({ error: error.message });
+    } catch (error) { 
+        res.status(400).json({ error: error.message }); 
     }
 };
 
