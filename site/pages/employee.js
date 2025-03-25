@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { FiUser, FiCalendar, FiClock, FiDollarSign, FiFileText, FiLogOut, FiHome, FiMenu } from 'react-icons/fi';
+import { FiUser, FiCalendar, FiClock, FiDollarSign, FiFileText, FiLogOut, FiHome, FiMenu, FiPlus } from 'react-icons/fi';
 import Link from 'next/link';
 import Calendar from 'react-calendar'; 
 import 'react-calendar/dist/Calendar.css'; 
@@ -11,7 +11,19 @@ const EmployeePage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [username, setUsername] = useState('');
+
   const [date, setDate] = useState(new Date());
+
+  const [showLeaveModal, setShowLeaveModal] = useState(false);
+  const [leaveForm, setLeaveForm] = useState({
+    type: 'Vacation',
+    startDate: '',
+    endDate: '',
+    reason: ''
+  });
+  const [leaveError, setLeaveError] = useState(null);
+  const [leaveSuccess, setLeaveSuccess] = useState(null);
+
 
   useEffect(() => {
     const token = localStorage.getItem('token');
@@ -66,6 +78,39 @@ const EmployeePage = () => {
       router.push('/login');
     } catch (error) {
       console.error("Logout error:", error);
+    }
+  };
+
+  const handleLeaveSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await fetch('http://localhost:8080/api/employees/leave', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          employeeId: employee._id,
+          ...leaveForm
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to submit leave application');
+      }
+
+      setLeaveSuccess('Leave application submitted successfully');
+      setShowLeaveModal(false);
+      setLeaveForm({
+        type: 'Vacation',
+        startDate: '',
+        endDate: '',
+        reason: ''
+      });
+      fetchEmployeeData(employee._id); // Refresh employee data
+    } catch (error) {
+      setLeaveError(error.message);
     }
   };
 
@@ -225,6 +270,7 @@ const EmployeePage = () => {
           )}
         </div>
 
+
         {/* Leave Information */}
         <div className="bg-white rounded-xl shadow-lg p-6 transition-all hover:shadow-2xl">
           <h3 className="text-2xl font-bold text-gray-900 border-b pb-3 mb-4">Leave Information</h3>
@@ -249,15 +295,70 @@ const EmployeePage = () => {
                           leave.approved 
                             ? 'bg-green-100 text-green-800 border border-green-300'
                             : 'bg-yellow-100 text-yellow-800 border border-yellow-300'
+=======
+          {/* Leave Management Section */}
+          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold text-gray-800">Leave Management</h2>
+              <button
+                onClick={() => setShowLeaveModal(true)}
+                className="inline-flex items-center px-4 py-2 bg-[#4DB6AC] text-white rounded-lg hover:bg-[#4DB6AC]/90 transition-colors duration-200"
+              >
+                <FiPlus className="w-5 h-5 mr-2" />
+                Apply for Leave
+              </button>
+            </div>
+
+            {/* Leave History */}
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">From</th>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">To</th>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Paid</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {employee?.leaves?.map((leave, index) => (
+                    <tr key={index} className="hover:bg-gray-50">
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{leave.type}</td>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
+                        {new Date(leave.startDate).toLocaleDateString()}
+                      </td>
+                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
+                        {new Date(leave.endDate).toLocaleDateString()}
+                      </td>
+                      <td className="px-4 py-2 whitespace-nowrap">
+                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          leave.approved 
+                            ? 'bg-green-100 text-green-800' 
+                            : 'bg-yellow-100 text-yellow-800'
+
                         }`}>
                           {leave.approved ? 'Approved' : 'Pending'}
                         </span>
                       </td>
+
+
+                      <td className="px-4 py-2 whitespace-nowrap">
+                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                          leave.paid 
+                            ? 'bg-blue-100 text-blue-800' 
+                            : 'bg-red-100 text-red-800'
+                        }`}>
+                          {leave.paid ? 'Paid' : 'Unpaid'}
+                        </span>
+                      </td>
+
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
+
           ) : (
             <p className="text-gray-500 text-center py-4">No leave records found</p>
           )}
@@ -295,6 +396,7 @@ const EmployeePage = () => {
                 }
               }}
             />
+
           </div>
 
           <div className="mt-4 text-center bg-gray-100 py-3 rounded-lg">
@@ -304,7 +406,91 @@ const EmployeePage = () => {
           </div>
         </div>
 
+
         </div>
+
+        {/* Leave Application Modal */}
+        {showLeaveModal && (
+          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
+            <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+              <div className="mt-3">
+                <h3 className="text-lg font-medium text-gray-900 mb-4">Apply for Leave</h3>
+                {leaveError && (
+                  <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
+                    {leaveError}
+                  </div>
+                )}
+                {leaveSuccess && (
+                  <div className="mb-4 p-3 bg-green-100 text-green-700 rounded">
+                    {leaveSuccess}
+                  </div>
+                )}
+                <form onSubmit={handleLeaveSubmit} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Leave Type</label>
+                    <select
+                      value={leaveForm.type}
+                      onChange={(e) => setLeaveForm({...leaveForm, type: e.target.value})}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#4DB6AC] focus:ring-[#4DB6AC]"
+                      required
+                    >
+                      <option value="Vacation">Vacation</option>
+                      <option value="Sick">Sick Leave</option>
+                      <option value="Personal">Personal</option>
+                      <option value="Unpaid">Unpaid Leave</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Start Date</label>
+                    <input
+                      type="date"
+                      value={leaveForm.startDate}
+                      onChange={(e) => setLeaveForm({...leaveForm, startDate: e.target.value})}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#4DB6AC] focus:ring-[#4DB6AC]"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">End Date</label>
+                    <input
+                      type="date"
+                      value={leaveForm.endDate}
+                      onChange={(e) => setLeaveForm({...leaveForm, endDate: e.target.value})}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#4DB6AC] focus:ring-[#4DB6AC]"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700">Reason for Leave</label>
+                    <textarea
+                      value={leaveForm.reason}
+                      onChange={(e) => setLeaveForm({...leaveForm, reason: e.target.value})}
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#4DB6AC] focus:ring-[#4DB6AC]"
+                      rows="3"
+                      required
+                    />
+                  </div>
+                  <div className="flex justify-end space-x-3">
+                    <button
+                      type="button"
+                      onClick={() => setShowLeaveModal(false)}
+                      className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="px-4 py-2 bg-[#4DB6AC] text-white rounded-md hover:bg-[#4DB6AC]/90"
+                    >
+                      Submit
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   );

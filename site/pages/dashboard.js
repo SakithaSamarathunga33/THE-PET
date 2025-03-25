@@ -4,6 +4,7 @@ import UserManagement from "../components/user/UserManagement";
 import EmployeeManagement from "../components/employee/EmployeeManagement";
 import PetManagement from "../components/pet/petManagement";
 import InventoryManagement from "../components/inventory/InventoryManagement";
+import SupplierManagement from "../components/supplier/SupplierManagement";
 import AppointmentManagement from "../components/appointment/AppointmentManagement";
 import ForumManagement from "../components/forum/ForumManagement";
 import BranchAnalytics from "../components/dashboard/BranchAnalytics";
@@ -286,6 +287,7 @@ const Dashboard = () => {
     { id: "employee", label: "Employees", icon: <FiUserPlus className="w-5 h-5" /> },
     { id: "pet", label: "Pets", icon: <MdPets className="w-5 h-5" /> },
     { id: "inventory", label: "Inventory", icon: <FiPackage className="w-5 h-5" /> },
+    { id: "supplier", label: "Suppliers", icon: <FiShoppingBag className="w-5 h-5" /> },
     { id: "appointment", label: "Appointments", icon: <FiCalendar className="w-5 h-5" /> },
     { id: "forum", label: "Forum", icon: <MdForum className="w-5 h-5" /> },
   ];
@@ -486,6 +488,8 @@ const Dashboard = () => {
         return <AppointmentManagement />;
       case "forum":
         return <ForumManagement />;
+      case "supplier":
+        return <SupplierManagement />;
       default:
         return null;
     }

@@ -4,7 +4,16 @@ const User = require("../models/user");
 // Protect routes - verify JWT token
 const protect = async (req, res, next) => {
     try {
-        const token = req.header("Authorization")?.replace("Bearer ", "");
+        let token;
+        
+        // Check for token in Authorization header
+        if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+            token = req.headers.authorization.split(' ')[1];
+        } 
+        // Check for token in cookie
+        else if (req.cookies && req.cookies.token) {
+            token = req.cookies.token;
+        }
         
         if (!token) {
             return res.status(401).json({ message: "No token provided" });
@@ -41,7 +50,16 @@ const adminOnly = async (req, res, next) => {
 // Optional auth - don't require token but attach user if present
 const optional = async (req, res, next) => {
     try {
-        const token = req.header("Authorization")?.replace("Bearer ", "");
+        let token;
+        
+        // Check for token in Authorization header
+        if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+            token = req.headers.authorization.split(' ')[1];
+        } 
+        // Check for token in cookie
+        else if (req.cookies && req.cookies.token) {
+            token = req.cookies.token;
+        }
         
         if (!token) {
             return next();
@@ -56,6 +74,7 @@ const optional = async (req, res, next) => {
         next();
     } catch (error) {
         // Don't send error - just continue without user
+        console.log('Optional auth error (continuing anyway):', error.message);
         next();
     }
 };

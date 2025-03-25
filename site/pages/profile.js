@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import NavBar from '../components/Navbar';
-import { FiUser, FiMail, FiEdit2 } from 'react-icons/fi';
+import { FiUser, FiMail, FiEdit2, FiCalendar, FiClock, FiMapPin, FiPhoneCall } from 'react-icons/fi';
 import Image from 'next/image';
 
 const Profile = () => {
@@ -10,6 +10,9 @@ const Profile = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
+    const [appointments, setAppointments] = useState([]);
+    const [loadingAppointments, setLoadingAppointments] = useState(false);
+    const [appointmentError, setAppointmentError] = useState('');
     const [formData, setFormData] = useState({
         username: '',
         name: '',
@@ -24,6 +27,12 @@ const Profile = () => {
         }
         fetchUserData();
     }, []);
+
+    useEffect(() => {
+        if (user) {
+            fetchUserAppointments();
+        }
+    }, [user]);
 
     const fetchUserData = async () => {
         try {
@@ -50,6 +59,53 @@ const Profile = () => {
         } catch (error) {
             console.error('Error fetching user data:', error);
             setError('Failed to load user data');
+        }
+    };
+
+    const fetchUserAppointments = async () => {
+        setLoadingAppointments(true);
+        setAppointmentError('');
+        try {
+            const token = localStorage.getItem('token');
+            const response = await fetch('http://localhost:8080/api/appointments', {
+                method: 'GET',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch appointments');
+            }
+
+            const allAppointments = await response.json();
+            
+            // Filter appointments for the current user
+            const userAppointments = allAppointments.filter(apt => 
+                apt.ownerName === user.name
+            );
+            
+            // Sort by date (newest first)
+            userAppointments.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+            
+            setAppointments(userAppointments);
+        } catch (error) {
+            console.error('Error fetching appointments:', error);
+            setAppointmentError('Failed to load your appointments');
+        } finally {
+            setLoadingAppointments(false);
+        }
+    };
+
+    const getStatusColor = (status) => {
+        switch (status) {
+            case 'Pending': return 'bg-yellow-100 text-yellow-800';
+            case 'Confirmed': return 'bg-blue-100 text-blue-800';
+            case 'Completed': return 'bg-green-100 text-green-800';
+            case 'Cancelled': return 'bg-red-100 text-red-800';
+            default: return 'bg-gray-100 text-gray-800';
         }
     };
 
@@ -91,6 +147,8 @@ const Profile = () => {
             localStorage.setItem('username', data.name);
             setIsEditing(false);
             await fetchUserData(); // Refresh user data
+            // After updating profile, refresh appointments in case the name changed
+            await fetchUserAppointments();
         } catch (error) {
             console.error('Error updating profile:', error);
             setError(error.message || 'Failed to update profile');
@@ -135,7 +193,7 @@ const Profile = () => {
                             <p className="text-gray-600">Manage your pet care account details</p>
                         </div>
 
-                        <div className="bg-white/90 backdrop-blur-md rounded-2xl shadow-xl overflow-hidden">
+                        <div className="bg-white/90 backdrop-blur-md rounded-2xl shadow-xl overflow-hidden mb-8">
                             <div className="md:flex">
                                 {/* Profile Image Section */}
                                 <div className="md:w-1/3 bg-gradient-to-br from-[#FF7043] to-[#FF5722] p-8 text-white">
@@ -206,6 +264,103 @@ const Profile = () => {
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+
+                        {/* My Appointments Section */}
+                        <div className="bg-white/90 backdrop-blur-md rounded-2xl shadow-xl overflow-hidden">
+                            <div className="p-8">
+                                <div className="flex justify-between items-center mb-6">
+                                    <h3 className="text-xl font-semibold text-gray-900 flex items-center">
+                                        <FiCalendar className="mr-2 text-[#FF7043]" />
+                                        My Appointments
+                                    </h3>
+                                    <span className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">
+                                        {appointments.length} Total
+                                    </span>
+                                </div>
+
+                                {appointmentError && (
+                                    <div className="mb-4 p-3 bg-red-100 border-l-4 border-red-500 text-red-700 rounded">
+                                        <p>{appointmentError}</p>
+                                    </div>
+                                )}
+
+                                {loadingAppointments ? (
+                                    <div className="flex justify-center items-center py-8">
+                                        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#FF7043]"></div>
+                                    </div>
+                                ) : appointments.length === 0 ? (
+                                    <div className="text-center py-8 bg-gray-50 rounded-lg">
+                                        <FiCalendar className="w-12 h-12 text-gray-400 mx-auto mb-3" />
+                                        <p className="text-gray-500">You have no appointments yet.</p>
+                                        <button 
+                                            onClick={() => router.push('/our-pets')}
+                                            className="mt-4 px-4 py-2 bg-[#FF7043] text-white rounded-lg hover:bg-[#FF5722] transition-colors"
+                                        >
+                                            Book an Appointment
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-6">
+                                        {appointments.map(appointment => (
+                                            <div 
+                                                key={appointment._id} 
+                                                className="bg-white border border-gray-100 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden"
+                                            >
+                                                <div className="p-6">
+                                                    <div className="flex flex-col md:flex-row justify-between mb-4">
+                                                        <div className="flex items-center mb-2 md:mb-0">
+                                                            <div className="w-12 h-12 rounded-full bg-[#FF7043]/10 flex items-center justify-center mr-4">
+                                                                <FiCalendar className="w-6 h-6 text-[#FF7043]" />
+                                                            </div>
+                                                            <div>
+                                                                <h4 className="text-lg font-medium text-gray-900">{appointment.petName}</h4>
+                                                                <p className="text-sm text-gray-500">
+                                                                    {new Date(appointment.appointmentDate).toLocaleDateString('en-US', { 
+                                                                        weekday: 'long', 
+                                                                        year: 'numeric', 
+                                                                        month: 'long', 
+                                                                        day: 'numeric' 
+                                                                    })}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                        <div>
+                                                            <span className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(appointment.status)}`}>
+                                                                {appointment.status}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                                                        <div className="flex items-center">
+                                                            <FiClock className="w-5 h-5 text-gray-400 mr-2" />
+                                                            <span className="text-sm text-gray-600">
+                                                                {new Date(appointment.appointmentDate).toLocaleTimeString('en-US', {
+                                                                    hour: '2-digit',
+                                                                    minute: '2-digit'
+                                                                })}
+                                                            </span>
+                                                        </div>
+                                                        <div className="flex items-center">
+                                                            <FiMapPin className="w-5 h-5 text-gray-400 mr-2" />
+                                                            <span className="text-sm text-gray-600">{appointment.branch}</span>
+                                                        </div>
+                                                        <div className="flex items-center">
+                                                            <FiPhoneCall className="w-5 h-5 text-gray-400 mr-2" />
+                                                            <span className="text-sm text-gray-600">{appointment.contactNumber}</span>
+                                                        </div>
+                                                    </div>
+
+                                                    <div className="bg-gray-50 p-4 rounded-lg">
+                                                        <p className="text-sm text-gray-700">{appointment.reason}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>

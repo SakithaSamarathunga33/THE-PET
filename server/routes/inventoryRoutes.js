@@ -1,12 +1,12 @@
 const express = require("express");
-const { addItem, getItems, getItemById, updateItem, deleteItem } = require("../controllers/inventoryController");
-
 const router = express.Router();
+const inventoryController = require("../controllers/inventoryController");
 
-router.post("/", addItem);         // Create inventory item
-router.get("/", getItems);         // Read all items
-router.get("/:id", getItemById);   // Read single item
-router.put("/:id", updateItem);    // Update item
-router.delete("/:id", deleteItem); // Delete item
+router.post("/", inventoryController.addItem);
+router.get("/", inventoryController.getItems);
+router.get("/:id", inventoryController.getItemById);
+router.put("/:id", inventoryController.updateItem);
+router.delete("/:id", inventoryController.deleteItem);
+router.post("/:id/restock", inventoryController.restockItem);
 
-module.exports = router; 
+module.exports = router;

@@ -2,15 +2,16 @@ import { useState, useEffect } from 'react'
 import NavBar from '../components/Navbar'
 import MyHead from '../components/MyHead'
 import Image from 'next/image'
-import { FaPaw } from 'react-icons/fa'
-import { MdPets } from 'react-icons/md'
+import { FaPaw, FaDog, FaCat, FaFish, FaDove, FaHorse } from 'react-icons/fa'
+import { MdPets, MdFilterList, MdSort } from 'react-icons/md'
+import { FiX, FiFilter, FiDollarSign, FiChevronDown } from 'react-icons/fi'
 import Link from 'next/link'
-import { FiX } from 'react-icons/fi'
 import { useRouter } from 'next/router'
 import { motion } from 'framer-motion'
 
 export default function OurPets() {
   const [pets, setPets] = useState([])
+  const [filteredPets, setFilteredPets] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [showAppointmentModal, setShowAppointmentModal] = useState(false)
@@ -21,10 +22,18 @@ export default function OurPets() {
     contactNumber: '',
     appointmentDate: '',
     reason: '',
-    branch: '', // Add branch field
+    branch: '',
     status: 'Pending'
   })
   const [success, setSuccess] = useState(null)
+  const [showFilterMenu, setShowFilterMenu] = useState(false)
+  const [filters, setFilters] = useState({
+    type: '',
+    gender: '',
+    minPrice: '',
+    maxPrice: '',
+    sort: ''
+  })
 
   const router = useRouter()
   const [currentUser, setCurrentUser] = useState(null)
@@ -58,6 +67,13 @@ export default function OurPets() {
     checkAuthStatus()
   }, [])
 
+  useEffect(() => {
+    // Apply filters when filters state changes or pets data changes
+    if (pets.length > 0) {
+      applyFilters()
+    }
+  }, [filters, pets])
+
   const fetchPets = async () => {
     try {
       const response = await fetch('http://localhost:8080/api/pets')
@@ -66,11 +82,87 @@ export default function OurPets() {
       }
       const data = await response.json()
       setPets(data)
+      setFilteredPets(data)
       setLoading(false)
     } catch (err) {
       setError(err.message)
       setLoading(false)
     }
+  }
+
+  const fetchPetsWithFilters = async () => {
+    try {
+      setLoading(true)
+      // Build query string from filters
+      const queryParams = new URLSearchParams();
+      if (filters.type) queryParams.append('type', filters.type);
+      if (filters.gender) queryParams.append('gender', filters.gender);
+      if (filters.minPrice) queryParams.append('minPrice', filters.minPrice);
+      if (filters.maxPrice) queryParams.append('maxPrice', filters.maxPrice);
+      if (filters.sort) queryParams.append('sort', filters.sort);
+      
+      const url = `http://localhost:8080/api/pets?${queryParams.toString()}`;
+      
+      const response = await fetch(url)
+      if (!response.ok) {
+        throw new Error('Failed to fetch pets')
+      }
+      const data = await response.json()
+      setPets(data)
+      setFilteredPets(data)
+      setLoading(false)
+    } catch (err) {
+      setError(err.message)
+      setLoading(false)
+    }
+  }
+
+  const applyFilters = () => {
+    // Filter pets locally (as an alternative to server-side filtering)
+    let result = [...pets];
+    
+    if (filters.type) {
+      result = result.filter(pet => pet.type === filters.type);
+    }
+    
+    if (filters.gender) {
+      result = result.filter(pet => pet.gender === filters.gender);
+    }
+    
+    if (filters.minPrice) {
+      result = result.filter(pet => pet.price >= Number(filters.minPrice));
+    }
+    
+    if (filters.maxPrice) {
+      result = result.filter(pet => pet.price <= Number(filters.maxPrice));
+    }
+    
+    // Apply sorting
+    if (filters.sort === 'priceLow') {
+      result.sort((a, b) => a.price - b.price);
+    } else if (filters.sort === 'priceHigh') {
+      result.sort((a, b) => b.price - a.price);
+    }
+    
+    setFilteredPets(result);
+  }
+
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  }
+
+  const resetFilters = () => {
+    setFilters({
+      type: '',
+      gender: '',
+      minPrice: '',
+      maxPrice: '',
+      sort: ''
+    });
   }
 
   const checkAuthStatus = async () => {
@@ -104,11 +196,11 @@ export default function OurPets() {
     setSelectedPet(pet)
     setAppointmentForm(prev => ({
       ...prev,
-      petName: pet.name,
-      reason: `Interested in adopting ${pet.name}`,
+      petName: pet.breed,
+      reason: `Interested in ${pet.type}: ${pet.breed} (Rs ${pet.price})`,
       ownerName: currentUser?.name || '',
       contactNumber: currentUser?.phoneNumber || '',
-      branch: '' // Reset branch selection
+      branch: ''
     }))
     setShowAppointmentModal(true)
   }
@@ -130,16 +222,23 @@ export default function OurPets() {
     }
 
     try {
+      // Prepare appointment data, omitting ownerName as it will be set by the server
+      const appointmentData = {
+        petName: appointmentForm.petName,
+        contactNumber: appointmentForm.contactNumber,
+        appointmentDate: appointmentForm.appointmentDate,
+        reason: appointmentForm.reason,
+        branch: appointmentForm.branch,
+        status: 'Pending'
+      };
+
       const response = await fetch('http://localhost:8080/api/appointments', {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({
-          ...appointmentForm,
-          userId: currentUser._id
-        })
+        body: JSON.stringify(appointmentData)
       })
 
       const data = await response.json()
@@ -153,7 +252,7 @@ export default function OurPets() {
         contactNumber: '',
         appointmentDate: '',
         reason: '',
-        branch: '', // Reset branch
+        branch: '',
         status: 'Pending'
       })
       
@@ -163,6 +262,18 @@ export default function OurPets() {
       setTimeout(() => setError(null), 5000)
     }
   }
+
+  // Get Pet icon based on type
+  const getPetIcon = (type) => {
+    switch (type) {
+      case 'Dog': return <FaDog className="text-[#4DB6AC] mr-2" />;
+      case 'Cat': return <FaCat className="text-[#4DB6AC] mr-2" />;
+      case 'Fish': return <FaFish className="text-[#4DB6AC] mr-2" />;
+      case 'Bird': return <FaDove className="text-[#4DB6AC] mr-2" />;
+      case 'Rabbit': return <FaHorse className="text-[#4DB6AC] mr-2" />;
+      default: return <FaPaw className="text-[#4DB6AC] mr-2" />;
+    }
+  };
 
   if (loading) {
     return (
@@ -218,6 +329,112 @@ export default function OurPets() {
         </motion.div>
       </motion.section>
 
+      {/* Filter Section */}
+      <div className="bg-white py-6 shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
+            <button 
+              onClick={() => setShowFilterMenu(!showFilterMenu)}
+              className="flex items-center space-x-2 bg-[#4DB6AC] text-white px-4 py-2 rounded-lg font-medium hover:bg-[#4DB6AC]/90 transition-colors duration-200"
+            >
+              <FiFilter />
+              <span>Filter Pets</span>
+              <FiChevronDown className={`transform transition-transform ${showFilterMenu ? 'rotate-180' : ''}`} />
+            </button>
+
+            <div className="flex items-center space-x-3">
+              <span className="text-gray-700">Sort by:</span>
+              <select
+                name="sort"
+                value={filters.sort}
+                onChange={handleFilterChange}
+                className="border border-gray-300 rounded-md px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#4DB6AC]"
+              >
+                <option value="">Newest</option>
+                <option value="priceLow">Price: Low to High</option>
+                <option value="priceHigh">Price: High to Low</option>
+              </select>
+            </div>
+          </div>
+
+          {/* Filter Menu */}
+          {showFilterMenu && (
+            <motion.div 
+              className="mt-4 bg-gray-50 p-4 rounded-lg grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-4"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+            >
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Pet Type</label>
+                <select
+                  name="type"
+                  value={filters.type}
+                  onChange={handleFilterChange}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#4DB6AC]"
+                >
+                  <option value="">All Types</option>
+                  <option value="Dog">Dogs</option>
+                  <option value="Cat">Cats</option>
+                  <option value="Bird">Birds</option>
+                  <option value="Fish">Fish</option>
+                  <option value="Rabbit">Rabbits</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+                <select
+                  name="gender"
+                  value={filters.gender}
+                  onChange={handleFilterChange}
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#4DB6AC]"
+                >
+                  <option value="">All Genders</option>
+                  <option value="Male">Male</option>
+                  <option value="Female">Female</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Min Price (₹)</label>
+                <input
+                  type="number"
+                  name="minPrice"
+                  value={filters.minPrice}
+                  onChange={handleFilterChange}
+                  placeholder="Min Price"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#4DB6AC]"
+                  min="0"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700">Max Price (₹)</label>
+                <input
+                  type="number"
+                  name="maxPrice"
+                  value={filters.maxPrice}
+                  onChange={handleFilterChange}
+                  placeholder="Max Price"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#4DB6AC]"
+                  min="0"
+                />
+              </div>
+
+              <div className="flex items-end">
+                <button
+                  onClick={resetFilters}
+                  className="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-md transition-colors duration-200"
+                >
+                  Reset Filters
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </div>
+      </div>
+
       {/* Pets Grid Section */}
       <section className="py-20">
         <div className="max-w-7xl mx-auto px-4">
@@ -229,6 +446,18 @@ export default function OurPets() {
             >
               <p>{error}</p>
             </motion.div>
+          ) : filteredPets.length === 0 ? (
+            <div className="text-center py-10">
+              <MdPets className="w-16 h-16 mx-auto mb-4 text-gray-400" />
+              <h3 className="text-xl font-medium text-gray-600">No pets match your filters</h3>
+              <p className="text-gray-500 mt-2">Try adjusting your filters or browse all our available pets.</p>
+              <button 
+                onClick={resetFilters}
+                className="mt-4 bg-[#4DB6AC] text-white px-6 py-2 rounded-md hover:bg-[#4DB6AC]/90 transition-colors duration-200"
+              >
+                Show All Pets
+              </button>
+            </div>
           ) : (
             <motion.div 
               className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
@@ -236,9 +465,9 @@ export default function OurPets() {
               initial="initial"
               animate="animate"
             >
-              {pets.map((pet, index) => (
+              {filteredPets.map((pet, index) => (
                 <motion.div 
-                  key={pet.id} 
+                  key={pet._id} 
                   className="bg-white rounded-xl overflow-hidden shadow-lg"
                   variants={cardVariants}
                   whileHover="hover"
@@ -251,10 +480,13 @@ export default function OurPets() {
                   >
                     <Image
                       src={pet.imageUrl || "https://images.unsplash.com/photo-1548767797-d8c844163c4c"}
-                      alt={pet.name}
+                      alt={pet.breed}
                       fill
                       className="object-cover"
                     />
+                    <div className="absolute top-4 right-4 bg-[#FF7043] text-white px-3 py-1 rounded-full font-bold shadow-lg">
+                      Rs {pet.price}
+                    </div>
                   </motion.div>
                   <div className="p-6">
                     <div className="flex items-center justify-between mb-4">
@@ -263,12 +495,16 @@ export default function OurPets() {
                           animate={{ rotate: [0, 15, -15, 0] }}
                           transition={{ duration: 1, repeat: Infinity }}
                         >
-                          <FaPaw className="text-[#4DB6AC] mr-2" />
+                          {getPetIcon(pet.type)}
                         </motion.div>
-                        {pet.name}
+                        {pet.breed}
                       </h3>
                       <motion.span 
-                        className="bg-[#FFF3E0] text-[#FF7043] px-3 py-1 rounded-full text-sm"
+                        className={`px-3 py-1 rounded-full text-sm ${
+                          pet.status === 'Available' ? 'bg-green-100 text-green-800' : 
+                          pet.status === 'Reserved' ? 'bg-yellow-100 text-yellow-800' : 
+                          'bg-red-100 text-red-800'
+                        }`}
                         whileHover={{ scale: 1.1 }}
                       >
                         {pet.status}
@@ -276,7 +512,7 @@ export default function OurPets() {
                     </div>
                     <div className="space-y-2">
                       <p className="text-gray-600">
-                        <span className="font-semibold">Breed:</span> {pet.breed}
+                        <span className="font-semibold">Type:</span> {pet.type}
                       </p>
                       <p className="text-gray-600">
                         <span className="font-semibold">Age:</span> {pet.age} years
@@ -284,8 +520,8 @@ export default function OurPets() {
                       <p className="text-gray-600">
                         <span className="font-semibold">Gender:</span> {pet.gender}
                       </p>
-                      <p className="text-gray-500 mt-4">
-                        {pet.description}
+                      <p className="text-gray-500 mt-4 line-clamp-3">
+                        {pet.description || `A wonderful ${pet.breed} looking for a loving home.`}
                       </p>
                     </div>
                     <motion.div 
@@ -337,7 +573,7 @@ export default function OurPets() {
             className="text-gray-600 mb-8"
             variants={fadeInUp}
           >
-            New pets become available for adoption regularly. Contact us to learn more about our upcoming arrivals!
+            New pets become available for sale regularly. Contact us to learn more about our upcoming arrivals!
           </motion.p>
           <motion.div variants={fadeInUp}>
             <Link href="/contact" className="bg-[#FF7043] hover:bg-[#FF7043]/90 text-white px-8 py-3 rounded-lg transition-all duration-300 transform hover:scale-105">
@@ -363,7 +599,7 @@ export default function OurPets() {
             <div className="p-6">
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-xl font-semibold text-gray-900">
-                  Book Appointment for {selectedPet?.name}
+                  Book Appointment for {selectedPet?.breed}
                 </h3>
                 <button
                   onClick={() => setShowAppointmentModal(false)}
