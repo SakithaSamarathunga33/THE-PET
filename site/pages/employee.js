@@ -143,48 +143,48 @@ const EmployeePage = () => {
   return (
     <div className="min-h-screen bg-green-100">
       {/* Navigation Bar */}
-          <nav className="bg-white shadow-md">
-          <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10">
-            <div className="flex justify-between items-center h-16">
-              {/* Logo Section */}
-              <div className="flex items-center">
-                <Link href="/" className="text-[#00796B] font-extrabold text-2xl tracking-wide">
-                  PetCare Portal
-                </Link>
+      <nav className="bg-white shadow-md">
+        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10">
+          <div className="flex justify-between items-center h-16">
+            {/* Logo Section */}
+            <div className="flex items-center">
+              <Link href="/" className="text-[#00796B] font-extrabold text-2xl tracking-wide">
+                PetCare Portal
+              </Link>
+            </div>
+
+            {/* User Section */}
+            <div className="flex items-center space-x-6">
+              <span className="text-gray-800 font-medium text-lg">{username}</span>
+              
+              {/* Profile Icon */}
+              <div className="w-10 h-10 rounded-full bg-[#00796B] flex items-center justify-center text-white font-semibold text-lg shadow-md">
+                {username ? username.charAt(0).toUpperCase() : 'E'}
               </div>
 
-              {/* User Section */}
-              <div className="flex items-center space-x-6">
-                <span className="text-gray-800 font-medium text-lg">{username}</span>
-                
-                {/* Profile Icon */}
-                <div className="w-10 h-10 rounded-full bg-[#00796B] flex items-center justify-center text-white font-semibold text-lg shadow-md">
-                  {username ? username.charAt(0).toUpperCase() : 'E'}
-                </div>
-
-                {/* Logout Button */}
-                <button
-                  onClick={handleLogout}
-                  className="px-4 py-2 rounded-lg text-sm font-semibold text-white bg-red-500 hover:bg-red-600 transition duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 shadow-sm"
-                >
-                  <FiLogOut className="w-5 h-5" />
-                </button>
-              </div>
+              {/* Logout Button */}
+              <button
+                onClick={handleLogout}
+                className="px-4 py-2 rounded-lg text-sm font-semibold text-white bg-red-500 hover:bg-red-600 transition duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 shadow-sm"
+              >
+                <FiLogOut className="w-5 h-5" />
+              </button>
             </div>
           </div>
-        </nav>
-        <div className="container mx-auto px-4 py-8">
+        </div>
+      </nav>
+
+      <div className="container mx-auto px-4 py-8">
         <div className="flex justify-center items-center">
-        <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#42A5F5] to-[#00796B] tracking-wide animate-fadeInUp">
-          Employee Profile
-        </h1>
+          <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#42A5F5] to-[#00796B] tracking-wide animate-fadeInUp">
+            Employee Profile
+          </h1>
         </div>
-        </div>
-          <div className="container mx-auto px-4 py-8">
-            {/* Employee Profile */}
-          <div className="bg-white shadow-xl rounded-2xl p-6 mb-6 transition-all hover:shadow-2xl">
+      </div>
 
-
+      <div className="container mx-auto px-4 py-8">
+        {/* Employee Profile */}
+        <div className="bg-white shadow-xl rounded-2xl p-6 mb-6 transition-all hover:shadow-2xl">
           {employee && (
             <div className="flex flex-col md:flex-row items-center gap-6">
               {/* Profile Icon */}
@@ -218,195 +218,162 @@ const EmployeePage = () => {
           )}
         </div>
 
-
-              {/* Personal Info, Salary, Leaves, and Attendance */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Personal Information */}
-                <div className="space-y-6">
-        {/* Personal Information */}
-        <div className="bg-white rounded-xl shadow-lg p-6 transition-all hover:shadow-2xl">
-          <h3 className="text-2xl font-bold text-gray-900 border-b pb-3 mb-4">Personal Information</h3>
-          {employee && (
-            <div className="space-y-4">
-              {[
-                { label: 'Full Name', value: employee.name },
-                { label: 'Email', value: employee.email },
-                { label: 'Phone', value: employee.phoneNumber },
-                { label: 'Address', value: employee.address },
-                { label: 'Role', value: employee.role },
-                { label: 'Status', value: employee.status },
-                { label: 'Joining Date', value: new Date(employee.joiningDate).toLocaleDateString() },
-              ].map((item, index) => (
-                <div key={index} className="flex justify-between border-b pb-2">
-                  <span className="text-gray-600 font-medium">{item.label}:</span>
-                  <span className="font-semibold text-gray-800">{item.value}</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/* Salary Information */}
-        <div className="bg-white rounded-xl shadow-lg p-6 transition-all hover:shadow-2xl">
-          <h3 className="text-2xl font-bold text-gray-900 border-b pb-3 mb-4">Salary Information</h3>
-          {employee && (
-            <div className="space-y-4">
-              {[
-                { label: 'Base Salary', value: `$${employee.baseSalary.toFixed(2)}` },
-                { label: 'Hourly Rate', value: `$${employee.hourlyRate.toFixed(2)}` },
-                { label: 'Working Hours/Day', value: `${employee.workingHoursPerDay} hours` },
-                {
-                  label: 'Current Salary',
-                  value: `$${(employee.calculatedSalary || employee.baseSalary).toFixed(2)}`,
-                  className: 'text-[#4DB6AC] font-extrabold',
-                },
-              ].map((item, index) => (
-                <div key={index} className="flex justify-between border-b pb-2">
-                  <span className="text-gray-600 font-medium">{item.label}:</span>
-                  <span className={`font-semibold ${item.className || 'text-gray-800'}`}>{item.value}</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-
-        {/* Leave Information */}
-        <div className="bg-white rounded-xl shadow-lg p-6 transition-all hover:shadow-2xl">
-          <h3 className="text-2xl font-bold text-gray-900 border-b pb-3 mb-4">Leave Information</h3>
-          {employee && employee.leaves && employee.leaves.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="min-w-full border border-gray-200 rounded-lg overflow-hidden">
-                <thead className="bg-gray-100 text-gray-700">
-                  <tr>
-                    {['Type', 'From', 'To', 'Status'].map((header, index) => (
-                      <th key={index} className="px-4 py-3 text-left text-sm font-semibold uppercase">{header}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {employee.leaves.map((leave, index) => (
-                    <tr key={index} className="hover:bg-gray-50 transition-all">
-                      <td className="px-4 py-3 text-gray-900">{leave.type}</td>
-                      <td className="px-4 py-3 text-gray-600">{new Date(leave.startDate).toLocaleDateString()}</td>
-                      <td className="px-4 py-3 text-gray-600">{new Date(leave.endDate).toLocaleDateString()}</td>
-                      <td className="px-4 py-3">
-                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                          leave.approved 
-                            ? 'bg-green-100 text-green-800 border border-green-300'
-                            : 'bg-yellow-100 text-yellow-800 border border-yellow-300'
-=======
-          {/* Leave Management Section */}
-          <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-semibold text-gray-800">Leave Management</h2>
-              <button
-                onClick={() => setShowLeaveModal(true)}
-                className="inline-flex items-center px-4 py-2 bg-[#4DB6AC] text-white rounded-lg hover:bg-[#4DB6AC]/90 transition-colors duration-200"
-              >
-                <FiPlus className="w-5 h-5 mr-2" />
-                Apply for Leave
-              </button>
-            </div>
-
-            {/* Leave History */}
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">From</th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">To</th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                    <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Paid</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {employee?.leaves?.map((leave, index) => (
-                    <tr key={index} className="hover:bg-gray-50">
-                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{leave.type}</td>
-                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
-                        {new Date(leave.startDate).toLocaleDateString()}
-                      </td>
-                      <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
-                        {new Date(leave.endDate).toLocaleDateString()}
-                      </td>
-                      <td className="px-4 py-2 whitespace-nowrap">
-                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          leave.approved 
-                            ? 'bg-green-100 text-green-800' 
-                            : 'bg-yellow-100 text-yellow-800'
-
-                        }`}>
-                          {leave.approved ? 'Approved' : 'Pending'}
-                        </span>
-                      </td>
-
-
-                      <td className="px-4 py-2 whitespace-nowrap">
-                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          leave.paid 
-                            ? 'bg-blue-100 text-blue-800' 
-                            : 'bg-red-100 text-red-800'
-                        }`}>
-                          {leave.paid ? 'Paid' : 'Unpaid'}
-                        </span>
-                      </td>
-
-                    </tr>
+        {/* Personal Info, Salary, Leaves, and Attendance */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Personal Information */}
+          <div className="space-y-6">
+            {/* Personal Information */}
+            <div className="bg-white rounded-xl shadow-lg p-6 transition-all hover:shadow-2xl">
+              <h3 className="text-2xl font-bold text-gray-900 border-b pb-3 mb-4">Personal Information</h3>
+              {employee && (
+                <div className="space-y-4">
+                  {[
+                    { label: 'Full Name', value: employee.name },
+                    { label: 'Email', value: employee.email },
+                    { label: 'Phone', value: employee.phoneNumber },
+                    { label: 'Address', value: employee.address },
+                    { label: 'Role', value: employee.role },
+                    { label: 'Status', value: employee.status },
+                    { label: 'Joining Date', value: new Date(employee.joiningDate).toLocaleDateString() },
+                  ].map((item, index) => (
+                    <div key={index} className="flex justify-between border-b pb-2">
+                      <span className="text-gray-600 font-medium">{item.label}:</span>
+                      <span className="font-semibold text-gray-800">{item.value}</span>
+                    </div>
                   ))}
-                </tbody>
-              </table>
+                </div>
+              )}
             </div>
 
-          ) : (
-            <p className="text-gray-500 text-center py-4">No leave records found</p>
-          )}
-        </div>
-      </div>
+            {/* Salary Information */}
+            <div className="bg-white rounded-xl shadow-lg p-6 transition-all hover:shadow-2xl">
+              <h3 className="text-2xl font-bold text-gray-900 border-b pb-3 mb-4">Salary Information</h3>
+              {employee && (
+                <div className="space-y-4">
+                  {[
+                    { label: 'Base Salary', value: `$${employee.baseSalary.toFixed(2)}` },
+                    { label: 'Hourly Rate', value: `$${employee.hourlyRate.toFixed(2)}` },
+                    { label: 'Working Hours/Day', value: `${employee.workingHoursPerDay} hours` },
+                    {
+                      label: 'Current Salary',
+                      value: `$${(employee.calculatedSalary || employee.baseSalary).toFixed(2)}`,
+                      className: 'text-[#4DB6AC] font-extrabold',
+                    },
+                  ].map((item, index) => (
+                    <div key={index} className="flex justify-between border-b pb-2">
+                      <span className="text-gray-600 font-medium">{item.label}:</span>
+                      <span className={`font-semibold ${item.className || 'text-gray-800'}`}>{item.value}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
 
-          {/* Attendance Calendar */}
-          <div className="bg-white rounded-xl shadow-lg p-6 mb-6 transition-all hover:shadow-2xl">
-          <h3 className="text-2xl font-bold text-gray-900 border-b pb-3 mb-4">Attendance Calendar</h3>
+            {/* Leave Management Section */}
+            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-semibold text-gray-800">Leave Management</h2>
+                <button
+                  onClick={() => setShowLeaveModal(true)}
+                  className="inline-flex items-center px-4 py-2 bg-[#4DB6AC] text-white rounded-lg hover:bg-[#4DB6AC]/90 transition-colors duration-200"
+                >
+                  <FiPlus className="w-5 h-5 mr-2" />
+                  Apply for Leave
+                </button>
+              </div>
 
-          <div className="flex flex-col items-center">
-            <Calendar
-              onChange={setDate}
-              value={date}
-              minDate={new Date('2023-01-01')}
-              maxDate={new Date()}
-              tileClassName={({ date, view }) => {
-                if (view === 'month' && isAttendanceDate(date)) {
-                  const attendance = employee.attendance.find(att => {
-                    const attDate = new Date(att.date);
-                    return (
-                      attDate.getDate() === date.getDate() &&
-                      attDate.getMonth() === date.getMonth() &&
-                      attDate.getFullYear() === date.getFullYear()
-                    );
-                  });
-
-                  return attendance
-                    ? `relative rounded-lg px-2 py-1 font-semibold transition-all ${
-                        attendance.present
-                          ? 'bg-green-100 text-green-800 border border-green-300 hover:bg-green-200'
-                          : 'bg-red-100 text-red-800 border border-red-300 hover:bg-red-200'
-                      }`
-                    : '';
-                }
-              }}
-            />
-
+              {/* Leave History */}
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">From</th>
+                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">To</th>
+                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Paid</th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {employee?.leaves?.map((leave, index) => (
+                      <tr key={index} className="hover:bg-gray-50">
+                        <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{leave.type}</td>
+                        <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
+                          {new Date(leave.startDate).toLocaleDateString()}
+                        </td>
+                        <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
+                          {new Date(leave.endDate).toLocaleDateString()}
+                        </td>
+                        <td className="px-4 py-2 whitespace-nowrap">
+                          <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                            leave.approved 
+                              ? 'bg-green-100 text-green-800' 
+                              : 'bg-yellow-100 text-yellow-800'
+                          }`}>
+                            {leave.approved ? 'Approved' : 'Pending'}
+                          </span>
+                        </td>
+                        <td className="px-4 py-2 whitespace-nowrap">
+                          <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                            leave.paid 
+                              ? 'bg-blue-100 text-blue-800' 
+                              : 'bg-red-100 text-red-800'
+                          }`}>
+                            {leave.paid ? 'Paid' : 'Unpaid'}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {!employee?.leaves?.length && (
+                  <p className="text-gray-500 text-center py-4">No leave records found</p>
+                )}
+              </div>
+            </div>
           </div>
 
-          <div className="mt-4 text-center bg-gray-100 py-3 rounded-lg">
-            <p className="text-gray-700 font-medium">
-              Selected Date: <span className="text-[#4DB6AC] font-bold">{date.toLocaleDateString()}</span>
-            </p>
+          <div className="space-y-6">
+            {/* Attendance Calendar */}
+            <div className="bg-white rounded-xl shadow-lg p-6 mb-6 transition-all hover:shadow-2xl">
+              <h3 className="text-2xl font-bold text-gray-900 border-b pb-3 mb-4">Attendance Calendar</h3>
+
+              <div className="flex flex-col items-center">
+                <Calendar
+                  onChange={setDate}
+                  value={date}
+                  minDate={new Date('2023-01-01')}
+                  maxDate={new Date()}
+                  tileClassName={({ date, view }) => {
+                    if (view === 'month' && isAttendanceDate(date)) {
+                      const attendance = employee.attendance.find(att => {
+                        const attDate = new Date(att.date);
+                        return (
+                          attDate.getDate() === date.getDate() &&
+                          attDate.getMonth() === date.getMonth() &&
+                          attDate.getFullYear() === date.getFullYear()
+                        );
+                      });
+
+                      return attendance
+                        ? `relative rounded-lg px-2 py-1 font-semibold transition-all ${
+                            attendance.present
+                              ? 'bg-green-100 text-green-800 border border-green-300 hover:bg-green-200'
+                              : 'bg-red-100 text-red-800 border border-red-300 hover:bg-red-200'
+                          }`
+                        : '';
+                    }
+                  }}
+                />
+              </div>
+
+              <div className="mt-4 text-center bg-gray-100 py-3 rounded-lg">
+                <p className="text-gray-700 font-medium">
+                  Selected Date: <span className="text-[#4DB6AC] font-bold">{date.toLocaleDateString()}</span>
+                </p>
+              </div>
+            </div>
           </div>
-        </div>
-
-
         </div>
 
         {/* Leave Application Modal */}
@@ -490,7 +457,6 @@ const EmployeePage = () => {
             </div>
           </div>
         )}
-
       </div>
     </div>
   );
