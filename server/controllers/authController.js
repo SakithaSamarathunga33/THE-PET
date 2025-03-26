@@ -62,29 +62,43 @@ exports.login = async (req, res) => {
   try {
     const { identifier, password } = req.body;
 
-    // Special case for admin
-    if ((identifier === 'admin' || identifier === 'admin@gmail.com') && password === 'admin123') {
-      const adminUser = await User.findOne({ 
-        $or: [
-          { username: 'admin' },
-          { email: 'admin@gmail.com' }
-        ]
-      });
-
-      if (adminUser) {
-        const token = generateToken(adminUser);
-        console.log('Admin login successful');
-        return res.json({
-          token,
-          user: {
-            id: adminUser._id,
-            name: adminUser.name,
-            email: adminUser.email,
-            username: adminUser.username,
-            userType: 'admin'
-          }
+    // Special case for admin with simplified credentials
+    if (identifier === 'admin' && password === 'admin') {
+      console.log('Admin credentials detected');
+      
+      // Find admin user or create if doesn't exist
+      let adminUser = await User.findOne({ username: 'admin' });
+      
+      if (!adminUser) {
+        // Create admin user if it doesn't exist
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash('admin', salt);
+        
+        adminUser = new User({
+          username: 'admin',
+          name: 'Admin User',
+          email: 'admin@petcare.com',
+          password: hashedPassword,
+          userType: 'admin'
         });
+        
+        await adminUser.save();
+        console.log('Admin user created');
       }
+      
+      // Generate token for admin
+      const token = generateToken(adminUser);
+      
+      return res.json({
+        token,
+        user: {
+          id: adminUser._id,
+          name: adminUser.name,
+          email: adminUser.email,
+          username: adminUser.username,
+          userType: 'admin'
+        }
+      });
     }
 
     // Regular login flow
@@ -93,7 +107,7 @@ exports.login = async (req, res) => {
         { email: identifier },
         { username: identifier }
       ]
-    }).select('+password'); // Explicitly select password field
+    }).select('+password').populate('employeeId'); // Populate employee data if it exists
 
     if (!user) {
       return res.status(400).json({ message: "Invalid email/username or password" });
@@ -116,7 +130,8 @@ exports.login = async (req, res) => {
         name: user.name,
         email: user.email,
         username: user.username,
-        userType: user.userType
+        userType: user.userType,
+        employeeId: user.employeeId ? user.employeeId._id : null
       }
     });
   } catch (error) {
@@ -265,3 +280,165 @@ const generateToken = (user) => {
 
 // Export the generateToken function
 exports.generateToken = generateToken;
+
+// 🔹 Link User to Employee
+exports.linkUserToEmployee = async (req, res) => {
+  try {
+    const { userId, employeeId } = req.body;
+    
+    console.log('Linking user to employee:', { userId, employeeId });
+    
+    if (!userId || !employeeId) {
+      return res.status(400).json({ message: "User ID and Employee ID are required" });
+    }
+    
+    // Find the user
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    
+    // Verify the employee exists
+    const Employee = require('../models/Employee');
+    const employee = await Employee.findById(employeeId);
+    if (!employee) {
+      return res.status(404).json({ message: "Employee not found" });
+    }
+    
+    // Update user with employee ID and change userType to employee
+    user.employeeId = employeeId;
+    user.userType = "employee";
+    
+    await user.save();
+    console.log('User linked to employee successfully:', user.username);
+    
+    res.status(200).json({ 
+      success: true,
+      message: "User linked to employee successfully",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        username: user.username,
+        userType: user.userType,
+        employeeId: user.employeeId
+      }
+    });
+  } catch (error) {
+    console.error("Link user to employee error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// 🔹 Create Sample Employee User (For Testing)
+exports.createSampleEmployeeUser = async (req, res) => {
+  try {
+    // Check if sample employee already exists
+    let employee = await Employee.findOne({ email: 'john.smith@petcare.com' });
+    
+    if (!employee) {
+      // Create new employee
+      employee = new Employee({
+        name: 'John Smith',
+        email: 'john.smith@petcare.com',
+        phoneNumber: '555-123-4567',
+        role: 'Veterinarian',
+        baseSalary: 5000,
+        hourlyRate: 25,
+        workingHoursPerDay: 8,
+        address: '123 Pet Street, Petville, PC 12345',
+        status: 'Active',
+        joiningDate: new Date('2023-01-15'),
+        attendance: [
+          {
+            date: new Date('2023-05-01'),
+            present: true,
+            checkIn: new Date('2023-05-01T09:00:00'),
+            checkOut: new Date('2023-05-01T17:00:00'),
+            hoursWorked: 8
+          },
+          {
+            date: new Date('2023-05-02'),
+            present: true,
+            checkIn: new Date('2023-05-02T08:45:00'),
+            checkOut: new Date('2023-05-02T17:15:00'),
+            hoursWorked: 8.5
+          },
+          {
+            date: new Date('2023-05-03'),
+            present: false
+          }
+        ],
+        leaves: [
+          {
+            type: 'Vacation',
+            startDate: new Date('2023-06-10'),
+            endDate: new Date('2023-06-15'),
+            approved: true,
+            paid: true
+          }
+        ],
+        overtime: [
+          {
+            date: new Date('2023-05-15'),
+            hours: 3,
+            approved: true,
+            rate: 1.5
+          }
+        ]
+      });
+      
+      await employee.save();
+      console.log('Sample employee created');
+    } else {
+      console.log('Sample employee already exists');
+    }
+
+    // Check if user already exists
+    let user = await User.findOne({ username: 'employee' });
+    
+    if (!user) {
+      // Hash password
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash('Password123!', salt);
+      
+      // Create new user
+      user = new User({
+        username: 'employee',
+        name: 'John Smith',
+        email: 'john.smith@petcare.com',
+        password: hashedPassword,
+        userType: 'employee',
+        employeeId: employee._id
+      });
+      
+      await user.save();
+      console.log('Sample user created');
+    } else {
+      // Update existing user
+      user.userType = 'employee';
+      user.employeeId = employee._id;
+      
+      // Update password
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash('Password123!', salt);
+      user.password = hashedPassword;
+      
+      await user.save();
+      console.log('Sample user updated');
+    }
+
+    return res.status(200).json({ 
+      success: true, 
+      message: 'Sample employee user created successfully',
+      loginCredentials: {
+        username: 'employee',
+        password: 'Password123!',
+        userType: 'employee'
+      }
+    });
+  } catch (error) {
+    console.error('Error creating sample employee user:', error);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+};

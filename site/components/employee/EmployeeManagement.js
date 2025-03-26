@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FiUsers, FiUserPlus, FiEdit2, FiTrash2, FiSearch, FiDownload, FiRefreshCcw } from 'react-icons/fi';
+import { FiUsers, FiUserPlus, FiEdit2, FiTrash2, FiSearch, FiDownload, FiRefreshCcw, FiLink } from 'react-icons/fi';
 
 const EmployeeManagement = () => {
   const [employees, setEmployees] = useState([]);
@@ -28,6 +28,9 @@ const EmployeeManagement = () => {
     overtimeRate: 1.5,
     unpaidLeaveDays: 0,
   });
+  const [showLinkModal, setShowLinkModal] = useState(false);
+  const [users, setUsers] = useState([]);
+  const [selectedUser, setSelectedUser] = useState('');
 
   useEffect(() => {
     fetchEmployees();
@@ -56,6 +59,22 @@ const EmployeeManagement = () => {
     } catch (err) {
       setError('Error fetching employees');
       setLoading(false);
+    }
+  };
+
+  // Fetch users for linking
+  const fetchUsers = async () => {
+    try {
+      const response = await fetch('http://localhost:8080/api/auth/user', {
+        credentials: 'include',
+      });
+      if (!response.ok) throw new Error('Failed to fetch users');
+      const data = await response.json();
+      // Filter out users that are already employees
+      const filteredUsers = data.filter(user => user.userType !== 'employee');
+      setUsers(filteredUsers);
+    } catch (err) {
+      setError('Error fetching users');
     }
   };
 
@@ -135,6 +154,40 @@ const EmployeeManagement = () => {
       status: 'Active'
     });
     setSelectedEmployee(null);
+  };
+
+  const handleLinkUser = (employee) => {
+    setSelectedEmployee(employee);
+    fetchUsers();
+    setShowLinkModal(true);
+  };
+
+  const submitLinkUser = async () => {
+    if (!selectedUser || !selectedEmployee) {
+      setError('Please select a user to link');
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:8080/api/auth/link-employee', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          userId: selectedUser,
+          employeeId: selectedEmployee._id
+        }),
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Failed to link user to employee');
+      
+      setSuccess('User linked to employee successfully');
+      setShowLinkModal(false);
+      setSelectedUser('');
+    } catch (err) {
+      setError(err.message);
+    }
   };
 
   const generateReport = () => {
@@ -373,14 +426,23 @@ const EmployeeManagement = () => {
                       <button
                         onClick={() => handleEdit(employee)}
                         className="text-[#4DB6AC] hover:text-[#4DB6AC]/80"
+                        title="Edit Employee"
                       >
                         <FiEdit2 className="w-5 h-5" />
                       </button>
                       <button
                         onClick={() => handleDelete(employee._id)}
                         className="text-gray-900 hover:text-gray-700"
+                        title="Delete Employee"
                       >
                         <FiTrash2 className="w-5 h-5" />
+                      </button>
+                      <button
+                        onClick={() => handleLinkUser(employee)}
+                        className="text-blue-500 hover:text-blue-700"
+                        title="Link to User Account"
+                      >
+                        <FiLink className="w-5 h-5" />
                       </button>
                     </div>
                   </td>
@@ -638,6 +700,55 @@ const EmployeeManagement = () => {
                     className="px-4 py-2 bg-[#4DB6AC] text-white rounded-md hover:bg-[#4DB6AC]/90"
                   >
                     Save Salary
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Link User Modal */}
+      {showLinkModal && selectedEmployee && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
+          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div className="mt-3">
+              <h3 className="text-lg font-medium text-gray-900 mb-4">
+                Link User to {selectedEmployee.name}
+              </h3>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Select User</label>
+                  <select
+                    value={selectedUser}
+                    onChange={(e) => setSelectedUser(e.target.value)}
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#4DB6AC] focus:ring-[#4DB6AC]"
+                  >
+                    <option value="">Select a user</option>
+                    {users.map(user => (
+                      <option key={user._id} value={user._id}>
+                        {user.name} ({user.email})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <p className="text-sm text-gray-500">
+                  This will give the selected user employee access with the role of {selectedEmployee.role}.
+                </p>
+                <div className="flex justify-end space-x-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowLinkModal(false)}
+                    className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={submitLinkUser}
+                    className="px-4 py-2 bg-[#4DB6AC] text-white rounded-md hover:bg-[#4DB6AC]/90"
+                  >
+                    Link User
                   </button>
                 </div>
               </div>
