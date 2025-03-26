@@ -237,7 +237,7 @@ const PetManagement = ({ onDataChange }) => {
   };
 
   const handleEdit = (pet) => {
-    setSelectedPet(pet)  
+    setSelectedPet(pet)   
     
     // Check if pet has a custom image (not one of the default images)
     const isCustomImage = pet.imageUrl && !Object.values(defaultImages).includes(pet.imageUrl);
