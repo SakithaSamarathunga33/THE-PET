@@ -30,17 +30,17 @@ exports.addPet = async (req, res) => {
         // 5. Validate gender
         if (!gender || !['Male', 'Female'].includes(gender)) {
             return res.status(400).json({ error: 'Gender must be either Male or Female' });
-        }
+        } 
         
         // 6. Validate price
         if (price === undefined || price === null || isNaN(price) || price < 0) {
             return res.status(400).json({ error: 'Price is required and must be a positive number' });
-        }
+        } 
         
         // If no image URL is provided, use the default image for the pet type
         if (!petData.imageUrl && petData.type) {
             petData.imageUrl = Pet.getDefaultImageForType(petData.type);
-        }
+        } 
         
         const pet = new Pet(petData);
         await pet.save();
@@ -50,10 +50,10 @@ exports.addPet = async (req, res) => {
         if (error.name === 'ValidationError') {
             const messages = Object.values(error.errors).map(val => val.message);
             return res.status(400).json({ error: messages[0] });
-        }
+        } 
         
         res.status(400).json({ error: error.message });
-    }
+    } 
 };
 
 // Get all pets with filtering and sorting options
