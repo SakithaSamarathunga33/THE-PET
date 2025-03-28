@@ -85,7 +85,7 @@ export default function Services() {
 
       {/* Hero Section */}
       <motion.section 
-        className="relative py-20 bg-[#FFF3E0]"
+        className="relative py-20 bg-[#F6F8D5]"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
@@ -101,13 +101,13 @@ export default function Services() {
             animate={{ scale: 1 }}
             transition={{ duration: 0.5 }}
           >
-            <MdPets className="w-16 h-16 mx-auto mb-6 text-[#FF7043]" />
+            <MdPets className="w-16 h-16 mx-auto mb-6 text-[#205781]" />
           </motion.div>
           <motion.h1 
             className="text-4xl md:text-5xl font-bold mb-6"
             variants={fadeInUp}
           >
-            Our <span className="text-[#4DB6AC]">Premium Services</span>
+            Our <span className="text-[#4F959D]">Premium Services</span>
           </motion.h1>
           <motion.p 
             className="text-xl text-gray-600 max-w-2xl mx-auto"
@@ -150,7 +150,7 @@ export default function Services() {
                 </motion.div>
                 <div className="w-full md:w-1/2 space-y-6">
                   <motion.div 
-                    className="bg-[#FF7043] w-16 h-16 rounded-full flex items-center justify-center text-white mb-6"
+                    className="bg-[#205781] w-16 h-16 rounded-full flex items-center justify-center text-white mb-6"
                     whileHover={{ rotate: 360 }}
                     transition={{ duration: 0.6 }}
                   >
@@ -182,7 +182,7 @@ export default function Services() {
                           animate={{ rotate: [0, 15, -15, 0] }}
                           transition={{ duration: 1, repeat: Infinity }}
                         >
-                          <FaPaw className="text-[#4DB6AC] mr-2" />
+                          <FaPaw className="text-[#4F959D] mr-2" />
                         </motion.div>
                         {feature}
                       </motion.li>
@@ -191,7 +191,7 @@ export default function Services() {
                   <motion.div whileHover={{ scale: 1.05 }}>
                     <Link 
                       href="/contact" 
-                      className="bg-[#4DB6AC] hover:bg-[#4DB6AC]/90 text-white px-8 py-3 rounded-lg transition-all duration-300 inline-block"
+                      className="bg-[#4F959D] hover:bg-[#4F959D]/90 text-white px-8 py-3 rounded-lg transition-all duration-300 inline-block"
                     >
                       Learn More
                     </Link>
@@ -205,7 +205,7 @@ export default function Services() {
 
       {/* Additional Services Section */}
       <motion.section 
-        className="py-20 bg-[#FFF3E0]"
+        className="py-20 bg-[#F6F8D5]"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         viewport={{ once: true }}
@@ -227,12 +227,12 @@ export default function Services() {
             {additionalServices.map((service) => (
               <motion.div 
                 key={service.title} 
-                className="bg-white p-8 rounded-xl shadow-lg"
+                className="bg-[#F6F8D5] p-8 rounded-xl shadow-lg"
                 variants={cardVariants}
                 whileHover="hover"
               >
                 <motion.div 
-                  className="bg-[#FF7043] w-12 h-12 rounded-full flex items-center justify-center text-white mb-6"
+                  className="bg-[#205781] w-12 h-12 rounded-full flex items-center justify-center text-white mb-6"
                   whileHover={{ rotate: 360 }}
                   transition={{ duration: 0.6 }}
                 >
@@ -258,7 +258,7 @@ export default function Services() {
 
       {/* CTA Section */}
       <motion.section 
-        className="py-20 bg-gradient-to-r from-[#4DB6AC] to-[#FF7043]"
+        className="py-20 bg-gradient-to-r from-[#4F959D] to-[#205781]"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         viewport={{ once: true }}
@@ -283,7 +283,7 @@ export default function Services() {
             Contact us today to schedule an appointment or learn more about our services
           </motion.p>
           <motion.div variants={fadeInUp}>
-            <Link href="/contact" className="bg-white text-[#4DB6AC] px-8 py-3 rounded-lg transition-all duration-300 transform hover:scale-105 hover:bg-[#FFF3E0]">
+            <Link href="/contact" className="bg-white text-[#4F959D] px-8 py-3 rounded-lg transition-all duration-300 transform hover:scale-105 hover:bg-[#F6F8D5]">
               Contact Us
             </Link>
           </motion.div>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FiUsers, FiUserPlus, FiEdit2, FiTrash2, FiSearch, FiDownload, FiRefreshCcw, FiLink, FiCheck, FiX, FiCalendar } from 'react-icons/fi';
+import { FiUsers, FiUserPlus, FiEdit2, FiTrash2, FiSearch, FiDownload, FiRefreshCcw, FiLink, FiCheck, FiX, FiCalendar, FiUser } from 'react-icons/fi';
 
 const EmployeeManagement = ({ onDataChange }) => {
   const [employees, setEmployees] = useState([]);
@@ -20,6 +20,14 @@ const EmployeeManagement = ({ onDataChange }) => {
     address: '',
     status: 'Active'
   });
+  const [formErrors, setFormErrors] = useState({
+    name: '',
+    email: '',
+    phoneNumber: '',
+    baseSalary: '',
+    hourlyRate: '',
+    address: ''
+  });
   const [showSalaryModal, setShowSalaryModal] = useState(false);
   const [selectedSalaryDetails, setSelectedSalaryDetails] = useState(null);
   const [manualCalculation, setManualCalculation] = useState(false);
@@ -30,6 +38,7 @@ const EmployeeManagement = ({ onDataChange }) => {
   });
   const [showLinkModal, setShowLinkModal] = useState(false);
   const [users, setUsers] = useState([]);
+  const [linkedUsers, setLinkedUsers] = useState({});
   const [selectedUser, setSelectedUser] = useState('');
   const [showLeaveModal, setShowLeaveModal] = useState(false);
   const [showLeaveDetailModal, setShowLeaveDetailModal] = useState(false);
@@ -41,6 +50,10 @@ const EmployeeManagement = ({ onDataChange }) => {
 
   useEffect(() => {
     fetchEmployees();
+  }, []);
+
+  useEffect(() => {
+    fetchUsers();
   }, []);
 
   // Auto-dismiss notifications
@@ -56,20 +69,26 @@ const EmployeeManagement = ({ onDataChange }) => {
 
   const fetchEmployees = async () => {
     try {
+      console.log("Fetching employees data...");
       const response = await fetch('http://localhost:8080/api/employees', {
-        credentials: 'include',
+        credentials: 'include'
       });
+      
       if (!response.ok) throw new Error('Failed to fetch employees');
+      
       const data = await response.json();
+      console.log("Fetched employees data:", data);
+      
       setEmployees(data);
       setLoading(false);
     } catch (err) {
+      console.error("Error fetching employees:", err);
       setError('Error fetching employees');
       setLoading(false);
     }
   };
 
-  // Fetch users for linking
+  // Fetch users for linking and check which employees are already linked
   const fetchUsers = async () => {
     try {
       const response = await fetch('http://localhost:8080/api/auth/user', {
@@ -80,6 +99,19 @@ const EmployeeManagement = ({ onDataChange }) => {
       // Filter out users that are already employees
       const filteredUsers = data.filter(user => user.userType !== 'employee');
       setUsers(filteredUsers);
+      
+      // Create a mapping of employee IDs to user info
+      const linked = {};
+      data.forEach(user => {
+        if (user.userType === 'employee' && user.employeeId) {
+          linked[user.employeeId] = {
+            userId: user._id,
+            username: user.username,
+            name: user.name
+          };
+        }
+      });
+      setLinkedUsers(linked);
     } catch (err) {
       setError('Error fetching users');
     }
@@ -87,6 +119,14 @@ const EmployeeManagement = ({ onDataChange }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validate all fields
+    const errors = validateForm();
+    if (Object.values(errors).some(error => error !== '')) {
+      setFormErrors(errors);
+      return;
+    }
+    
     try {
       const url = selectedEmployee
         ? `http://localhost:8080/api/employees/${selectedEmployee._id}`
@@ -160,12 +200,19 @@ const EmployeeManagement = ({ onDataChange }) => {
       address: '',
       status: 'Active'
     });
+    setFormErrors({
+      name: '',
+      email: '',
+      phoneNumber: '',
+      baseSalary: '',
+      hourlyRate: '',
+      address: ''
+    });
     setSelectedEmployee(null);
   };
 
   const handleLinkUser = (employee) => {
     setSelectedEmployee(employee);
-    fetchUsers();
     setShowLinkModal(true);
   };
 
@@ -176,10 +223,19 @@ const EmployeeManagement = ({ onDataChange }) => {
     }
 
     try {
+      // Get token from localStorage
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError('Authentication required. Please log in again.');
+        return;
+      }
+      
       const response = await fetch('http://localhost:8080/api/auth/link-employee', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify({
           userId: selectedUser,
           employeeId: selectedEmployee._id
@@ -192,6 +248,54 @@ const EmployeeManagement = ({ onDataChange }) => {
       setSuccess('User linked to employee successfully');
       setShowLinkModal(false);
       setSelectedUser('');
+      
+      // Refresh the users list to update the linked status
+      fetchUsers();
+    } catch (err) {
+      setError(err.message);
+    }
+  };
+
+  const handleUnlinkUser = async (employee) => {
+    // Check if this employee is linked to a user
+    if (!linkedUsers[employee._id]) {
+      setError('This employee is not linked to any user account');
+      return;
+    }
+    
+    const linkedUser = linkedUsers[employee._id];
+    
+    if (!window.confirm(`Are you sure you want to unlink ${linkedUser.name} (${linkedUser.username}) from ${employee.name}?`)) {
+      return;
+    }
+    
+    try {
+      // Get token from localStorage
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError('Authentication required. Please log in again.');
+        return;
+      }
+      
+      // Call the unlink API
+      const response = await fetch('http://localhost:8080/api/auth/unlink-employee', {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          userId: linkedUser.userId
+        }),
+      });
+      
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.message || 'Failed to unlink user from employee');
+      
+      setSuccess('User unlinked from employee successfully');
+      
+      // Refresh the users list to update the linked status
+      fetchUsers();
     } catch (err) {
       setError(err.message);
     }
@@ -226,11 +330,21 @@ const EmployeeManagement = ({ onDataChange }) => {
 
   const handleCalculateSalary = async (employeeId) => {
     try {
+      // Get token from localStorage
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError('Authentication required. Please log in again.');
+        return;
+      }
+      
       const today = new Date();
       const response = await fetch(
         `http://localhost:8080/api/employees/salary/${employeeId}/${today.getFullYear()}/${today.getMonth() + 1}`,
         {
-          credentials: 'include',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          }
         }
       );
       
@@ -257,12 +371,19 @@ const EmployeeManagement = ({ onDataChange }) => {
     try {
       if (!employeeId) throw new Error('Employee ID is required');
       
+      // Get token from localStorage
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setError('Authentication required. Please log in again.');
+        return;
+      }
+      
       const response = await fetch(`http://localhost:8080/api/employees/${employeeId}`, {
         method: 'PUT',
         headers: { 
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
         },
-        credentials: 'include',
         body: JSON.stringify({
           calculatedSalary: parseFloat(newSalary)
         })
@@ -281,30 +402,82 @@ const EmployeeManagement = ({ onDataChange }) => {
 
   const handleLeaveStatusUpdate = async (employeeId, leaveId, approved) => {
     try {
+      // Prepare both old and new format for compatibility
+      const requestBody = {
+        employeeId,
+        leaveId,
+        status: approved ? 'approved' : 'rejected',
+        approved: approved,
+        rejected: !approved,
+        paid: leaveStatusForm.paid,
+        comment: leaveStatusForm.comment
+      };
+
+      console.log("Sending leave update request:", requestBody);
+
       const response = await fetch('http://localhost:8080/api/employees/leave/status', {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('token')}`
         },
-        body: JSON.stringify({
-          employeeId,
-          leaveId,
-          approved,
-          paid: leaveStatusForm.paid,
-          comment: leaveStatusForm.comment
-        })
+        body: JSON.stringify(requestBody),
+        credentials: 'include'
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to update leave status');
+      let responseData;
+      try {
+        responseData = await response.json();
+        console.log("Leave update response:", responseData);
+      } catch (e) {
+        console.error("Error parsing response:", e);
+        responseData = { message: "Could not parse server response" };
       }
+
+      if (!response.ok) {
+        throw new Error(responseData.message || 'Failed to update leave status');
+      }
+
+      // Update the local state directly
+      setEmployees(prevEmployees => {
+        return prevEmployees.map(emp => {
+          if (emp._id === employeeId) {
+            // Create a copy of the employee
+            const updatedEmployee = {...emp};
+            
+            // Update the leaves array
+            updatedEmployee.leaves = emp.leaves.map(leave => {
+              if (leave._id === leaveId) {
+                const updatedLeave = {
+                  ...leave,
+                  status: approved ? 'approved' : 'rejected',
+                  approved: approved,
+                  rejected: !approved,
+                  paid: leaveStatusForm.paid,
+                  comment: leaveStatusForm.comment
+                };
+                console.log("Updated leave object:", updatedLeave);
+                return updatedLeave;
+              }
+              return leave;
+            });
+            
+            return updatedEmployee;
+          }
+          return emp;
+        });
+      });
 
       setSuccess(`Leave ${approved ? 'approved' : 'rejected'} successfully`);
       setShowLeaveDetailModal(false);
-      fetchEmployees();
+      
+      // Notify parent component about the change
       if (onDataChange) onDataChange();
+      
+      // Force a refetch of all employees to ensure sync with server
+      fetchEmployees();
     } catch (err) {
+      console.error("Leave update error:", err);
       setError(err.message);
     }
   };
@@ -339,6 +512,83 @@ const EmployeeManagement = ({ onDataChange }) => {
     if (!employee) return '0.00';
     const salary = employee.calculatedSalary || employee.baseSalary;
     return salary ? salary.toFixed(2) : '0.00';
+  };
+
+  // Validate form fields
+  const validateForm = () => {
+    const errors = {
+      name: '',
+      email: '',
+      phoneNumber: '',
+      baseSalary: '',
+      hourlyRate: '',
+      address: ''
+    };
+    
+    // Name validation
+    if (!formData.name.trim()) {
+      errors.name = 'Name is required';
+    }
+    
+    // Email validation
+    if (!formData.email.trim()) {
+      errors.email = 'Email is required';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      errors.email = 'Please enter a valid email';
+    }
+    
+    // Phone number validation
+    if (!formData.phoneNumber.trim()) {
+      errors.phoneNumber = 'Phone number is required';
+    } else if (!/^\d+$/.test(formData.phoneNumber)) {
+      errors.phoneNumber = 'Phone number must contain only digits';
+    }
+    
+    // Base salary validation
+    if (!formData.baseSalary) {
+      errors.baseSalary = 'Base salary is required';
+    } else if (isNaN(formData.baseSalary) || Number(formData.baseSalary) <= 0) {
+      errors.baseSalary = 'Please enter a valid base salary';
+    }
+    
+    // Hourly rate validation
+    if (!formData.hourlyRate) {
+      errors.hourlyRate = 'Hourly rate is required';
+    } else if (isNaN(formData.hourlyRate) || Number(formData.hourlyRate) <= 0) {
+      errors.hourlyRate = 'Please enter a valid hourly rate';
+    }
+    
+    // Address validation
+    if (!formData.address.trim()) {
+      errors.address = 'Address is required';
+    }
+    
+    return errors;
+  };
+  
+  // Handle input change with validation
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    
+    // For phone number, only allow digits
+    if (name === 'phoneNumber' && value !== '') {
+      const onlyDigits = value.replace(/[^\d]/g, '');
+      setFormData({ ...formData, [name]: onlyDigits });
+      
+      // Validate phone number
+      if (!/^\d+$/.test(onlyDigits)) {
+        setFormErrors({ ...formErrors, [name]: 'Phone number must contain only digits' });
+      } else {
+        setFormErrors({ ...formErrors, [name]: '' });
+      }
+    } else {
+      setFormData({ ...formData, [name]: value });
+      
+      // Clear error when user starts typing
+      if (formErrors[name]) {
+        setFormErrors({ ...formErrors, [name]: '' });
+      }
+    }
   };
 
   if (loading) {
@@ -455,7 +705,20 @@ const EmployeeManagement = ({ onDataChange }) => {
             <tbody className="bg-white divide-y divide-gray-200">
               {filteredEmployees.map((employee) => (
                 <tr key={employee._id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{employee.name}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    <div className="flex items-center">
+                      {employee.name}
+                      {linkedUsers[employee._id] && (
+                        <span 
+                          className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 cursor-help"
+                          title={`Linked to user: ${linkedUsers[employee._id].name} (${linkedUsers[employee._id].username})`}
+                        >
+                          <FiUser className="w-3 h-3 mr-1" />
+                          Linked
+                        </span>
+                      )}
+                    </div>
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{employee.email}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{employee.phoneNumber}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{employee.role}</td>
@@ -486,9 +749,9 @@ const EmployeeManagement = ({ onDataChange }) => {
                     <div className="flex flex-col">
                       <div className="flex items-center">
                         <span className="text-xs text-gray-500">
-                          Pending: {employee.leaves?.filter(l => !l.approved).length || 0}
+                          Pending: {employee.leaves?.filter(l => l.status === 'pending' || (!l.status && !l.approved && !l.rejected)).length || 0}
                         </span>
-                        {employee.leaves?.filter(l => !l.approved).length > 0 && (
+                        {employee.leaves?.filter(l => l.status === 'pending' || (!l.status && !l.approved && !l.rejected)).length > 0 && (
                           <button
                             onClick={() => {
                               setSelectedEmployee(employee);
@@ -502,13 +765,16 @@ const EmployeeManagement = ({ onDataChange }) => {
                         )}
                       </div>
                       <span className="text-xs text-gray-500">
-                        Approved: {employee.leaves?.filter(l => l.approved).length || 0}
+                        Approved: {employee.leaves?.filter(l => l.status === 'approved' || (!l.status && l.approved)).length || 0}
                       </span>
-                      {employee.leaves?.filter(l => !l.approved).length > 0 && (
+                      <span className="text-xs text-gray-500">
+                        Rejected: {employee.leaves?.filter(l => l.status === 'rejected' || (!l.status && l.rejected)).length || 0}
+                      </span>
+                      {employee.leaves?.filter(l => l.status === 'pending' || (!l.status && !l.approved && !l.rejected)).length > 0 && (
                         <div className="flex space-x-2 mt-1">
                           <button
                             onClick={() => {
-                              const pendingLeave = employee.leaves.find(l => !l.approved);
+                              const pendingLeave = employee.leaves.find(l => l.status === 'pending' || (!l.status && !l.approved && !l.rejected));
                               if (pendingLeave) {
                                 openLeaveDetailModal(employee, pendingLeave);
                               }
@@ -539,6 +805,15 @@ const EmployeeManagement = ({ onDataChange }) => {
                       >
                         <FiTrash2 className="w-5 h-5" />
                       </button>
+                      {linkedUsers[employee._id] ? (
+                        <button
+                          onClick={() => handleUnlinkUser(employee)}
+                          className="text-orange-500 hover:text-orange-700"
+                          title={`Unlink from ${linkedUsers[employee._id].username}`}
+                        >
+                          <FiLink className="w-5 h-5 line-through" />
+                        </button>
+                      ) : (
                       <button
                         onClick={() => handleLinkUser(employee)}
                         className="text-blue-500 hover:text-blue-700"
@@ -546,6 +821,7 @@ const EmployeeManagement = ({ onDataChange }) => {
                       >
                         <FiLink className="w-5 h-5" />
                       </button>
+                      )}
                     </div>
                   </td>
                 </tr>
@@ -569,36 +845,43 @@ const EmployeeManagement = ({ onDataChange }) => {
                   <input
                     type="text"
                     value={formData.name}
-                    onChange={(e) => setFormData({...formData, name: e.target.value})}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#4DB6AC] focus:ring-[#4DB6AC]"
+                    onChange={handleInputChange}
+                    name="name"
+                    className={`mt-1 block w-full rounded-md ${formErrors.name ? 'border-red-500' : 'border-gray-300'} shadow-sm focus:border-[#4DB6AC] focus:ring-[#4DB6AC]`}
                     required
                   />
+                  {formErrors.name && <p className="mt-1 text-sm text-red-500">{formErrors.name}</p>}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Email</label>
                   <input
                     type="email"
                     value={formData.email}
-                    onChange={(e) => setFormData({...formData, email: e.target.value})}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#4DB6AC] focus:ring-[#4DB6AC]"
+                    onChange={handleInputChange}
+                    name="email"
+                    className={`mt-1 block w-full rounded-md ${formErrors.email ? 'border-red-500' : 'border-gray-300'} shadow-sm focus:border-[#4DB6AC] focus:ring-[#4DB6AC]`}
                     required
                   />
+                  {formErrors.email && <p className="mt-1 text-sm text-red-500">{formErrors.email}</p>}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Phone Number</label>
                   <input
                     type="tel"
                     value={formData.phoneNumber}
-                    onChange={(e) => setFormData({...formData, phoneNumber: e.target.value})}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#4DB6AC] focus:ring-[#4DB6AC]"
+                    onChange={handleInputChange}
+                    name="phoneNumber"
+                    className={`mt-1 block w-full rounded-md ${formErrors.phoneNumber ? 'border-red-500' : 'border-gray-300'} shadow-sm focus:border-[#4DB6AC] focus:ring-[#4DB6AC]`}
                     required
                   />
+                  {formErrors.phoneNumber && <p className="mt-1 text-sm text-red-500">{formErrors.phoneNumber}</p>}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Role</label>
                   <select
                     value={formData.role}
-                    onChange={(e) => setFormData({...formData, role: e.target.value})}
+                    onChange={handleInputChange}
+                    name="role"
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#4DB6AC] focus:ring-[#4DB6AC]"
                   >
                     <option value="Veterinarian">Veterinarian</option>
@@ -613,35 +896,44 @@ const EmployeeManagement = ({ onDataChange }) => {
                   <input
                     type="number"
                     value={formData.baseSalary}
-                    onChange={(e) => setFormData({...formData, baseSalary: e.target.value})}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#4DB6AC] focus:ring-[#4DB6AC]"
+                    onChange={handleInputChange}
+                    name="baseSalary"
+                    className={`mt-1 block w-full rounded-md ${formErrors.baseSalary ? 'border-red-500' : 'border-gray-300'} shadow-sm focus:border-[#4DB6AC] focus:ring-[#4DB6AC]`}
                     required
+                    min="0"
                   />
+                  {formErrors.baseSalary && <p className="mt-1 text-sm text-red-500">{formErrors.baseSalary}</p>}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Hourly Rate</label>
                   <input
                     type="number"
                     value={formData.hourlyRate}
-                    onChange={(e) => setFormData({...formData, hourlyRate: e.target.value})}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#4DB6AC] focus:ring-[#4DB6AC]"
+                    onChange={handleInputChange}
+                    name="hourlyRate"
+                    className={`mt-1 block w-full rounded-md ${formErrors.hourlyRate ? 'border-red-500' : 'border-gray-300'} shadow-sm focus:border-[#4DB6AC] focus:ring-[#4DB6AC]`}
                     required
+                    min="0"
                   />
+                  {formErrors.hourlyRate && <p className="mt-1 text-sm text-red-500">{formErrors.hourlyRate}</p>}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Address</label>
                   <textarea
                     value={formData.address}
-                    onChange={(e) => setFormData({...formData, address: e.target.value})}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#4DB6AC] focus:ring-[#4DB6AC]"
+                    onChange={handleInputChange}
+                    name="address"
+                    className={`mt-1 block w-full rounded-md ${formErrors.address ? 'border-red-500' : 'border-gray-300'} shadow-sm focus:border-[#4DB6AC] focus:ring-[#4DB6AC]`}
                     required
                   />
+                  {formErrors.address && <p className="mt-1 text-sm text-red-500">{formErrors.address}</p>}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Status</label>
                   <select
                     value={formData.status}
-                    onChange={(e) => setFormData({...formData, status: e.target.value})}
+                    onChange={handleInputChange}
+                    name="status"
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#4DB6AC] focus:ring-[#4DB6AC]"
                   >
                     <option value="Active">Active</option>
@@ -759,7 +1051,7 @@ const EmployeeManagement = ({ onDataChange }) => {
                   <>
                     <div className="bg-gray-50 p-4 rounded-lg">
                       <div className="flex justify-between items-center">
-                        <p className="text-sm text-gray-600">Overtime Pay</p>
+                      <p className="text-sm text-gray-600">Overtime Pay</p>
                         <p className="text-sm font-semibold text-green-600">
                           +${selectedSalaryDetails.breakdown.overtime.reduce((total, ot) => 
                             total + (ot.hours * ot.rate * (selectedSalaryDetails.baseSalary / (30 * 8))), 0).toFixed(2)}
@@ -949,11 +1241,17 @@ const EmployeeManagement = ({ onDataChange }) => {
                         </td>
                         <td className="px-4 py-2 whitespace-nowrap">
                           <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            leave.approved 
+                            leave.status === 'approved' || (!leave.status && leave.approved)
                               ? 'bg-green-100 text-green-800' 
+                              : leave.status === 'rejected' || (!leave.status && leave.rejected)
+                              ? 'bg-red-100 text-red-800'
                               : 'bg-yellow-100 text-yellow-800'
                           }`}>
-                            {leave.approved ? 'Approved' : 'Pending'}
+                            {leave.status === 'approved' || (!leave.status && leave.approved)
+                              ? 'Approved' 
+                              : leave.status === 'rejected' || (!leave.status && leave.rejected)
+                              ? 'Rejected'
+                              : 'Pending'}
                           </span>
                         </td>
                         <td className="px-4 py-2 whitespace-nowrap">
@@ -966,7 +1264,7 @@ const EmployeeManagement = ({ onDataChange }) => {
                           </span>
                         </td>
                         <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
-                          {!leave.approved && (
+                          {(leave.status === 'pending' || (!leave.status && !leave.approved && !leave.rejected)) && (
                             <div className="flex space-x-2">
                               <button
                                 onClick={() => openLeaveDetailModal(selectedEmployee, leave)}
@@ -976,6 +1274,17 @@ const EmployeeManagement = ({ onDataChange }) => {
                                 Review
                               </button>
                             </div>
+                          )}
+                          {(leave.status !== 'pending' || (!leave.status && (leave.approved || leave.rejected))) && leave.comment && (
+                            <button
+                              onClick={() => {
+                                alert(`Comment: ${leave.comment}`);
+                              }}
+                              className="text-gray-600 hover:text-gray-800"
+                              title="View Comment"
+                            >
+                              View Comment
+                            </button>
                           )}
                         </td>
                       </tr>
@@ -1031,11 +1340,17 @@ const EmployeeManagement = ({ onDataChange }) => {
                     <p className="text-sm text-gray-500">Status</p>
                     <p className="font-medium">
                       <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        selectedLeave.approved 
+                        selectedLeave.status === 'approved' || (!selectedLeave.status && selectedLeave.approved)
                           ? 'bg-green-100 text-green-800' 
+                          : selectedLeave.status === 'rejected' || (!selectedLeave.status && selectedLeave.rejected)
+                          ? 'bg-red-100 text-red-800'
                           : 'bg-yellow-100 text-yellow-800'
                       }`}>
-                        {selectedLeave.approved ? 'Approved' : 'Pending'}
+                        {selectedLeave.status === 'approved' || (!selectedLeave.status && selectedLeave.approved)
+                          ? 'Approved' 
+                          : selectedLeave.status === 'rejected' || (!selectedLeave.status && selectedLeave.rejected)
+                          ? 'Rejected'
+                          : 'Pending'}
                       </span>
                     </p>
                   </div>

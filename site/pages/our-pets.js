@@ -266,19 +266,19 @@ export default function OurPets() {
   // Get Pet icon based on type
   const getPetIcon = (type) => {
     switch (type) {
-      case 'Dog': return <FaDog className="text-[#4DB6AC] mr-2" />;
-      case 'Cat': return <FaCat className="text-[#4DB6AC] mr-2" />;
-      case 'Fish': return <FaFish className="text-[#4DB6AC] mr-2" />;
-      case 'Bird': return <FaDove className="text-[#4DB6AC] mr-2" />;
-      case 'Rabbit': return <FaHorse className="text-[#4DB6AC] mr-2" />;
-      default: return <FaPaw className="text-[#4DB6AC] mr-2" />;
+      case 'Dog': return <FaDog className="text-[#4F959D] mr-2" />;
+      case 'Cat': return <FaCat className="text-[#4F959D] mr-2" />;
+      case 'Fish': return <FaFish className="text-[#4F959D] mr-2" />;
+      case 'Bird': return <FaDove className="text-[#4F959D] mr-2" />;
+      case 'Rabbit': return <FaHorse className="text-[#4F959D] mr-2" />;
+      default: return <FaPaw className="text-[#4F959D] mr-2" />;
     }
   };
 
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-[#4DB6AC]"></div>
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-[#4F959D]"></div>
       </div>
     )
   }
@@ -295,7 +295,7 @@ export default function OurPets() {
 
       {/* Hero Section */}
       <motion.section 
-        className="relative py-20 bg-[#FFF3E0]"
+        className="relative py-20 bg-[#F6F8D5]"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
@@ -311,13 +311,13 @@ export default function OurPets() {
             animate={{ scale: 1 }}
             transition={{ duration: 0.5 }}
           >
-            <MdPets className="w-16 h-16 mx-auto mb-6 text-[#FF7043]" />
+            <MdPets className="w-16 h-16 mx-auto mb-6 text-[#205781]" />
           </motion.div>
           <motion.h1 
             className="text-4xl md:text-5xl font-bold mb-6"
             variants={fadeInUp}
           >
-            Meet Our <span className="text-[#4DB6AC]">Wonderful Pets</span>
+            Meet Our <span className="text-[#4F959D]">Wonderful Pets</span>
           </motion.h1>
           <motion.p 
             className="text-xl text-gray-600 max-w-2xl mx-auto"
@@ -335,7 +335,7 @@ export default function OurPets() {
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
             <button 
               onClick={() => setShowFilterMenu(!showFilterMenu)}
-              className="flex items-center space-x-2 bg-[#4DB6AC] text-white px-4 py-2 rounded-lg font-medium hover:bg-[#4DB6AC]/90 transition-colors duration-200"
+              className="flex items-center space-x-2 bg-[#4F959D] text-white px-4 py-2 rounded-lg font-medium hover:bg-[#4F959D]/90 transition-colors duration-200"
             >
               <FiFilter />
               <span>Filter Pets</span>
@@ -348,7 +348,7 @@ export default function OurPets() {
                 name="sort"
                 value={filters.sort}
                 onChange={handleFilterChange}
-                className="border border-gray-300 rounded-md px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#4DB6AC]"
+                className="border border-gray-300 rounded-md px-2 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#4F959D]"
               >
                 <option value="">Newest</option>
                 <option value="priceLow">Price: Low to High</option>
@@ -371,7 +371,7 @@ export default function OurPets() {
                   name="type"
                   value={filters.type}
                   onChange={handleFilterChange}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#4DB6AC]"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#4F959D]"
                 >
                   <option value="">All Types</option>
                   <option value="Dog">Dogs</option>
@@ -388,7 +388,7 @@ export default function OurPets() {
                   name="gender"
                   value={filters.gender}
                   onChange={handleFilterChange}
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#4DB6AC]"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#4F959D]"
                 >
                   <option value="">All Genders</option>
                   <option value="Male">Male</option>
@@ -404,7 +404,7 @@ export default function OurPets() {
                   value={filters.minPrice}
                   onChange={handleFilterChange}
                   placeholder="Min Price"
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#4DB6AC]"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#4F959D]"
                   min="0"
                 />
               </div>
@@ -417,7 +417,7 @@ export default function OurPets() {
                   value={filters.maxPrice}
                   onChange={handleFilterChange}
                   placeholder="Max Price"
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#4DB6AC]"
+                  className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-[#4F959D]"
                   min="0"
                 />
               </div>
@@ -453,7 +453,7 @@ export default function OurPets() {
               <p className="text-gray-500 mt-2">Try adjusting your filters or browse all our available pets.</p>
               <button 
                 onClick={resetFilters}
-                className="mt-4 bg-[#4DB6AC] text-white px-6 py-2 rounded-md hover:bg-[#4DB6AC]/90 transition-colors duration-200"
+                className="mt-4 bg-[#4F959D] text-white px-6 py-2 rounded-md hover:bg-[#4F959D]/90 transition-colors duration-200"
               >
                 Show All Pets
               </button>
@@ -484,7 +484,7 @@ export default function OurPets() {
                       fill
                       className="object-cover"
                     />
-                    <div className="absolute top-4 right-4 bg-[#FF7043] text-white px-3 py-1 rounded-full font-bold shadow-lg">
+                    <div className="absolute top-4 right-4 bg-[#205781] text-white px-3 py-1 rounded-full font-bold shadow-lg">
                       Rs {pet.price}
                     </div>
                   </motion.div>
@@ -529,7 +529,7 @@ export default function OurPets() {
                       whileHover={{ scale: 1.02 }}
                     >
                       <button 
-                        className="w-full bg-[#4DB6AC] hover:bg-[#4DB6AC]/90 text-white py-2 px-4 rounded-lg transition-all duration-300 flex items-center justify-center"
+                        className="w-full bg-[#4F959D] hover:bg-[#4F959D]/90 text-white py-2 px-4 rounded-lg transition-all duration-300 flex items-center justify-center"
                         onClick={() => handleAppointmentClick(pet)}
                       >
                         <motion.div
@@ -551,7 +551,7 @@ export default function OurPets() {
 
       {/* CTA Section */}
       <motion.section 
-        className="bg-[#FFF3E0] py-20"
+        className="bg-[#F6F8D5] py-20"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         viewport={{ once: true }}
@@ -576,7 +576,7 @@ export default function OurPets() {
             New pets become available for sale regularly. Contact us to learn more about our upcoming arrivals!
           </motion.p>
           <motion.div variants={fadeInUp}>
-            <Link href="/contact" className="bg-[#FF7043] hover:bg-[#FF7043]/90 text-white px-8 py-3 rounded-lg transition-all duration-300 transform hover:scale-105">
+            <Link href="/contact" className="bg-[#205781] hover:bg-[#205781]/90 text-white px-8 py-3 rounded-lg transition-all duration-300 transform hover:scale-105">
               Contact Us
             </Link>
           </motion.div>
@@ -615,7 +615,7 @@ export default function OurPets() {
                   <input
                     type="text"
                     required
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#4DB6AC] focus:ring-[#4DB6AC]"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#4F959D] focus:ring-[#4F959D]"
                     value={appointmentForm.ownerName}
                     onChange={(e) => setAppointmentForm({...appointmentForm, ownerName: e.target.value})}
                   />
@@ -626,7 +626,7 @@ export default function OurPets() {
                   <input
                     type="tel"
                     required
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#4DB6AC] focus:ring-[#4DB6AC]"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#4F959D] focus:ring-[#4F959D]"
                     value={appointmentForm.contactNumber}
                     onChange={(e) => setAppointmentForm({...appointmentForm, contactNumber: e.target.value})}
                   />
@@ -637,7 +637,7 @@ export default function OurPets() {
                   <input
                     type="date"
                     required
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#4DB6AC] focus:ring-[#4DB6AC]"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#4F959D] focus:ring-[#4F959D]"
                     value={appointmentForm.appointmentDate}
                     onChange={(e) => setAppointmentForm({...appointmentForm, appointmentDate: e.target.value})}
                     min={new Date().toISOString().split('T')[0]}
@@ -648,7 +648,7 @@ export default function OurPets() {
                   <label className="block text-sm font-medium text-gray-700">Reason</label>
                   <textarea
                     required
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#4DB6AC] focus:ring-[#4DB6AC]"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#4F959D] focus:ring-[#4F959D]"
                     rows="3"
                     value={appointmentForm.reason}
                     onChange={(e) => setAppointmentForm({...appointmentForm, reason: e.target.value})}
@@ -659,7 +659,7 @@ export default function OurPets() {
                   <label className="block text-sm font-medium text-gray-700">Select Branch</label>
                   <select
                     required
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#4DB6AC] focus:ring-[#4DB6AC]"
+                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#4F959D] focus:ring-[#4F959D]"
                     value={appointmentForm.branch}
                     onChange={(e) => setAppointmentForm({...appointmentForm, branch: e.target.value})}
                   >
@@ -681,7 +681,7 @@ export default function OurPets() {
                   </button>
                   <button
                     type="submit"
-                    className="px-4 py-2 text-sm font-medium text-white bg-[#4DB6AC] hover:bg-[#4DB6AC]/90 rounded-md"
+                    className="px-4 py-2 text-sm font-medium text-white bg-[#4F959D] hover:bg-[#4F959D]/90 rounded-md"
                   >
                     Book Appointment
                   </button>

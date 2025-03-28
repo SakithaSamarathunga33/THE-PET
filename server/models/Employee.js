@@ -59,7 +59,16 @@ const employeeSchema = new mongoose.Schema({
             type: Date,
             required: true
         },
+        status: {
+            type: String,
+            enum: ['pending', 'approved', 'rejected'],
+            default: 'pending'
+        },
         approved: {
+            type: Boolean,
+            default: false
+        },
+        rejected: {
             type: Boolean,
             default: false
         },

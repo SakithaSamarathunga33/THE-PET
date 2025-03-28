@@ -141,7 +141,7 @@ exports.applyLeave = async (req, res) => {
 // Approve/Reject leave
 exports.updateLeaveStatus = async (req, res) => {
     try {
-        const { employeeId, leaveId, approved, paid, comment } = req.body;
+        const { employeeId, leaveId, approved, rejected, status, paid, comment } = req.body;
         const employee = await Employee.findById(employeeId);
         
         if (!employee) {
@@ -153,7 +153,19 @@ exports.updateLeaveStatus = async (req, res) => {
             return res.status(404).json({ message: "Leave application not found" });
         }
 
+        // Update based on approved flag
         leave.approved = approved;
+        
+        // Explicitly set rejected flag
+        leave.rejected = rejected || !approved;
+        
+        // Update status field if provided, for newer clients
+        if (status) {
+            leave.status = status;
+        } else {
+            // For backward compatibility
+            leave.status = approved ? 'approved' : 'rejected';
+        }
         
         // Update paid status if provided
         if (paid !== undefined) {

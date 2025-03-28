@@ -101,13 +101,13 @@ const Login = () => {
       <NavBar />
       <div className="min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 relative mt-16">
         {/* Animated background gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-[#4DB6AC] via-[#FF7043] to-[#4DB6AC] opacity-20 animate-gradient"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-[#98D2C0] via-[#4F959D] to-[#205781] opacity-20 animate-gradient"></div>
         
         {/* Decorative elements */}
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#4DB6AC] rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
-          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-[#FF7043] rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-[#4DB6AC] rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-[#98D2C0] rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-[#4F959D] rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-2000"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-[#205781] rounded-full mix-blend-multiply filter blur-xl opacity-70 animate-blob animation-delay-4000"></div>
         </div>
 
         <div className="relative w-full max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-8">
@@ -139,7 +139,7 @@ const Login = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.5 }}
           >
-            <div className="bg-white/90 p-8 rounded-2xl shadow-2xl backdrop-blur-md border border-white/20">
+            <div className="bg-white/90 p-6 rounded-xl shadow-xl backdrop-blur-md border border-white/20">
               <div>
                 <div className="flex justify-center">
                   <motion.div
@@ -153,13 +153,13 @@ const Login = () => {
                       repeatType: "reverse"
                     }}
                   >
-                    <MdPets className="h-16 w-16 text-[#4DB6AC]" />
+                    <MdPets className="h-12 w-12 text-[#4F959D]" />
                   </motion.div>
                 </div>
-                <h2 className="mt-4 text-center text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-[#4DB6AC] to-[#FF7043]">
+                <h2 className="mt-3 text-center text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-[#205781] to-[#4F959D]">
                   Sign In
                 </h2>
-                <p className="mt-2 text-center text-sm text-gray-600">
+                <p className="mt-1 text-center text-xs text-gray-600">
                   Welcome back! Please sign in to your account
                 </p>
               </div>
@@ -178,7 +178,7 @@ const Login = () => {
                 </motion.div>
               )}
 
-              <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+              <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
                 <div className="space-y-4">
                   <div>
                     <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-1">
@@ -186,14 +186,14 @@ const Login = () => {
                     </label>
                     <div className="relative group">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <FiUser className="text-[#4DB6AC] group-hover:text-[#FF7043] transition-colors duration-200" />
+                        <FiUser className="text-[#4F959D] group-hover:text-[#205781] transition-colors duration-200" />
                       </div>
                       <input
                         id="username"
                         name="username"
                         type="text"
                         required
-                        className="appearance-none relative block w-full px-3 py-3 pl-10 border border-gray-300 rounded-xl placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#4DB6AC] focus:border-[#4DB6AC] sm:text-sm transition-all duration-200 ease-in-out hover:border-[#FF7043] bg-white/50 backdrop-blur-sm"
+                        className="appearance-none relative block w-full px-3 py-2 pl-10 border border-gray-300 rounded-lg placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#4F959D] focus:border-[#4F959D] sm:text-sm transition-all duration-200 ease-in-out hover:border-[#205781] bg-white/50 backdrop-blur-sm"
                         placeholder="Enter your username or email"
                         value={formData.username}
                         onChange={(e) => setFormData({ ...formData, username: e.target.value })}
@@ -206,14 +206,14 @@ const Login = () => {
                     </label>
                     <div className="relative group">
                       <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <FiLock className="text-[#4DB6AC] group-hover:text-[#FF7043] transition-colors duration-200" />
+                        <FiLock className="text-[#4F959D] group-hover:text-[#205781] transition-colors duration-200" />
                       </div>
                       <input
                         id="password"
                         name="password"
                         type="password"
                         required
-                        className="appearance-none relative block w-full px-3 py-3 pl-10 border border-gray-300 rounded-xl placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#4DB6AC] focus:border-[#4DB6AC] sm:text-sm transition-all duration-200 ease-in-out hover:border-[#FF7043] bg-white/50 backdrop-blur-sm"
+                        className="appearance-none relative block w-full px-3 py-2 pl-10 border border-gray-300 rounded-lg placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-[#4F959D] focus:border-[#4F959D] sm:text-sm transition-all duration-200 ease-in-out hover:border-[#205781] bg-white/50 backdrop-blur-sm"
                         placeholder="Enter your password"
                         value={formData.password}
                         onChange={(e) => setFormData({ ...formData, password: e.target.value })}
@@ -226,10 +226,10 @@ const Login = () => {
                   <motion.button
                     type="submit"
                     disabled={loading}
-                    className={`group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-xl text-white ${
+                    className={`group relative w-full flex justify-center py-2 px-3 border border-transparent text-sm font-medium rounded-lg text-white ${
                       loading 
-                        ? 'bg-[#4DB6AC]/70 cursor-not-allowed'
-                        : 'bg-[#4DB6AC] hover:bg-[#45A49A] transform transition-all duration-300 ease-in-out hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4DB6AC] shadow-lg hover:shadow-xl'
+                        ? 'bg-[#4F959D]/70 cursor-not-allowed'
+                        : 'bg-[#4F959D] hover:bg-[#205781] transform transition-all duration-300 ease-in-out hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4F959D] shadow-lg hover:shadow-xl'
                     }`}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
@@ -249,32 +249,32 @@ const Login = () => {
                 </div>
               </form>
 
-              <div className="mt-8">
-                <div className="flex items-center justify-center space-x-8">
+              <div className="mt-6">
+                <div className="flex items-center justify-center space-x-6">
                   <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
-                  <span className="text-sm text-gray-500 bg-white/90 px-4 py-1 rounded-full shadow-sm border border-gray-100">
+                  <span className="text-xs text-gray-500 bg-white/80 px-3 py-1 rounded-full shadow-sm border border-gray-100">
                     Or continue with
                   </span>
                   <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
                 </div>
 
                 <motion.div 
-                  className="mt-8"
+                  className="mt-6"
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.4, duration: 0.3 }}
                 >
                   <motion.button
                     onClick={handleGoogleLogin}
-                    className="group w-full bg-white hover:bg-gray-50 text-gray-700 font-semibold py-4 px-6 rounded-xl border border-gray-200 hover:border-[#4DB6AC] shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden"
+                    className="group w-full bg-white hover:bg-gray-50 text-gray-700 font-medium py-2 px-4 rounded-lg border border-gray-200 hover:border-[#4F959D] shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden text-sm"
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                   >
-                    <div className="absolute inset-0 bg-[#4DB6AC]/10 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-700"></div>
+                    <div className="absolute inset-0 bg-[#4F959D]/10 transform -translate-x-full group-hover:translate-x-0 transition-transform duration-700"></div>
                     
                     <div className="relative flex items-center justify-center space-x-4">
-                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white shadow-sm">
-                        <FcGoogle className="w-5 h-5" />
+                      <div className="flex items-center justify-center w-6 h-6 rounded-full bg-white shadow-sm">
+                        <FcGoogle className="w-4 h-4" />
                       </div>
                       <span>Continue with Google</span>
                       <motion.div 
@@ -282,7 +282,7 @@ const Login = () => {
                         initial={{ x: -10 }}
                         animate={{ x: 0 }}
                       >
-                        <svg className="w-5 h-5 text-[#4DB6AC]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-5 h-5 text-[#4F959D]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
                         </svg>
                       </motion.div>
@@ -291,18 +291,18 @@ const Login = () => {
                 </motion.div>
 
                 <motion.div 
-                  className="mt-8 text-center"
+                  className="mt-6 text-center"
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.6 }}
                 >
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     <p className="text-sm text-gray-500">
                       New to our platform?
                     </p>
                     <Link 
                       href="/register" 
-                      className="inline-flex items-center justify-center space-x-2 bg-[#4DB6AC] hover:bg-[#45A49A] text-white font-medium px-6 py-3 rounded-xl hover:shadow-lg transform hover:scale-[1.02] transition-all duration-300"
+                      className="inline-flex items-center justify-center space-x-2 bg-[#4F959D] hover:bg-[#205781] text-white font-medium px-4 py-2 rounded-lg hover:shadow-lg transform hover:scale-[1.02] transition-all duration-300 text-sm"
                     >
                       <span>Create an account</span>
                       <motion.span
@@ -310,7 +310,7 @@ const Login = () => {
                         animate={{ x: [0, 5, 0] }}
                         transition={{ duration: 1.5, repeat: Infinity, repeatType: "reverse" }}
                       >
-                        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
                         </svg>
                       </motion.span>

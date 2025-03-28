@@ -330,6 +330,53 @@ exports.linkUserToEmployee = async (req, res) => {
   }
 };
 
+// 🔹 Unlink User from Employee
+exports.unlinkUserFromEmployee = async (req, res) => {
+  try {
+    const { userId } = req.body;
+    
+    console.log('Unlinking user from employee:', { userId });
+    
+    if (!userId) {
+      return res.status(400).json({ message: "User ID is required" });
+    }
+    
+    // Find the user
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    
+    // Check if user is actually linked to an employee
+    if (!user.employeeId) {
+      return res.status(400).json({ message: "User is not linked to any employee" });
+    }
+    
+    // Update user to remove employee ID and change userType back to regular user
+    user.employeeId = null;
+    user.userType = "user";
+    
+    await user.save();
+    console.log('User unlinked from employee successfully:', user.username);
+    
+    res.status(200).json({ 
+      success: true,
+      message: "User unlinked from employee successfully",
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        username: user.username,
+        userType: user.userType,
+        employeeId: null
+      }
+    });
+  } catch (error) {
+    console.error("Unlink user from employee error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
 // 🔹 Create Sample Employee User (For Testing)
 exports.createSampleEmployeeUser = async (req, res) => {
   try {

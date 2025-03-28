@@ -259,25 +259,25 @@ export default function Forum() {
       icon: <MdPets className="w-6 h-6" />,
       name: "Pet Care",
       description: "Tips and advice for pet care",
-      color: "#4DB6AC"
+      color: "#4F959D"
     },
     {
       icon: <FaHeart className="w-6 h-6" />,
       name: "Pet Health",
       description: "Discuss pet health concerns",
-      color: "#FF7043"
+      color: "#205781"
     },
     {
       icon: <FaPaw className="w-6 h-6" />,
       name: "Training",
       description: "Share training experiences",
-      color: "#FFB74D"
+      color: "#98D2C0"
     },
     {
       icon: <FaComments className="w-6 h-6" />,
       name: "General Discussion",
       description: "Chat about anything pet-related",
-      color: "#81C784"
+      color: "#F6F8D5"
     }
   ]
 
@@ -292,7 +292,7 @@ export default function Forum() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-[#4DB6AC]"></div>
+        <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-[#4F959D]"></div>
       </div>
     )
   }
@@ -326,7 +326,7 @@ export default function Forum() {
 
       {/* Hero Section */}
       <motion.section 
-        className="relative py-16 bg-[#FFF3E0]"
+        className="relative py-16 bg-[#F6F8D5]"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
@@ -341,7 +341,7 @@ export default function Forum() {
             className="text-4xl md:text-5xl font-bold mb-6"
             variants={fadeInUp}
           >
-            Pet <span className="text-[#4DB6AC]">Community Forum</span>
+            Pet <span className="text-[#4F959D]">Community Forum</span>
           </motion.h1>
           <motion.p 
             className="text-xl text-gray-600 max-w-2xl mx-auto mb-8"
@@ -358,7 +358,7 @@ export default function Forum() {
             <input
               type="text"
               placeholder="Search discussions..."
-              className="w-full px-6 py-4 rounded-full bg-white shadow-lg focus:outline-none focus:ring-2 focus:ring-[#4DB6AC] pl-14"
+              className="w-full px-6 py-4 rounded-full bg-white shadow-lg focus:outline-none focus:ring-2 focus:ring-[#4F959D] pl-14"
             />
             <FaSearch className="absolute left-5 top-1/2 transform -translate-y-1/2 text-gray-400 text-xl" />
           </motion.div>
@@ -383,13 +383,13 @@ export default function Forum() {
             >
               <motion.button
                 whileHover={{ scale: 1.05 }}
-                className="w-full bg-[#4DB6AC] text-white px-6 py-3 rounded-lg flex items-center justify-center gap-2 shadow-lg"
+                className="w-full bg-[#4F959D] text-white px-6 py-3 rounded-lg flex items-center justify-center gap-2 shadow-lg"
               >
                 <FaPlus />
                 New Discussion
               </motion.button>
 
-              <div className="bg-white rounded-xl shadow-lg p-6">
+              <div className="bg-[#F6F8D5] rounded-xl shadow-lg p-6">
                 <h3 className="font-semibold mb-4">Categories</h3>
                 <motion.div 
                   className="space-y-2"
@@ -403,7 +403,7 @@ export default function Forum() {
                       onClick={() => setActiveCategory(category.name)}
                       className={`w-full text-left px-4 py-2 rounded-lg capitalize ${
                         activeCategory === category.name
-                          ? 'bg-[#4DB6AC] text-white'
+                          ? 'bg-[#4F959D] text-white'
                           : 'hover:bg-gray-100'
                       }`}
                       variants={fadeInUp}
@@ -426,7 +426,7 @@ export default function Forum() {
               <div className="space-y-6">
                 <div className="flex justify-between items-center">
                   <h2 className="text-2xl font-bold">Recent Discussions</h2>
-                  <select className="px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#4DB6AC]">
+                  <select className="px-4 py-2 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-[#4F959D]">
                     <option>Most Recent</option>
                     <option>Most Popular</option>
                     <option>Most Commented</option>
@@ -442,7 +442,7 @@ export default function Forum() {
                   {posts.map((post) => (
                     <motion.div
                       key={post._id}
-                      className="bg-white p-6 rounded-xl shadow-lg"
+                      className="bg-[#F6F8D5] p-6 rounded-xl shadow-lg"
                       variants={cardVariants}
                       whileHover="hover"
                     >
@@ -460,7 +460,7 @@ export default function Forum() {
                       <div className="flex items-center gap-6 text-gray-500">
                         <motion.button 
                           className="flex items-center gap-2"
-                          whileHover={{ scale: 1.1, color: '#FF7043' }}
+                          whileHover={{ scale: 1.1, color: '#205781' }}
                           onClick={() => handleLike(post._id)}
                         >
                           <FaHeart />
@@ -468,7 +468,7 @@ export default function Forum() {
                         </motion.button>
                         <motion.button 
                           className="flex items-center gap-2"
-                          whileHover={{ scale: 1.1, color: '#4DB6AC' }}
+                          whileHover={{ scale: 1.1, color: '#4F959D' }}
                           onClick={() => setSelectedPost(selectedPost === post._id ? null : post._id)}
                         >
                           <FaComment />
@@ -496,12 +496,12 @@ export default function Forum() {
                                 value={reply}
                                 onChange={(e) => setReply(e.target.value)}
                                 placeholder="Write a reply..."
-                                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4DB6AC] h-24"
+                                className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4F959D] h-24"
                               />
                               <div className="mt-2 flex justify-end">
                                 <button
                                   onClick={() => handleAddReply(post._id)}
-                                  className="px-4 py-2 bg-[#4DB6AC] text-white rounded-lg hover:bg-[#4DB6AC]/90"
+                                  className="px-4 py-2 bg-[#4F959D] text-white rounded-lg hover:bg-[#4F959D]/90"
                                 >
                                   Reply
                                 </button>
@@ -511,7 +511,7 @@ export default function Forum() {
                             <div className="text-center py-4">
                               <button
                                 onClick={() => router.push('/login')}
-                                className="text-[#4DB6AC] hover:underline"
+                                className="text-[#4F959D] hover:underline"
                               >
                                 Login to reply
                               </button>
@@ -530,7 +530,7 @@ export default function Forum() {
 
       {/* CTA Section */}
       {!user && (
-        <section className="py-16 bg-gradient-to-r from-[#4DB6AC] to-[#FF7043]">
+        <section className="py-16 bg-gradient-to-r from-[#4F959D] to-[#205781]">
           <div className="max-w-4xl mx-auto text-center px-4">
             <h2 className="text-3xl font-bold text-white mb-6">
               Join Our Growing Community
@@ -540,7 +540,7 @@ export default function Forum() {
             </p>
             <button 
               onClick={() => router.push('/register')}
-              className="bg-white text-[#4DB6AC] px-8 py-3 rounded-lg transition-all duration-300 transform hover:scale-105 hover:bg-[#FFF3E0]"
+              className="bg-white text-[#4F959D] px-8 py-3 rounded-lg transition-all duration-300 transform hover:scale-105 hover:bg-[#F6F8D5]"
             >
               Create Account
             </button>

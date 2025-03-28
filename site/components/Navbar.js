@@ -100,13 +100,13 @@ const NavBar = ({ username }) => {
                   priority
                 />
                 <motion.div
-                  className="absolute inset-0 rounded-full bg-[#4DB6AC]/10"
+                  className="absolute inset-0 rounded-full bg-[#4F959D]/10"
                   whileHover={{ scale: 1.2 }}
                   transition={{ duration: 0.3 }}
                 />
               </motion.div>
               <motion.span 
-                className="ml-3 text-2xl font-bold bg-gradient-to-r from-[#4DB6AC] to-[#FF7043] bg-clip-text text-transparent"
+                className="ml-3 text-2xl font-bold bg-gradient-to-r from-[#205781] to-[#4F959D] bg-clip-text text-transparent"
                 whileHover={{ scale: 1.05 }}
               >
                 THE PET
@@ -123,8 +123,8 @@ const NavBar = ({ username }) => {
                   href={item.path}
                   className={`group relative px-3 py-2 rounded-lg transition-all duration-300 ${
                     router.pathname === item.path
-                      ? 'text-[#4DB6AC]'
-                      : 'text-gray-600 hover:text-[#4DB6AC]'
+                      ? 'text-[#4F959D]'
+                      : 'text-gray-600 hover:text-[#4F959D]'
                   }`}
                 >
                   <div className="flex items-center space-x-2">
@@ -133,10 +133,10 @@ const NavBar = ({ username }) => {
                   </div>
                   <div 
                     className={`absolute bottom-0 left-0 h-0.5 w-full transition-all duration-300 ${
-                      router.pathname === item.path ? 'bg-[#4DB6AC]' : 'bg-transparent'
+                      router.pathname === item.path ? 'bg-[#4F959D]' : 'bg-transparent'
                     }`}
                   />
-                  <div className="absolute inset-0 bg-[#4DB6AC]/10 rounded-lg scale-0 group-hover:scale-100 transition-transform duration-300" />
+                  <div className="absolute inset-0 bg-[#4F959D]/10 rounded-lg scale-0 group-hover:scale-100 transition-transform duration-300" />
                 </Link>
               ))}
             </div>
@@ -155,8 +155,8 @@ const NavBar = ({ username }) => {
                     href="/profile"
                     className={`flex items-center space-x-2 px-4 py-2 rounded-lg ${
                       router.pathname === '/profile'
-                        ? 'bg-[#4DB6AC] text-white'
-                        : 'text-gray-600 hover:bg-[#4DB6AC]/10 hover:text-[#4DB6AC]'
+                        ? 'bg-[#4F959D] text-white'
+                        : 'text-gray-600 hover:bg-[#4F959D]/10 hover:text-[#4F959D]'
                     } transition-all duration-300`}
                   >
                     <FiUser className="w-5 h-5" />
@@ -186,8 +186,8 @@ const NavBar = ({ username }) => {
                   href="/login"
                   className={`flex items-center space-x-2 px-4 py-2 rounded-lg ${
                     router.pathname === '/login'
-                      ? 'bg-[#4DB6AC] text-white'
-                      : 'text-gray-600 hover:bg-[#4DB6AC]/10 hover:text-[#4DB6AC]'
+                      ? 'bg-[#4F959D] text-white'
+                      : 'text-gray-600 hover:bg-[#4F959D]/10 hover:text-[#4F959D]'
                   } transition-all duration-300`}
                 >
                   <FiUser className="w-5 h-5" />
@@ -202,7 +202,7 @@ const NavBar = ({ username }) => {
               whileTap={{ scale: 0.95 }}
               initial={false}
               onClick={toggleMobileMenu}
-              className="md:hidden inline-flex items-center justify-center p-2 rounded-lg text-gray-600 hover:bg-[#4DB6AC]/10 hover:text-[#4DB6AC] transition-all duration-300"
+              className="md:hidden inline-flex items-center justify-center p-2 rounded-lg text-gray-600 hover:bg-[#4F959D]/10 hover:text-[#4F959D] transition-all duration-300"
             >
               {mobileMenuOpen ? (
                 <FiX className="w-6 h-6" />
@@ -236,8 +236,8 @@ const NavBar = ({ username }) => {
                     href={item.path}
                     className={`flex items-center space-x-3 px-4 py-3 rounded-lg ${
                       router.pathname === item.path
-                        ? 'bg-[#4DB6AC]/10 text-[#4DB6AC]'
-                        : 'text-gray-600 hover:bg-[#4DB6AC]/10 hover:text-[#4DB6AC]'
+                        ? 'bg-[#4F959D]/10 text-[#4F959D]'
+                        : 'text-gray-600 hover:bg-[#4F959D]/10 hover:text-[#4F959D]'
                     } transition-all duration-300`}
                     onClick={() => setMobileMenuOpen(false)}
                   >

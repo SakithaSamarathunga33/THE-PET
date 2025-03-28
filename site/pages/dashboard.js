@@ -220,32 +220,32 @@ const Dashboard = () => {
       {
         label: 'New Users',
         data: dashboardData.monthlyTrends?.users || Array(6).fill(0),
-        borderColor: '#FF7043',
-        backgroundColor: 'rgba(255, 112, 67, 0.2)',
+        borderColor: '#205781',
+        backgroundColor: 'rgba(32, 87, 129, 0.2)',
         tension: 0.4,
         fill: true,
         pointHoverRadius: 8,
-        pointHoverBackgroundColor: '#FF7043',
+        pointHoverBackgroundColor: '#205781',
       },
       {
         label: 'Appointments',
         data: dashboardData.monthlyTrends?.appointments || Array(6).fill(0),
-        borderColor: '#4DB6AC',
-        backgroundColor: 'rgba(77, 182, 172, 0.2)',
+        borderColor: '#4F959D',
+        backgroundColor: 'rgba(79, 149, 157, 0.2)',
         tension: 0.4,
         fill: true,
         pointHoverRadius: 8,
-        pointHoverBackgroundColor: '#4DB6AC',
+        pointHoverBackgroundColor: '#4F959D',
       },
       {
         label: 'New Pets',
         data: dashboardData.monthlyTrends?.pets || Array(6).fill(0),
-        borderColor: '#FFB74D',
-        backgroundColor: 'rgba(255, 183, 77, 0.2)',
+        borderColor: '#98D2C0',
+        backgroundColor: 'rgba(152, 210, 192, 0.2)',
         tension: 0.4,
         fill: true,
         pointHoverRadius: 8,
-        pointHoverBackgroundColor: '#FFB74D',
+        pointHoverBackgroundColor: '#98D2C0',
       }
     ],
   };
@@ -311,42 +311,42 @@ const Dashboard = () => {
             title: 'Total Users', 
             value: dashboardData.totalUsers || 0, 
             icon: <FiUsers className="w-6 h-6" />, 
-            color: 'bg-[#FF7043]',
+            color: 'bg-[#205781]',
             trend: 'Total registered users'
           },
           { 
             title: 'Employees', 
             value: dashboardData.totalEmployees || 0, 
             icon: <FiUserPlus className="w-6 h-6" />, 
-            color: 'bg-[#4DB6AC]',
+            color: 'bg-[#4F959D]',
             trend: 'Active employees'
           },
           { 
             title: 'Pets', 
             value: dashboardData.totalPets || 0, 
             icon: <MdPets className="w-6 h-6" />, 
-            color: 'bg-[#FF7043]',
+            color: 'bg-[#205781]',
             trend: 'Registered pets'
           },
           { 
             title: 'Appointments', 
             value: dashboardData.totalAppointments || 0, 
             icon: <FiCalendar className="w-6 h-6" />, 
-            color: 'bg-[#4DB6AC]',
+            color: 'bg-[#4F959D]',
             trend: 'Total appointments'
           },
           { 
             title: 'Inventory Items', 
             value: dashboardData.totalInventory || 0, 
             icon: <FiPackage className="w-6 h-6" />, 
-            color: 'bg-[#FF7043]',
+            color: 'bg-[#205781]',
             trend: 'Available items'
           },
           { 
             title: 'Active Users', 
             value: dashboardData.users?.filter(user => user.isActive)?.length || 0, 
             icon: <FiUsers className="w-6 h-6" />, 
-            color: 'bg-[#4DB6AC]',
+            color: 'bg-[#4F959D]',
             trend: 'Currently active users'
           },
         ].map((stat, index) => (
@@ -383,7 +383,7 @@ const Dashboard = () => {
             {dashboardData.recentActivities?.map((activity, index) => (
               <div key={index} 
                 className="flex items-center p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors duration-200">
-                <div className="w-2 h-2 rounded-full bg-orange-500 mr-4"></div>
+                <div className="w-2 h-2 rounded-full bg-[#205781] mr-4"></div>
                 <div className="flex-1">
                   <p className="text-sm text-gray-600">{activity.description}</p>
                   <p className="text-xs text-gray-400">{activity.timestamp}</p>
@@ -401,7 +401,7 @@ const Dashboard = () => {
         {/* Employee Management Card */}
         <Link href="/employee-management" className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
           <div className="flex items-center mb-4">
-            <div className="p-3 rounded-full bg-[#FFF3E0] text-[#FF7043]">
+            <div className="p-3 rounded-full bg-[#F6F8D5] text-[#205781]">
               <FiUsers className="w-6 h-6" />
             </div>
             <h3 className="ml-4 text-xl font-semibold text-gray-800">Employee Management</h3>
@@ -412,7 +412,7 @@ const Dashboard = () => {
         {/* Create Employee User Card */}
         <Link href="/create-employee-user" className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
           <div className="flex items-center mb-4">
-            <div className="p-3 rounded-full bg-[#E0F7FA] text-[#00ACC1]">
+            <div className="p-3 rounded-full bg-[#F6F8D5] text-[#4F959D]">
               <FiUserPlus className="w-6 h-6" />
             </div>
             <h3 className="ml-4 text-xl font-semibold text-gray-800">Create Employee Account</h3>
@@ -423,7 +423,7 @@ const Dashboard = () => {
         {/* User Management Card */}
         <Link href="/user-management" className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300">
           <div className="flex items-center mb-4">
-            <div className="p-3 rounded-full bg-[#E8F5E9] text-[#43A047]">
+            <div className="p-3 rounded-full bg-[#F6F8D5] text-[#98D2C0]">
               <FiUsers className="w-6 h-6" />
             </div>
             <h3 className="ml-4 text-xl font-semibold text-gray-800">User Management</h3>
@@ -440,7 +440,7 @@ const Dashboard = () => {
     <div className="space-y-6">
       {!analyticsData ? (
         <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#4DB6AC]"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#4F959D]"></div>
         </div>
       ) : Object.keys(analyticsData.currentMetrics || {}).length === 0 ? (
         <div className="text-center text-gray-500 py-8">
@@ -452,9 +452,9 @@ const Dashboard = () => {
             {Object.entries(analyticsData.currentMetrics).map(([branch, data]) => (
               <div key={branch} className="bg-white p-6 rounded-lg shadow-sm">
                 <h3 className="font-medium text-gray-900">{branch}</h3>
-                <p className="text-2xl font-bold text-[#4DB6AC] mt-2">{data.total}</p>
+                <p className="text-2xl font-bold text-[#4F959D] mt-2">{data.total}</p>
                 <p className="text-sm text-gray-500">Total Appointments</p>
-                <p className="text-sm text-orange-500 mt-2">
+                <p className="text-sm text-[#205781] mt-2">
                   Prediction: {analyticsData.predictions[branch]?.total || 0} next month
                 </p>
               </div>
@@ -498,10 +498,10 @@ const Dashboard = () => {
   return (
     <div className="flex h-screen bg-gray-100">
       {/* Sidebar */}
-      <div className={`${isSidebarOpen ? 'w-64' : 'w-20'} bg-[#FFF3E0] shadow-lg transition-all duration-300 ease-in-out`}>
+      <div className={`${isSidebarOpen ? 'w-64' : 'w-20'} bg-[#F6F8D5] shadow-lg transition-all duration-300 ease-in-out`}>
         <div className="flex flex-col h-full">
           {/* Logo Area */}
-          <div className="flex items-center justify-between p-4 border-b bg-[#4DB6AC]">
+          <div className="flex items-center justify-between p-4 border-b bg-[#4F959D]">
             {isSidebarOpen && (
               <div className="flex items-center">
                 <MdPets className="w-8 h-8 text-white" />
@@ -510,7 +510,7 @@ const Dashboard = () => {
             )}
             <button 
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="p-2 rounded-lg hover:bg-[#FF7043] text-white"
+              className="p-2 rounded-lg hover:bg-[#205781] text-white"
             >
               <FiMenu className="w-5 h-5" />
             </button>
@@ -525,8 +525,8 @@ const Dashboard = () => {
                     onClick={() => setActiveTab(item.id)}
                     className={`flex items-center w-full p-3 rounded-lg transition-all duration-200
                       ${activeTab === item.id 
-                        ? 'bg-[#4DB6AC] text-white shadow-md transform scale-105' 
-                        : 'text-gray-600 hover:bg-[#FF7043]/10'
+                        ? 'bg-[#4F959D] text-white shadow-md transform scale-105' 
+                        : 'text-gray-600 hover:bg-[#98D2C0]/30'
                       }`}
                   >
                     {item.icon}
@@ -540,10 +540,10 @@ const Dashboard = () => {
           </nav>
 
           {/* Logout Button */}
-          <div className="p-4 border-t border-[#4DB6AC]/20">
+          <div className="p-4 border-t border-[#4F959D]/20">
             <button
               onClick={handleLogout}
-              className="flex items-center w-full p-3 text-gray-600 hover:bg-[#FF7043]/10 hover:text-[#FF7043] rounded-lg transition-all duration-200"
+              className="flex items-center w-full p-3 text-gray-600 hover:bg-[#98D2C0]/30 hover:text-[#205781] rounded-lg transition-all duration-200"
             >
               <FiLogOut className="w-5 h-5" />
               {isSidebarOpen && <span className="ml-3">Logout</span>}
@@ -555,14 +555,14 @@ const Dashboard = () => {
       {/* Main Content */}
       <div className="flex-1 overflow-hidden">
         {/* Header */}
-        <header className="bg-[#FFF3E0] shadow-sm">
+        <header className="bg-[#F6F8D5] shadow-sm">
           <div className="flex justify-between items-center px-8 py-4">
             <h1 className="text-2xl font-semibold text-gray-800">
               {menuItems.find(item => item.id === activeTab)?.label}
             </h1>
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 rounded-full bg-[#4DB6AC] flex items-center justify-center text-white">
+                <div className="w-8 h-8 rounded-full bg-[#4F959D] flex items-center justify-center text-white">
                   A
                 </div>
                 <span className="text-gray-700">Admin</span>

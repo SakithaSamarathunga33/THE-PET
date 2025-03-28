@@ -39,6 +39,7 @@ router.delete("/user/:id", authController.deleteUser); // Delete user
 
 // 🔹 Employee User Management
 router.post("/link-employee", protect, authController.linkUserToEmployee); // Link user to employee
+router.post("/unlink-employee", protect, authController.unlinkUserFromEmployee); // Unlink user from employee
 
 // 🔹 Sample Data (For Testing)
 router.post("/create-sample-employee", authController.createSampleEmployeeUser); // Create sample employee user

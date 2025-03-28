@@ -79,7 +79,7 @@ export default function Home() {
             variants={fadeInUp}
           >
             Welcome to <motion.span 
-              className="text-[#4DB6AC]"
+              className="text-[#4F959D]"
               animate={{ 
                 scale: [1, 1.1, 1],
                 transition: { duration: 2, repeat: Infinity, repeatType: "reverse" }
@@ -87,7 +87,7 @@ export default function Home() {
             >THE PET</motion.span>
           </motion.h1>
           <motion.p 
-            className="text-xl md:text-2xl text-center mb-8 text-[#FFF3E0]"
+            className="text-xl md:text-2xl text-center mb-8 text-[#F6F8D5]"
             variants={fadeInUp}
           >
             Your trusted partner in providing the best care for your furry friends
@@ -96,10 +96,10 @@ export default function Home() {
             className="flex gap-4"
             variants={fadeInUp}
           >
-            <Link href="/our-pets" className="bg-[#FF7043] hover:bg-[#FF7043]/90 text-white px-8 py-3 rounded-lg transition-all duration-300 transform hover:scale-105">
+            <Link href="/our-pets" className="bg-[#205781] hover:bg-[#205781]/90 text-white px-8 py-3 rounded-lg transition-all duration-300 transform hover:scale-105">
               Our Pets
             </Link>
-            <Link href="/services" className="bg-[#4DB6AC] hover:bg-[#4DB6AC]/90 text-white px-8 py-3 rounded-lg transition-all duration-300 transform hover:scale-105">
+            <Link href="/services" className="bg-[#4F959D] hover:bg-[#4F959D]/90 text-white px-8 py-3 rounded-lg transition-all duration-300 transform hover:scale-105">
               Our Services
             </Link>
           </motion.div>
@@ -107,7 +107,7 @@ export default function Home() {
       </motion.section>
 
       {/* Features Section */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-[#F6F8D5]">
         <div className="max-w-7xl mx-auto px-4">
           <motion.h2 
             className="text-4xl font-bold text-center mb-16"
@@ -116,7 +116,7 @@ export default function Home() {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            Why Choose <span className="text-[#4DB6AC]">THE PET</span>
+            Why Choose <span className="text-[#4F959D]">THE PET</span>
           </motion.h2>
           
           <motion.div 
@@ -145,12 +145,12 @@ export default function Home() {
             ].map((feature, index) => (
               <motion.div
                 key={index}
-                className="bg-[#FFF3E0] p-8 rounded-xl text-center"
+                className="bg-[#F6F8D5] p-8 rounded-xl text-center"
                 variants={cardVariants}
                 whileHover="hover"
               >
                 <motion.div 
-                  className="bg-[#FF7043] w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6"
+                  className="bg-[#205781] w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6"
                   whileHover={{ rotate: 360 }}
                   transition={{ duration: 0.6 }}
                 >
@@ -165,7 +165,7 @@ export default function Home() {
       </section>
 
       {/* Featured Pets Section */}
-      <section className="py-20 bg-gray-50">
+      <section className="py-20 bg-[#98D2C0]/20">
         <div className="max-w-7xl mx-auto px-4">
           <motion.h2 
             className="text-4xl font-bold text-center mb-16"
@@ -174,7 +174,7 @@ export default function Home() {
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
           >
-            Featured <span className="text-[#FF7043]">Pets</span>
+            Featured <span className="text-[#205781]">Pets</span>
           </motion.h2>
           
           <motion.div 
@@ -206,7 +206,7 @@ export default function Home() {
             ].map((pet, index) => (
               <motion.div 
                 key={index}
-                className="bg-white rounded-xl overflow-hidden shadow-lg"
+                className="bg-[#F6F8D5] rounded-xl overflow-hidden shadow-lg"
                 variants={cardVariants}
                 whileHover="hover"
               >
@@ -228,7 +228,7 @@ export default function Home() {
                       animate={{ rotate: [0, 15, -15, 0] }}
                       transition={{ duration: 1, repeat: Infinity }}
                     >
-                      <FaPaw className="text-[#4DB6AC] mr-2" />
+                      <FaPaw className="text-[#4F959D] mr-2" />
                     </motion.div>
                     {pet.name}
                   </h3>
@@ -245,7 +245,7 @@ export default function Home() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <Link href="/our-pets" className="inline-flex items-center bg-[#4DB6AC] hover:bg-[#4DB6AC]/90 text-white px-8 py-3 rounded-lg transition-all duration-300 transform hover:scale-105">
+            <Link href="/our-pets" className="inline-flex items-center bg-[#4F959D] hover:bg-[#4F959D]/90 text-white px-8 py-3 rounded-lg transition-all duration-300 transform hover:scale-105">
               View All Pets
               <motion.div
                 animate={{ x: [0, 5, 0] }}
@@ -290,13 +290,13 @@ export default function Home() {
             Ready to Meet Your New Best Friend?
           </motion.h2>
           <motion.p 
-            className="text-[#FFF3E0] text-xl mb-8"
+            className="text-[#F6F8D5] text-xl mb-8"
             variants={fadeInUp}
           >
             Visit us today and discover the perfect companion for your family.
           </motion.p>
           <motion.div variants={fadeInUp}>
-            <Link href="/contact" className="bg-[#FF7043] hover:bg-[#FF7043]/90 text-white px-8 py-3 rounded-lg inline-block transition-all duration-300 transform hover:scale-105">
+            <Link href="/contact" className="bg-[#205781] hover:bg-[#205781]/90 text-white px-8 py-3 rounded-lg inline-block transition-all duration-300 transform hover:scale-105">
               Contact Us
             </Link>
           </motion.div>

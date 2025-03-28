@@ -172,7 +172,7 @@ const Profile = () => {
     if (!user) {
         return (
             <div className="flex items-center justify-center h-screen">
-                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#FF7043]"></div>
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#205781]"></div>
             </div>
         );
     }
@@ -186,7 +186,7 @@ const Profile = () => {
                     backgroundImage: 'url("https://images.unsplash.com/photo-1444212477490-ca407925329e?ixlib=rb-4.0.3")',
                 }}
             >
-                <div className="min-h-screen bg-gradient-to-br from-[#FF7043]/90 via-white/80 to-[#FF5722]/90 backdrop-blur-sm py-12 px-4 sm:px-6 lg:px-8">
+                <div className="min-h-screen bg-gradient-to-br from-[#4F959D]/90 via-white/80 to-[#205781]/90 backdrop-blur-sm py-12 px-4 sm:px-6 lg:px-8">
                     <div className="max-w-4xl mx-auto">
                         <div className="text-center mb-8">
                             <h1 className="text-4xl font-bold text-gray-900 mb-2">My Profile</h1>
@@ -196,15 +196,15 @@ const Profile = () => {
                         <div className="bg-white/90 backdrop-blur-md rounded-2xl shadow-xl overflow-hidden mb-8">
                             <div className="md:flex">
                                 {/* Profile Image Section */}
-                                <div className="md:w-1/3 bg-gradient-to-br from-[#FF7043] to-[#FF5722] p-8 text-white">
+                                <div className="md:w-1/3 bg-gradient-to-br from-[#4F959D] to-[#205781] p-8 text-white">
                                     <div className="flex flex-col items-center">
                                         <div className="w-32 h-32 rounded-full bg-white p-2 shadow-lg mb-4">
-                                            <div className="w-full h-full rounded-full bg-[#FF5722] flex items-center justify-center">
+                                            <div className="w-full h-full rounded-full bg-[#4F959D] flex items-center justify-center">
                                                 <FiUser className="w-16 h-16 text-white" />
                                             </div>
                                         </div>
                                         <h2 className="text-2xl font-bold mb-2">{user.name}</h2>
-                                        <p className="text-[#FFE0B2] mb-4">Pet Lover</p>
+                                        <p className="text-[#F6F8D5] mb-4">Pet Lover</p>
                                         <div className="w-full max-w-xs bg-black/20 backdrop-blur-sm rounded-lg p-4 mt-4">
                                             <p className="text-sm text-center">
                                                 "Taking care of pets is not just a responsibility, it's a privilege."
@@ -219,7 +219,7 @@ const Profile = () => {
                                         <h3 className="text-xl font-semibold text-gray-900">Account Details</h3>
                                         <button
                                             onClick={() => setIsEditing(true)}
-                                            className="flex items-center px-4 py-2 bg-[#FF7043] text-white rounded-lg hover:bg-[#FF5722] transition-colors duration-200 shadow-md hover:shadow-lg"
+                                            className="flex items-center px-4 py-2 bg-[#4F959D] text-white rounded-lg hover:bg-[#205781] transition-colors duration-200 shadow-md hover:shadow-lg"
                                         >
                                             <FiEdit2 className="mr-2" />
                                             Edit Profile
@@ -228,21 +228,21 @@ const Profile = () => {
 
                                     <div className="space-y-6">
                                         <div className="flex items-center p-4 bg-white/70 backdrop-blur-sm rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
-                                            <FiUser className="w-6 h-6 text-[#FF7043] mr-4" />
+                                            <FiUser className="w-6 h-6 text-[#4F959D] mr-4" />
                                             <div>
                                                 <p className="text-sm text-gray-500">Username</p>
                                                 <p className="text-gray-900 font-medium">{user.username}</p>
                                             </div>
                                         </div>
                                         <div className="flex items-center p-4 bg-white/70 backdrop-blur-sm rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
-                                            <FiUser className="w-6 h-6 text-[#FF7043] mr-4" />
+                                            <FiUser className="w-6 h-6 text-[#4F959D] mr-4" />
                                             <div>
                                                 <p className="text-sm text-gray-500">Full Name</p>
                                                 <p className="text-gray-900 font-medium">{user.name}</p>
                                             </div>
                                         </div>
                                         <div className="flex items-center p-4 bg-white/70 backdrop-blur-sm rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200">
-                                            <FiMail className="w-6 h-6 text-[#FF7043] mr-4" />
+                                            <FiMail className="w-6 h-6 text-[#4F959D] mr-4" />
                                             <div>
                                                 <p className="text-sm text-gray-500">Email</p>
                                                 <p className="text-gray-900 font-medium">{user.email}</p>
@@ -272,7 +272,7 @@ const Profile = () => {
                             <div className="p-8">
                                 <div className="flex justify-between items-center mb-6">
                                     <h3 className="text-xl font-semibold text-gray-900 flex items-center">
-                                        <FiCalendar className="mr-2 text-[#FF7043]" />
+                                        <FiCalendar className="mr-2 text-[#4F959D]" />
                                         My Appointments
                                     </h3>
                                     <span className="px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">
@@ -288,7 +288,7 @@ const Profile = () => {
 
                                 {loadingAppointments ? (
                                     <div className="flex justify-center items-center py-8">
-                                        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#FF7043]"></div>
+                                        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-[#4F959D]"></div>
                                     </div>
                                 ) : appointments.length === 0 ? (
                                     <div className="text-center py-8 bg-gray-50 rounded-lg">
@@ -296,7 +296,7 @@ const Profile = () => {
                                         <p className="text-gray-500">You have no appointments yet.</p>
                                         <button 
                                             onClick={() => router.push('/our-pets')}
-                                            className="mt-4 px-4 py-2 bg-[#FF7043] text-white rounded-lg hover:bg-[#FF5722] transition-colors"
+                                            className="mt-4 px-4 py-2 bg-[#4F959D] text-white rounded-lg hover:bg-[#205781] transition-colors"
                                         >
                                             Book an Appointment
                                         </button>
@@ -311,8 +311,8 @@ const Profile = () => {
                                                 <div className="p-6">
                                                     <div className="flex flex-col md:flex-row justify-between mb-4">
                                                         <div className="flex items-center mb-2 md:mb-0">
-                                                            <div className="w-12 h-12 rounded-full bg-[#FF7043]/10 flex items-center justify-center mr-4">
-                                                                <FiCalendar className="w-6 h-6 text-[#FF7043]" />
+                                                            <div className="w-12 h-12 rounded-full bg-[#4F959D]/10 flex items-center justify-center mr-4">
+                                                                <FiCalendar className="w-6 h-6 text-[#4F959D]" />
                                                             </div>
                                                             <div>
                                                                 <h4 className="text-lg font-medium text-gray-900">{appointment.petName}</h4>
@@ -398,7 +398,7 @@ const Profile = () => {
                                     name="username"
                                     value={formData.username}
                                     onChange={handleInputChange}
-                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#FF7043] focus:border-transparent"
+                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#4F959D] focus:border-transparent"
                                     required
                                 />
                             </div>
@@ -409,7 +409,7 @@ const Profile = () => {
                                     name="name"
                                     value={formData.name}
                                     onChange={handleInputChange}
-                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#FF7043] focus:border-transparent"
+                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#4F959D] focus:border-transparent"
                                     required
                                 />
                             </div>
@@ -420,7 +420,7 @@ const Profile = () => {
                                     name="email"
                                     value={formData.email}
                                     onChange={handleInputChange}
-                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#FF7043] focus:border-transparent"
+                                    className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:ring-2 focus:ring-[#4F959D] focus:border-transparent"
                                     required
                                 />
                             </div>
@@ -435,7 +435,7 @@ const Profile = () => {
                                 </button>
                                 <button
                                     type="submit"
-                                    className={`px-4 py-2 bg-[#FF7043] text-white rounded-lg hover:bg-[#FF5722] font-medium flex items-center ${loading ? 'opacity-75 cursor-not-allowed' : ''}`}
+                                    className={`px-4 py-2 bg-[#4F959D] text-white rounded-lg hover:bg-[#205781] font-medium flex items-center ${loading ? 'opacity-75 cursor-not-allowed' : ''}`}
                                     disabled={loading}
                                 >
                                     {loading ? (

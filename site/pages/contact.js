@@ -80,29 +80,29 @@ export default function Contact() {
       icon: <MdLocationOn className="w-8 h-8" />,
       title: "Visit Us",
       details: ["123 Pet Street", "City, State 12345"],
-      color: "#4DB6AC",
-      bgColor: "#E0F2F1"
+      color: "#4F959D",
+      bgColor: "#F6F8D5"
     },
     {
       icon: <MdEmail className="w-8 h-8" />,
       title: "Email Us",
       details: ["info@thepet.com", "support@thepet.com"],
-      color: "#FF7043",
-      bgColor: "#FBE9E7"
+      color: "#205781",
+      bgColor: "#98D2C0"
     },
     {
       icon: <MdPhone className="w-8 h-8" />,
       title: "Call Us",
       details: ["(123) 456-7890", "(123) 456-7891"],
-      color: "#FFB74D",
-      bgColor: "#FFF3E0"
+      color: "#4F959D",
+      bgColor: "#F6F8D5"
     },
     {
       icon: <MdAccessTime className="w-8 h-8" />,
       title: "Opening Hours",
       details: ["Mon-Sat: 9:00 AM - 6:00 PM", "Sunday: Closed"],
-      color: "#81C784",
-      bgColor: "#E8F5E9"
+      color: "#205781",
+      bgColor: "#98D2C0"
     }
   ]
 
@@ -118,7 +118,7 @@ export default function Contact() {
 
       {/* Hero Section */}
       <motion.section 
-        className="relative py-24 bg-gradient-to-r from-[#4DB6AC]/10 to-[#FF7043]/10"
+        className="relative py-24 bg-gradient-to-r from-[#4F959D]/10 to-[#205781]/10"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
@@ -134,13 +134,13 @@ export default function Contact() {
             animate={{ scale: 1, rotate: 360 }}
             transition={{ duration: 0.8 }}
           >
-            <FaPaw className="w-20 h-20 mx-auto mb-8 text-[#FF7043]" />
+            <FaPaw className="w-20 h-20 mx-auto mb-8 text-[#205781]" />
           </motion.div>
           <motion.h1 
             className="text-5xl md:text-6xl font-bold mb-6"
             variants={fadeInUp}
           >
-            Get in <span className="text-[#4DB6AC]">Touch</span>
+            Get in <span className="text-[#4F959D]">Touch</span>
           </motion.h1>
           <motion.p 
             className="text-xl text-gray-600 max-w-2xl mx-auto"
@@ -233,7 +233,7 @@ export default function Contact() {
 
       {/* Social Media Section */}
       <motion.section 
-        className="py-24 bg-gradient-to-r from-[#4DB6AC]/10 to-[#FF7043]/10"
+        className="py-24 bg-gradient-to-r from-[#4F959D]/10 to-[#205781]/10"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         viewport={{ once: true }}

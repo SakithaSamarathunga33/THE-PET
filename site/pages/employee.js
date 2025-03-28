@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import { FiUser, FiCalendar, FiClock, FiDollarSign, FiFileText, FiLogOut, FiHome, FiMenu, FiPlus } from 'react-icons/fi';
+import { FiUser, FiCalendar, FiClock, FiDollarSign, FiFileText, FiLogOut, FiHome, FiMenu, FiPlus, FiBriefcase, FiMail, FiPhone, FiMapPin, FiChevronRight, FiSettings, FiAlertCircle } from 'react-icons/fi';
 import Link from 'next/link';
 import Calendar from 'react-calendar'; 
 import 'react-calendar/dist/Calendar.css'; 
@@ -11,6 +11,7 @@ const EmployeePage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [username, setUsername] = useState('');
+  const [showUserMenu, setShowUserMenu] = useState(false);
 
   const [date, setDate] = useState(new Date());
 
@@ -116,17 +117,30 @@ const EmployeePage = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#4DB6AC]"></div>
+      <div className="flex items-center justify-center h-screen bg-gray-50">
+        <div className="flex flex-col items-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-[#4F959D]"></div>
+          <p className="mt-4 text-gray-600 font-medium">Loading your profile...</p>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-          <p>{error}</p>
+      <div className="flex items-center justify-center h-screen bg-gray-50">
+        <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full">
+          <div className="flex items-center justify-center text-red-500 mb-4">
+            <FiAlertCircle className="w-12 h-12" />
+          </div>
+          <h2 className="text-2xl font-bold text-center text-gray-800 mb-2">Error</h2>
+          <p className="text-center text-gray-600">{error}</p>
+          <button 
+            onClick={() => router.push('/login')}
+            className="mt-6 w-full py-2 px-4 bg-[#4F959D] hover:bg-[#4F959D]/90 text-white font-medium rounded-lg"
+          >
+            Return to Login
+          </button>
         </div>
       </div>
     );
@@ -136,241 +150,296 @@ const EmployeePage = () => {
     if (!employee || !employee.attendance) return false;
     return employee.attendance.some(att => {
       const attDate = new Date(att.date);
-      return attDate.getDate() === date.getDate() && attDate.getMonth() === date.getMonth() && attDate.getFullYear() === date.getFullYear();
+      return (
+        attDate.getDate() === date.getDate() &&
+        attDate.getMonth() === date.getMonth() &&
+        attDate.getFullYear() === date.getFullYear()
+      );
     });
   };
 
   return (
-    <div className="min-h-screen bg-green-100">
-      {/* Navigation Bar */}
-      <nav className="bg-white shadow-md">
-        <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo Section */}
-            <div className="flex items-center">
-              <Link href="/" className="text-[#00796B] font-extrabold text-2xl tracking-wide">
-                PetCare Portal
-              </Link>
-            </div>
+    <div className="min-h-screen bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Page Title with Logout Button */}
+        <div className="mb-8 flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Employee Dashboard</h1>
+            <p className="mt-2 text-gray-600">Welcome back, {employee?.name}</p>
+                </div>
+                <button
+                  onClick={handleLogout}
+            className="flex items-center px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors duration-200 shadow-sm"
+            title="Logout"
+                >
+            <FiLogOut className="mr-2" />
+            <span>Logout</span>
+                </button>
+        </div>
 
-            {/* User Section */}
-            <div className="flex items-center space-x-6">
-              <span className="text-gray-800 font-medium text-lg">{username}</span>
-              
-              {/* Profile Icon */}
-              <div className="w-10 h-10 rounded-full bg-[#00796B] flex items-center justify-center text-white font-semibold text-lg shadow-md">
-                {username ? username.charAt(0).toUpperCase() : 'E'}
+        {/* Employee Profile Card */}
+        <div className="bg-white rounded-xl shadow-md overflow-hidden mb-8">
+          <div className="md:flex">
+            <div className="md:flex-shrink-0 bg-gradient-to-r from-[#4F959D] to-[#205781] p-6 flex items-center justify-center">
+              <div className="h-24 w-24 rounded-full bg-white/20 flex items-center justify-center">
+                <FiUser className="h-12 w-12 text-white" />
               </div>
-
-              {/* Logout Button */}
-              <button
-                onClick={handleLogout}
-                className="px-4 py-2 rounded-lg text-sm font-semibold text-white bg-red-500 hover:bg-red-600 transition duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 shadow-sm"
-              >
-                <FiLogOut className="w-5 h-5" />
-              </button>
             </div>
+            <div className="p-6 md:p-8 w-full">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+                <div>
+                  <h2 className="text-2xl font-bold text-gray-900">{employee?.name}</h2>
+                  <p className="text-lg text-gray-600">{employee?.role}</p>
+                  
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <div className="flex items-center text-gray-600">
+                      <FiMail className="mr-1 h-4 w-4" />
+                      <span className="text-sm">{employee?.email}</span>
+                    </div>
+                    <div className="flex items-center text-gray-600">
+                      <FiPhone className="mr-1 h-4 w-4" />
+                      <span className="text-sm">{employee?.phoneNumber}</span>
           </div>
         </div>
-      </nav>
-
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-center items-center">
-          <h1 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-[#42A5F5] to-[#00796B] tracking-wide animate-fadeInUp">
-            Employee Profile
-          </h1>
-        </div>
-      </div>
-
-      <div className="container mx-auto px-4 py-8">
-        {/* Employee Profile */}
-        <div className="bg-white shadow-xl rounded-2xl p-6 mb-6 transition-all hover:shadow-2xl">
-          {employee && (
-            <div className="flex flex-col md:flex-row items-center gap-6">
-              {/* Profile Icon */}
-              <div className="p-5 rounded-full bg-gradient-to-r from-[#4DB6AC] to-[#00796B] text-white shadow-md">
-                <FiUser className="w-16 h-16" />
-              </div>
-
-              {/* Employee Details */}
-              <div>
-                <h2 className="text-2xl font-bold text-[#00796B]">{employee.name}</h2>
-                <p className="text-gray-700 text-lg font-medium">{employee.role}</p>
-                <p className="text-gray-500 text-sm">{employee.email} | {employee.phoneNumber}</p>
-
-                {/* Status Badge */}
-                <div className="mt-3">
-                  <span
-                    className={`px-4 py-2 text-sm font-semibold rounded-full shadow-sm 
-                      ${
-                        employee.status === 'Active'
-                          ? 'bg-green-100 text-green-800 border border-green-300 shadow-sm'
-                          : employee.status === 'On Leave'
-                          ? 'bg-yellow-100 text-yellow-800 border border-yellow-300 shadow-sm'
-                          : 'bg-red-100 text-red-800 border border-red-300 shadow-sm'
-                      }`}
-                  >
-                    {employee.status}
+          </div>
+          
+                <div className="mt-4 md:mt-0">
+                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
+                    employee?.status === 'Active'
+                      ? 'bg-green-100 text-green-800' 
+                      : employee?.status === 'On Leave'
+                      ? 'bg-yellow-100 text-yellow-800'
+                      : 'bg-red-100 text-red-800'
+                  }`}>
+                    <span className={`h-2 w-2 rounded-full mr-1 ${
+                      employee?.status === 'Active'
+                        ? 'bg-green-500'
+                        : employee?.status === 'On Leave'
+                        ? 'bg-yellow-500'
+                        : 'bg-red-500'
+                    }`}></span>
+                    {employee?.status}
                   </span>
                 </div>
               </div>
             </div>
-          )}
+          </div>
         </div>
 
-        {/* Personal Info, Salary, Leaves, and Attendance */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Main Content */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {/* Left Column - Personal Info & Salary */}
+          <div className="md:col-span-1 space-y-8">
           {/* Personal Information */}
-          <div className="space-y-6">
-            {/* Personal Information */}
-            <div className="bg-white rounded-xl shadow-lg p-6 transition-all hover:shadow-2xl">
-              <h3 className="text-2xl font-bold text-gray-900 border-b pb-3 mb-4">Personal Information</h3>
-              {employee && (
-                <div className="space-y-4">
-                  {[
-                    { label: 'Full Name', value: employee.name },
-                    { label: 'Email', value: employee.email },
-                    { label: 'Phone', value: employee.phoneNumber },
-                    { label: 'Address', value: employee.address },
-                    { label: 'Role', value: employee.role },
-                    { label: 'Status', value: employee.status },
-                    { label: 'Joining Date', value: new Date(employee.joiningDate).toLocaleDateString() },
-                  ].map((item, index) => (
-                    <div key={index} className="flex justify-between border-b pb-2">
-                      <span className="text-gray-600 font-medium">{item.label}:</span>
-                      <span className="font-semibold text-gray-800">{item.value}</span>
-                    </div>
-                  ))}
+            <div className="bg-white rounded-xl shadow-md overflow-hidden">
+              <div className="px-6 py-4 bg-gradient-to-r from-[#4F959D] to-[#205781]">
+                <div className="flex items-center">
+                  <FiBriefcase className="h-5 w-5 text-white mr-2" />
+                  <h3 className="text-lg font-semibold text-white">Personal Information</h3>
                 </div>
-              )}
-            </div>
+              </div>
+              <div className="p-6">
+                {employee && (
+                  <div className="space-y-4">
+                    {[
+                      { icon: <FiUser />, label: 'Full Name', value: employee.name },
+                      { icon: <FiMail />, label: 'Email', value: employee.email },
+                      { icon: <FiPhone />, label: 'Phone', value: employee.phoneNumber },
+                      { icon: <FiMapPin />, label: 'Address', value: employee.address },
+                      { icon: <FiBriefcase />, label: 'Role', value: employee.role },
+                      { icon: <FiCalendar />, label: 'Joining Date', value: new Date(employee.joiningDate).toLocaleDateString() },
+                    ].map((item, index) => (
+                      <div key={index} className="flex items-start py-2 border-b border-gray-100 last:border-0">
+                        <div className="text-[#4F959D] mr-3 mt-1">{item.icon}</div>
+                        <div>
+                          <p className="text-xs text-gray-500">{item.label}</p>
+                          <p className="font-medium text-gray-800">{item.value}</p>
+                </div>
+                </div>
+                    ))}
+                </div>
+                )}
+                </div>
+                </div>
 
             {/* Salary Information */}
-            <div className="bg-white rounded-xl shadow-lg p-6 transition-all hover:shadow-2xl">
-              <h3 className="text-2xl font-bold text-gray-900 border-b pb-3 mb-4">Salary Information</h3>
-              {employee && (
-                <div className="space-y-4">
-                  {[
-                    { label: 'Base Salary', value: `$${employee.baseSalary.toFixed(2)}` },
-                    { label: 'Hourly Rate', value: `$${employee.hourlyRate.toFixed(2)}` },
-                    { label: 'Working Hours/Day', value: `${employee.workingHoursPerDay} hours` },
-                    {
-                      label: 'Current Salary',
-                      value: `$${(employee.calculatedSalary || employee.baseSalary).toFixed(2)}`,
-                      className: 'text-[#4DB6AC] font-extrabold',
-                    },
-                  ].map((item, index) => (
-                    <div key={index} className="flex justify-between border-b pb-2">
-                      <span className="text-gray-600 font-medium">{item.label}:</span>
-                      <span className={`font-semibold ${item.className || 'text-gray-800'}`}>{item.value}</span>
-                    </div>
-                  ))}
+            <div className="bg-white rounded-xl shadow-md overflow-hidden">
+              <div className="px-6 py-4 bg-gradient-to-r from-[#4F959D] to-[#205781]">
+                <div className="flex items-center">
+                  <FiDollarSign className="h-5 w-5 text-white mr-2" />
+                  <h3 className="text-lg font-semibold text-white">Salary Information</h3>
                 </div>
-              )}
-            </div>
-
-            {/* Leave Management Section */}
-            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold text-gray-800">Leave Management</h2>
-                <button
-                  onClick={() => setShowLeaveModal(true)}
-                  className="inline-flex items-center px-4 py-2 bg-[#4DB6AC] text-white rounded-lg hover:bg-[#4DB6AC]/90 transition-colors duration-200"
-                >
-                  <FiPlus className="w-5 h-5 mr-2" />
-                  Apply for Leave
-                </button>
               </div>
+              <div className="p-6">
+                {employee && (
+                  <div className="space-y-4">
+                    <div className="bg-[#98D2C0]/20 p-4 rounded-lg mb-4">
+                      <p className="text-sm text-gray-600">Current Salary</p>
+                      <p className="text-2xl font-bold text-[#205781]">
+                        ${(employee.calculatedSalary || employee.baseSalary).toFixed(2)}
+                      </p>
+                    </div>
+                    
+                    {[
+                      { icon: <FiDollarSign />, label: 'Base Salary', value: `$${employee.baseSalary.toFixed(2)}` },
+                      { icon: <FiClock />, label: 'Hourly Rate', value: `$${employee.hourlyRate.toFixed(2)}` },
+                      { icon: <FiClock />, label: 'Working Hours/Day', value: `${employee.workingHoursPerDay} hours` },
+                    ].map((item, index) => (
+                      <div key={index} className="flex items-start py-2 border-b border-gray-100 last:border-0">
+                        <div className="text-[#4F959D] mr-3 mt-1">{item.icon}</div>
+                        <div>
+                          <p className="text-xs text-gray-500">{item.label}</p>
+                          <p className="font-medium text-gray-800">{item.value}</p>
+                        </div>
+                      </div>
+                    ))}
+              </div>
+            )}
+              </div>
+            </div>
+          </div>
 
-              {/* Leave History */}
+          {/* Middle Column - Leave Management */}
+          <div className="md:col-span-1 space-y-8">
+            <div className="bg-white rounded-xl shadow-md overflow-hidden">
+              <div className="px-6 py-4 bg-gradient-to-r from-[#4F959D] to-[#205781]">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center">
+                    <FiCalendar className="h-5 w-5 text-white mr-2" />
+                    <h3 className="text-lg font-semibold text-white">Leave Management</h3>
+                </div>
+                  <button
+                    onClick={() => setShowLeaveModal(true)}
+                    className="p-1.5 bg-white rounded-full text-[#205781] hover:bg-gray-100"
+                    title="Apply for Leave"
+                  >
+                    <FiPlus className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+              <div className="p-6">
+                {/* Leave History */}
+                {!employee?.leaves?.length && (
+                  <div className="text-center py-8">
+                    <FiCalendar className="mx-auto h-12 w-12 text-gray-300" />
+                    <p className="mt-2 text-sm text-gray-500">No leave records found</p>
+                    <button
+                      onClick={() => setShowLeaveModal(true)}
+                      className="mt-3 inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#4F959D] hover:bg-[#4F959D]/90"
+                    >
+                      <FiPlus className="mr-2 -ml-1 h-4 w-4" />
+                      Apply for Leave
+                    </button>
+              </div>
+            )}
+
+                {(employee?.leaves?.length > 0) && (
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">From</th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">To</th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">Paid</th>
+                          <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Type</th>
+                          <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">From</th>
+                          <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">To</th>
+                          <th className="px-3 py-2 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
-                    {employee?.leaves?.map((leave, index) => (
+                      <tbody className="divide-y divide-gray-200">
+                    {employee.leaves.map((leave, index) => (
                       <tr key={index} className="hover:bg-gray-50">
-                        <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-900">{leave.type}</td>
-                        <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
+                            <td className="px-3 py-2 whitespace-nowrap text-sm font-medium text-gray-900">{leave.type}</td>
+                            <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
                           {new Date(leave.startDate).toLocaleDateString()}
                         </td>
-                        <td className="px-4 py-2 whitespace-nowrap text-sm text-gray-500">
+                            <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-500">
                           {new Date(leave.endDate).toLocaleDateString()}
                         </td>
-                        <td className="px-4 py-2 whitespace-nowrap">
-                          <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            leave.approved 
-                              ? 'bg-green-100 text-green-800' 
-                              : 'bg-yellow-100 text-yellow-800'
-                          }`}>
-                            {leave.approved ? 'Approved' : 'Pending'}
-                          </span>
-                        </td>
-                        <td className="px-4 py-2 whitespace-nowrap">
-                          <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            leave.paid 
-                              ? 'bg-blue-100 text-blue-800' 
-                              : 'bg-red-100 text-red-800'
-                          }`}>
-                            {leave.paid ? 'Paid' : 'Unpaid'}
+                            <td className="px-3 py-2 whitespace-nowrap">
+                              <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                                leave.status === 'approved' || leave.approved 
+                                  ? 'bg-green-100 text-green-800 border border-green-300' 
+                                  : leave.status === 'rejected' || leave.rejected
+                                  ? 'bg-red-100 text-red-800 border border-red-300'
+                                  : 'bg-yellow-100 text-yellow-800 border border-yellow-300'
+                              }`}>
+                                {leave.status === 'approved' || leave.approved 
+                                  ? 'Approved' 
+                                  : leave.status === 'rejected' || leave.rejected
+                                  ? 'Rejected'
+                                  : 'Pending'}
+                                {leave.paid && (leave.status === 'approved' || leave.approved) && (
+                                  <span className="ml-1 px-1.5 py-0.5 bg-blue-100 text-blue-800 text-xs rounded">Paid</span>
+                                )}
                           </span>
                         </td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
-                {!employee?.leaves?.length && (
-                  <p className="text-gray-500 text-center py-4">No leave records found</p>
-                )}
+              </div>
+            )}
               </div>
             </div>
           </div>
 
-          <div className="space-y-6">
-            {/* Attendance Calendar */}
-            <div className="bg-white rounded-xl shadow-lg p-6 mb-6 transition-all hover:shadow-2xl">
-              <h3 className="text-2xl font-bold text-gray-900 border-b pb-3 mb-4">Attendance Calendar</h3>
-
-              <div className="flex flex-col items-center">
-                <Calendar
-                  onChange={setDate}
-                  value={date}
-                  minDate={new Date('2023-01-01')}
-                  maxDate={new Date()}
-                  tileClassName={({ date, view }) => {
-                    if (view === 'month' && isAttendanceDate(date)) {
-                      const attendance = employee.attendance.find(att => {
-                        const attDate = new Date(att.date);
-                        return (
-                          attDate.getDate() === date.getDate() &&
-                          attDate.getMonth() === date.getMonth() &&
-                          attDate.getFullYear() === date.getFullYear()
-                        );
-                      });
-
-                      return attendance
-                        ? `relative rounded-lg px-2 py-1 font-semibold transition-all ${
-                            attendance.present
-                              ? 'bg-green-100 text-green-800 border border-green-300 hover:bg-green-200'
-                              : 'bg-red-100 text-red-800 border border-red-300 hover:bg-red-200'
-                          }`
-                        : '';
-                    }
-                  }}
-                />
+          {/* Right Column - Attendance Calendar */}
+          <div className="md:col-span-1 space-y-8">
+            <div className="bg-white rounded-xl shadow-md overflow-hidden">
+              <div className="px-6 py-4 bg-gradient-to-r from-[#4F959D] to-[#205781]">
+                <div className="flex items-center">
+                  <FiClock className="h-5 w-5 text-white mr-2" />
+                  <h3 className="text-lg font-semibold text-white">Attendance Calendar</h3>
+                </div>
               </div>
+              <div className="p-6">
+                <div className="flex flex-col items-center">
+                  <div className="w-full mb-4">
+                    <Calendar
+                      onChange={setDate}
+                      value={date}
+                      minDate={new Date('2023-01-01')}
+                      maxDate={new Date()}
+                      className="rounded-lg border shadow-sm"
+                      tileClassName={({ date, view }) => {
+                        if (view === 'month' && isAttendanceDate(date)) {
+                          const attendance = employee.attendance.find(att => {
+                            const attDate = new Date(att.date);
+                            return (
+                              attDate.getDate() === date.getDate() &&
+                              attDate.getMonth() === date.getMonth() &&
+                              attDate.getFullYear() === date.getFullYear()
+                            );
+                          });
 
-              <div className="mt-4 text-center bg-gray-100 py-3 rounded-lg">
-                <p className="text-gray-700 font-medium">
-                  Selected Date: <span className="text-[#4DB6AC] font-bold">{date.toLocaleDateString()}</span>
-                </p>
+                          return attendance
+                            ? `relative rounded-lg px-2 py-1 font-semibold transition-all ${
+                                attendance.present
+                                  ? 'bg-green-100 text-green-800 border border-green-300 hover:bg-green-200'
+                                  : 'bg-red-100 text-red-800 border border-red-300 hover:bg-red-200'
+                              }`
+                            : '';
+                        }
+                      }}
+                    />
+                  </div>
+
+                  <div className="w-full flex items-center justify-center space-x-4 mt-4">
+                    <div className="flex items-center">
+                      <div className="w-3 h-3 rounded-full bg-green-500 mr-1"></div>
+                      <span className="text-xs text-gray-600">Present</span>
+                    </div>
+                    <div className="flex items-center">
+                      <div className="w-3 h-3 rounded-full bg-red-500 mr-1"></div>
+                      <span className="text-xs text-gray-600">Absent</span>
+                    </div>
+                  </div>
+
+                  <div className="mt-4 text-center bg-[#F6F8D5] py-3 px-4 rounded-lg w-full">
+                    <p className="text-gray-700 text-sm">
+                      Selected Date: <span className="text-[#205781] font-medium">{date.toLocaleDateString()}</span>
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -378,27 +447,43 @@ const EmployeePage = () => {
 
         {/* Leave Application Modal */}
         {showLeaveModal && (
-          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
-            <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-              <div className="mt-3">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">Apply for Leave</h3>
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div className="bg-white rounded-xl shadow-xl max-w-md w-full overflow-hidden">
+              <div className="px-6 py-4 bg-gradient-to-r from-[#4F959D] to-[#205781] flex justify-between items-center">
+                <h3 className="text-lg font-medium text-white">Apply for Leave</h3>
+                <button 
+                  onClick={() => setShowLeaveModal(false)}
+                  className="text-white hover:text-gray-200"
+                >
+                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+              
+              <div className="p-6">
                 {leaveError && (
-                  <div className="mb-4 p-3 bg-red-100 text-red-700 rounded">
+                  <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg flex items-center">
+                    <FiAlertCircle className="mr-2" />
                     {leaveError}
                   </div>
                 )}
                 {leaveSuccess && (
-                  <div className="mb-4 p-3 bg-green-100 text-green-700 rounded">
+                  <div className="mb-4 p-3 bg-green-100 text-green-700 rounded-lg flex items-center">
+                    <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
                     {leaveSuccess}
                   </div>
                 )}
+                
                 <form onSubmit={handleLeaveSubmit} className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Leave Type</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Leave Type</label>
                     <select
                       value={leaveForm.type}
                       onChange={(e) => setLeaveForm({...leaveForm, type: e.target.value})}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#4DB6AC] focus:ring-[#4DB6AC]"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#4F959D] focus:border-transparent"
                       required
                     >
                       <option value="Vacation">Vacation</option>
@@ -407,49 +492,54 @@ const EmployeePage = () => {
                       <option value="Unpaid">Unpaid Leave</option>
                     </select>
                   </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Start Date</label>
-                    <input
-                      type="date"
-                      value={leaveForm.startDate}
-                      onChange={(e) => setLeaveForm({...leaveForm, startDate: e.target.value})}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#4DB6AC] focus:ring-[#4DB6AC]"
-                      required
-                    />
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+                      <input
+                        type="date"
+                        value={leaveForm.startDate}
+                        onChange={(e) => setLeaveForm({...leaveForm, startDate: e.target.value})}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#4F959D] focus:border-transparent"
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+                      <input
+                        type="date"
+                        value={leaveForm.endDate}
+                        onChange={(e) => setLeaveForm({...leaveForm, endDate: e.target.value})}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#4F959D] focus:border-transparent"
+                        required
+                      />
+                    </div>
                   </div>
+                  
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">End Date</label>
-                    <input
-                      type="date"
-                      value={leaveForm.endDate}
-                      onChange={(e) => setLeaveForm({...leaveForm, endDate: e.target.value})}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#4DB6AC] focus:ring-[#4DB6AC]"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700">Reason for Leave</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Reason for Leave</label>
                     <textarea
                       value={leaveForm.reason}
                       onChange={(e) => setLeaveForm({...leaveForm, reason: e.target.value})}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#4DB6AC] focus:ring-[#4DB6AC]"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#4F959D] focus:border-transparent"
                       rows="3"
                       required
                     />
                   </div>
-                  <div className="flex justify-end space-x-3">
+                  
+                  <div className="flex justify-end space-x-3 pt-2">
                     <button
                       type="button"
                       onClick={() => setShowLeaveModal(false)}
-                      className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400"
+                      className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
-                      className="px-4 py-2 bg-[#4DB6AC] text-white rounded-md hover:bg-[#4DB6AC]/90"
+                      className="px-4 py-2 border border-transparent rounded-lg shadow-sm text-white bg-[#4F959D] hover:bg-[#4F959D]/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#4F959D]"
                     >
-                      Submit
+                      Submit Application
                     </button>
                   </div>
                 </form>
@@ -462,4 +552,4 @@ const EmployeePage = () => {
   );
 };
 
-export default EmployeePage;
+export default EmployeePage; 

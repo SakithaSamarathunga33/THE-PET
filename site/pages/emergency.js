@@ -80,7 +80,7 @@ const EmergencyPage = () => {
       <NavBar />
 
       {/* Hero Section */}
-      <div className="relative bg-gradient-to-r from-red-600 to-red-500 text-white py-20 overflow-hidden">
+      <div className="relative bg-gradient-to-r from-[#205781] to-[#4F959D] text-white py-20 overflow-hidden">
         <div className="absolute inset-0 bg-[url('/images/paw-pattern.png')] opacity-10"></div>
         <motion.div 
           initial={{ opacity: 0, y: 20 }}
@@ -102,7 +102,7 @@ const EmergencyPage = () => {
           >
             <a 
               href="tel:+94112577677"
-              className="inline-flex items-center bg-white text-red-600 px-8 py-4 rounded-full font-bold text-xl hover:bg-red-50 transition-colors duration-300 shadow-lg"
+              className="inline-flex items-center bg-white text-[#205781] px-8 py-4 rounded-full font-bold text-xl hover:bg-[#F6F8D5] transition-colors duration-300 shadow-lg"
             >
               <FaPhone className="mr-3" />
               Call Emergency Hotline
@@ -112,7 +112,7 @@ const EmergencyPage = () => {
       </div>
 
       {/* Emergency Tips Section */}
-      <div className="bg-gray-50 py-16">
+      <div className="bg-[#F6F8D5]/30 py-16">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-bold text-center mb-12">Emergency First Aid Tips</h2>
           <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
@@ -147,7 +147,7 @@ const EmergencyPage = () => {
               transition={{ delay: index * 0.1 }}
               className="bg-white rounded-2xl shadow-lg overflow-hidden transform transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
             >
-              <div className="bg-gradient-to-r from-red-600 to-red-500 p-6">
+              <div className="bg-gradient-to-r from-[#205781] to-[#4F959D] p-6">
                 <h2 className="text-2xl font-bold text-white flex items-center">
                   <FaHospital className="mr-3" />
                   {hospital.name}
@@ -155,7 +155,7 @@ const EmergencyPage = () => {
               </div>
               <div className="p-6 space-y-6">
                 <div className="flex items-start space-x-4">
-                  <FaMapMarkerAlt className="text-red-500 text-2xl mt-1 flex-shrink-0" />
+                  <FaMapMarkerAlt className="text-[#4F959D] text-2xl mt-1 flex-shrink-0" />
                   <div>
                     <p className="font-semibold text-gray-700">Address:</p>
                     <p className="text-gray-600">{hospital.address}</p>
@@ -163,7 +163,7 @@ const EmergencyPage = () => {
                       href={hospital.mapLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center text-red-600 hover:text-red-700 mt-2 group"
+                      className="inline-flex items-center text-[#4F959D] hover:text-[#205781] mt-2 group"
                     >
                       View on Maps
                       <FaArrowRight className="ml-2 transform group-hover:translate-x-1 transition-transform" />
@@ -172,12 +172,12 @@ const EmergencyPage = () => {
                 </div>
                 
                 <div className="flex items-center space-x-4">
-                  <FaPhone className="text-green-500 text-2xl flex-shrink-0" />
+                  <FaPhone className="text-[#98D2C0] text-2xl flex-shrink-0" />
                   <div>
                     <p className="font-semibold text-gray-700">Emergency Contact:</p>
                     <a 
                       href={`tel:${hospital.phone}`}
-                      className="text-green-600 hover:text-green-700 text-lg"
+                      className="text-[#4F959D] hover:text-[#205781] text-lg"
                     >
                       {hospital.phone}
                     </a>
@@ -185,7 +185,7 @@ const EmergencyPage = () => {
                 </div>
 
                 <div className="flex items-center space-x-4">
-                  <FaClock className="text-blue-500 text-2xl flex-shrink-0" />
+                  <FaClock className="text-[#205781] text-2xl flex-shrink-0" />
                   <div>
                     <p className="font-semibold text-gray-700">Hours:</p>
                     <p className="text-gray-600">{hospital.hours}</p>
@@ -198,7 +198,7 @@ const EmergencyPage = () => {
                     {hospital.services.map((service, idx) => (
                       <span 
                         key={idx}
-                        className="bg-red-50 text-red-700 px-4 py-2 rounded-full text-sm font-medium"
+                        className="bg-[#F6F8D5] text-[#205781] px-4 py-2 rounded-full text-sm font-medium"
                       >
                         {service}
                       </span>
@@ -212,7 +212,7 @@ const EmergencyPage = () => {
       </div>
 
       {/* Emergency Contact Footer */}
-      <div className="bg-gradient-to-r from-red-600 to-red-500 text-white py-16">
+      <div className="bg-gradient-to-r from-[#205781] to-[#4F959D] text-white py-16">
         <div className="container mx-auto px-4 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -227,7 +227,7 @@ const EmergencyPage = () => {
             <motion.a 
               href="tel:+94112577677"
               whileHover={{ scale: 1.05 }}
-              className="inline-flex items-center bg-white text-red-600 px-8 py-4 rounded-full font-bold text-xl hover:bg-red-50 transition-colors duration-300 shadow-lg"
+              className="inline-flex items-center bg-white text-[#205781] px-8 py-4 rounded-full font-bold text-xl hover:bg-[#F6F8D5] transition-colors duration-300 shadow-lg"
             >
               <FaPhone className="mr-3" />
               +94 11 2 577 677
