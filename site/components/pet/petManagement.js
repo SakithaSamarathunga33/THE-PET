@@ -23,6 +23,9 @@ const PetManagement = ({ onDataChange }) => {
     // imageUrl is intentionally omitted to use default images based on type
   });
   
+  // Add form validation state
+  const [formErrors, setFormErrors] = useState({});
+  
   // Store default images for each pet type
   const [defaultImages, setDefaultImages] = useState({
     Dog: 'https://images.unsplash.com/photo-1561037404-61cd46aa615b?ixlib=rb-4.0.3',
@@ -96,6 +99,14 @@ const PetManagement = ({ onDataChange }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validate form before submission
+    const errors = validateForm();
+    if (Object.keys(errors).length > 0) {
+      setFormErrors(errors);
+      return; // Stop submission if there are errors
+    }
+    
     try {
       const url = selectedPet
         ? `http://localhost:8080/api/pets/${selectedPet._id}`
@@ -108,6 +119,11 @@ const PetManagement = ({ onDataChange }) => {
       if (!useCustomImage) {
         delete submitData.imageUrl;
       }
+      
+      // Convert numeric fields to numbers for the API
+      if (submitData.age) submitData.age = Number(submitData.age);
+      if (submitData.weight) submitData.weight = Number(submitData.weight);
+      if (submitData.price) submitData.price = Number(submitData.price);
       
       const response = await fetch(url, {
         method,
@@ -191,6 +207,7 @@ const PetManagement = ({ onDataChange }) => {
     });
     setUseCustomImage(false);
     setSelectedPet(null);
+    setFormErrors({});
   };
   
   const handleImageUrlChange = (e) => {
@@ -252,6 +269,66 @@ const PetManagement = ({ onDataChange }) => {
       (pet.description?.toLowerCase() || '').includes(searchLower)
     );
   });
+
+  // Add form validation function
+  const validateForm = () => {
+    const errors = {};
+    
+    // Validate breed (required and minimum length)
+    if (!formData.breed.trim()) {
+      errors.breed = "Breed is required";
+    } else if (formData.breed.trim().length < 2) {
+      errors.breed = "Breed must be at least 2 characters";
+    }
+    
+    // Validate age (required and must be a positive number)
+    if (!formData.age) {
+      errors.age = "Age is required";
+    } else if (isNaN(Number(formData.age)) || Number(formData.age) < 0) {
+      errors.age = "Age must be a positive number";
+    } else if (Number(formData.age) > 100) {
+      errors.age = "Please enter a valid age";
+    }
+    
+    // Validate weight (required and must be a positive number)
+    if (!formData.weight) {
+      errors.weight = "Weight is required";
+    } else if (isNaN(Number(formData.weight)) || Number(formData.weight) <= 0) {
+      errors.weight = "Weight must be greater than 0";
+    } else if (Number(formData.weight) > 1000) {
+      errors.weight = "Please enter a valid weight";
+    }
+    
+    // Validate price (required and must be a positive number)
+    if (!formData.price) {
+      errors.price = "Price is required";
+    } else if (isNaN(Number(formData.price)) || Number(formData.price) < 0) {
+      errors.price = "Price must be a positive number";
+    } else if (Number(formData.price) > 1000000) {
+      errors.price = "Price seems too high, please verify";
+    }
+    
+    // Validate custom image URL format if provided
+    if (useCustomImage && formData.imageUrl) {
+      const urlPattern = /^(https?:\/\/)?([\w.-]+)\.([a-z]{2,})(\/[\w.-]*)*\/?$/i;
+      if (!urlPattern.test(formData.imageUrl)) {
+        errors.imageUrl = "Please enter a valid URL";
+      }
+    }
+    
+    return errors;
+  };
+  
+  // Handle input change with validation
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({...formData, [name]: value});
+    
+    // Clear the specific error when user starts typing
+    if (formErrors[name]) {
+      setFormErrors({...formErrors, [name]: null});
+    }
+  };
 
   if (loading) {
     return (
@@ -405,11 +482,15 @@ const PetManagement = ({ onDataChange }) => {
                   <label className="block text-sm font-medium text-gray-700">Breed</label>
                   <input
                     type="text"
+                    name="breed"
                     value={formData.breed}
-                    onChange={(e) => setFormData({...formData, breed: e.target.value})}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                    onChange={handleInputChange}
+                    className={`mt-1 block w-full rounded-md ${formErrors.breed ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-orange-500 focus:ring-orange-500'} shadow-sm`}
                     required
                   />
+                  {formErrors.breed && (
+                    <p className="mt-1 text-sm text-red-600">{formErrors.breed}</p>
+                  )}
                 </div>
                 
                 <div className="grid grid-cols-3 gap-4">
@@ -417,36 +498,48 @@ const PetManagement = ({ onDataChange }) => {
                     <label className="block text-sm font-medium text-gray-700">Age</label>
                     <input
                       type="number"
+                      name="age"
                       value={formData.age}
-                      onChange={(e) => setFormData({...formData, age: e.target.value})}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                      onChange={handleInputChange}
+                      className={`mt-1 block w-full rounded-md ${formErrors.age ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-orange-500 focus:ring-orange-500'} shadow-sm`}
                       required
                       min="0"
                     />
+                    {formErrors.age && (
+                      <p className="mt-1 text-sm text-red-600">{formErrors.age}</p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Weight (kg)</label>
                     <input
                       type="number"
+                      name="weight"
                       step="0.1"
                       value={formData.weight}
-                      onChange={(e) => setFormData({...formData, weight: e.target.value})}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                      onChange={handleInputChange}
+                      className={`mt-1 block w-full rounded-md ${formErrors.weight ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-orange-500 focus:ring-orange-500'} shadow-sm`}
                       required
                       min="0"
                     />
+                    {formErrors.weight && (
+                      <p className="mt-1 text-sm text-red-600">{formErrors.weight}</p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Price (Rs.)</label>
                     <input
                       type="number"
+                      name="price"
                       step="0.01"
                       value={formData.price}
-                      onChange={(e) => setFormData({...formData, price: e.target.value})}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                      onChange={handleInputChange}
+                      className={`mt-1 block w-full rounded-md ${formErrors.price ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-orange-500 focus:ring-orange-500'} shadow-sm`}
                       required
                       min="0"
                     />
+                    {formErrors.price && (
+                      <p className="mt-1 text-sm text-red-600">{formErrors.price}</p>
+                    )}
                   </div>
                 </div>
                 
@@ -476,13 +569,19 @@ const PetManagement = ({ onDataChange }) => {
                       </button>
                     </div>
                     {useCustomImage ? (
-                      <input
-                        type="text"
-                        value={formData.imageUrl || ''}
-                        onChange={handleImageUrlChange}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
-                        placeholder="https://example.com/image.jpg"
-                      />
+                      <div>
+                        <input
+                          type="text"
+                          name="imageUrl"
+                          value={formData.imageUrl || ''}
+                          onChange={handleInputChange}
+                          className={`mt-1 block w-full rounded-md ${formErrors.imageUrl ? 'border-red-300 focus:border-red-500 focus:ring-red-500' : 'border-gray-300 focus:border-orange-500 focus:ring-orange-500'} shadow-sm`}
+                          placeholder="https://example.com/image.jpg"
+                        />
+                        {formErrors.imageUrl && (
+                          <p className="mt-1 text-sm text-red-600">{formErrors.imageUrl}</p>
+                        )}
+                      </div>
                     ) : (
                       <div className="mt-1 flex items-center p-2 border border-gray-300 rounded-md bg-gray-50">
                         <FiImage className="text-gray-400 mr-2" />

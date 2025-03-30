@@ -15,6 +15,9 @@ const Login = () => {
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [retryCount, setRetryCount] = useState(0);
+  const MAX_RETRIES = 2;
+  const REQUEST_TIMEOUT = 15000; // 15 seconds timeout
 
   useEffect(() => {
     const token = router.query.token;
@@ -44,51 +47,79 @@ const Login = () => {
         console.log('Admin credentials detected');
       }
 
-      const response = await fetch('http://localhost:8080/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          identifier: formData.username,
-          password: formData.password
-        })
-      });
+      // Create an AbortController for timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
 
-      if (response.ok) {
-        const data = await response.json();
-        console.log('Login response:', data);
+      try {
+        const response = await fetch('http://localhost:8080/api/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            identifier: formData.username,
+            password: formData.password
+          }),
+          signal: controller.signal
+        });
+
+        // Clear the timeout since the request completed
+        clearTimeout(timeoutId);
         
-        localStorage.setItem('token', data.token);
-        localStorage.setItem('username', data.user.name || data.user.username);
-        localStorage.setItem('email', data.user.email);
-        localStorage.setItem('userType', data.user.userType);
-        
-        if (data.user.employeeId) {
-          localStorage.setItem('employeeId', data.user.employeeId);
-        }
-        
-        console.log('Login successful, user type:', data.user.userType);
-        
-        if (data.user.userType === 'admin' || formData.username === 'admin') {
-          console.log('Redirecting to admin dashboard...');
-          await router.push('/dashboard');
-        } else if (data.user.userType === 'employee') {
-          console.log('Redirecting to employee page...');
-          await router.push('/employee');
+        if (response.ok) {
+          const data = await response.json();
+          console.log('Login response:', data);
+          
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('username', data.user.name || data.user.username);
+          localStorage.setItem('email', data.user.email);
+          localStorage.setItem('userType', data.user.userType);
+          
+          if (data.user.employeeId) {
+            localStorage.setItem('employeeId', data.user.employeeId);
+          }
+          
+          console.log('Login successful, user type:', data.user.userType);
+          
+          if (data.user.userType === 'admin' || formData.username === 'admin') {
+            console.log('Redirecting to admin dashboard...');
+            await router.push('/dashboard');
+          } else if (data.user.userType === 'employee') {
+            console.log('Redirecting to employee page...');
+            await router.push('/employee');
+          } else {
+            console.log('Redirecting to home...');
+            await router.push('/');
+          }
         } else {
-          console.log('Redirecting to home...');
-          await router.push('/');
+          const data = await response.json();
+          setError(data.message || 'Login failed');
         }
-      } else {
-        const data = await response.json();
-        setError(data.message || 'Login failed');
+      } catch (fetchError) {
+        clearTimeout(timeoutId);
+        
+        if (fetchError.name === 'AbortError') {
+          // This was a timeout
+          if (retryCount < MAX_RETRIES) {
+            setRetryCount(prev => prev + 1);
+            setError(`Server response timeout. Retrying... (${retryCount + 1}/${MAX_RETRIES})`);
+            // Try again after a short delay
+            setTimeout(() => handleSubmit(e), 1000);
+            return;
+          } else {
+            setError('Server is taking too long to respond. Please try again later or contact support.');
+          }
+        } else {
+          setError('Network error. Please check your connection and try again.');
+        }
       }
     } catch (error) {
       console.error('Login error:', error);
-      setError('An error occurred during login');
+      setError('An error occurred during login. Please try again later.');
     } finally {
       setLoading(false);
+      setRetryCount(0);
     }
   };
 
