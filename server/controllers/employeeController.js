@@ -108,27 +108,27 @@ exports.recordAttendance = async (req, res) => {
 };
 
 // Apply for leave
-exports.applyLeave = async (req, res) => {
-    try {
-        const { employeeId, type, startDate, endDate, reason } = req.body;
-        const employee = await Employee.findById(employeeId);
+exports.applyLeave = async (req, res) => { 
+    try { 
+        const { employeeId, type, startDate, endDate, reason } = req.body; 
+        const employee = await Employee.findById(employeeId); 
 
-        if (!employee) {
-            return res.status(404).json({ message: "Employee not found" });
+        if (!employee) { 
+            return res.status(404).json({ message: "Employee not found" }); 
         }
 
         // Determine default paid status based on leave type
         const defaultPaid = type === 'Vacation' || type === 'Sick';
 
         const leave = {
-            type,
+            type, 
             startDate: new Date(startDate),
             endDate: new Date(endDate),
-            reason,
+            reason, 
             paid: defaultPaid, // Default based on type
             approved: false
         };
-
+ 
         employee.leaves.push(leave);
         await employee.save();
 
