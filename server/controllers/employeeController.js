@@ -127,7 +127,7 @@ exports.applyLeave = async (req, res) => {
             reason, 
             paid: defaultPaid, // Default based on type
             approved: false
-        };
+        }; 
  
         employee.leaves.push(leave);
         await employee.save();
@@ -142,19 +142,19 @@ exports.applyLeave = async (req, res) => {
 exports.updateLeaveStatus = async (req, res) => {
     try {
         const { employeeId, leaveId, approved, paid, comment } = req.body;
-        const employee = await Employee.findById(employeeId);
+        const employee = await Employee.findById(employeeId); 
 
-        if (!employee) {
+        if (!employee) { 
             return res.status(404).json({ message: "Employee not found" });
         }
 
         const leave = employee.leaves.id(leaveId);
-        if (!leave) {
+        if (!leave) { 
             return res.status(404).json({ message: "Leave application not found" });
         }
 
         leave.approved = approved;
-
+ 
         // Update paid status if provided
         if (paid !== undefined) {
             leave.paid = paid;
