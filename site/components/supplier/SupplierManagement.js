@@ -9,6 +9,7 @@ const SupplierManagement = () => {
   const [showModal, setShowModal] = useState(false);
   const [selectedSupplier, setSelectedSupplier] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [validationErrors, setValidationErrors] = useState({});
   const [formData, setFormData] = useState({
     name: '',
     contactPerson: '',
@@ -49,8 +50,49 @@ const SupplierManagement = () => {
     }
   };
 
+  const validateForm = () => {
+    const errors = {};
+    
+    // Name validation
+    if (!formData.name.trim()) {
+      errors.name = "Supplier name is required";
+    } else if (formData.name.length < 2) {
+      errors.name = "Supplier name must be at least 2 characters";
+    }
+    
+    // Contact person validation
+    if (formData.contactPerson && formData.contactPerson.length < 2) {
+      errors.contactPerson = "Contact person name must be at least 2 characters";
+    }
+    
+    // Email validation
+    if (formData.email) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(formData.email)) {
+        errors.email = "Please enter a valid email address";
+      }
+    }
+    
+    // Phone validation
+    if (formData.phone) {
+      const phoneRegex = /^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/;
+      if (!phoneRegex.test(formData.phone.replace(/\s/g, ''))) {
+        errors.phone = "Please enter a valid phone number";
+      }
+    }
+    
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validate form before submitting
+    if (!validateForm()) {
+      return;
+    }
+    
     try {
       const url = selectedSupplier
         ? `http://localhost:8080/api/suppliers/${selectedSupplier._id}`
@@ -106,6 +148,7 @@ const SupplierManagement = () => {
       address: supplier.address || '',
       notes: supplier.notes || ''
     });
+    setValidationErrors({});
     setShowModal(true);
   };
 
@@ -119,6 +162,7 @@ const SupplierManagement = () => {
       notes: ''
     });
     setSelectedSupplier(null);
+    setValidationErrors({});
   };
 
   const filteredSuppliers = suppliers.filter(supplier => {
@@ -257,9 +301,13 @@ const SupplierManagement = () => {
                     type="text"
                     value={formData.name}
                     onChange={(e) => setFormData({...formData, name: e.target.value})}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
-                    required
+                    className={`mt-1 block w-full rounded-md shadow-sm focus:border-orange-500 focus:ring-orange-500 ${
+                      validationErrors.name ? "border-red-500" : "border-gray-300"
+                    }`}
                   />
+                  {validationErrors.name && (
+                    <p className="mt-1 text-xs text-red-500">{validationErrors.name}</p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Contact Person</label>
@@ -267,8 +315,13 @@ const SupplierManagement = () => {
                     type="text"
                     value={formData.contactPerson}
                     onChange={(e) => setFormData({...formData, contactPerson: e.target.value})}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                    className={`mt-1 block w-full rounded-md shadow-sm focus:border-orange-500 focus:ring-orange-500 ${
+                      validationErrors.contactPerson ? "border-red-500" : "border-gray-300"
+                    }`}
                   />
+                  {validationErrors.contactPerson && (
+                    <p className="mt-1 text-xs text-red-500">{validationErrors.contactPerson}</p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Email</label>
@@ -276,8 +329,13 @@ const SupplierManagement = () => {
                     type="email"
                     value={formData.email}
                     onChange={(e) => setFormData({...formData, email: e.target.value})}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                    className={`mt-1 block w-full rounded-md shadow-sm focus:border-orange-500 focus:ring-orange-500 ${
+                      validationErrors.email ? "border-red-500" : "border-gray-300"
+                    }`}
                   />
+                  {validationErrors.email && (
+                    <p className="mt-1 text-xs text-red-500">{validationErrors.email}</p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Phone</label>
@@ -285,8 +343,13 @@ const SupplierManagement = () => {
                     type="text"
                     value={formData.phone}
                     onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                    className={`mt-1 block w-full rounded-md shadow-sm focus:border-orange-500 focus:ring-orange-500 ${
+                      validationErrors.phone ? "border-red-500" : "border-gray-300"
+                    }`}
                   />
+                  {validationErrors.phone && (
+                    <p className="mt-1 text-xs text-red-500">{validationErrors.phone}</p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Address</label>

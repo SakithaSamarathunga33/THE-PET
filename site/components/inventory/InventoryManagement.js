@@ -22,6 +22,7 @@ const InventoryManagement = () => {
     reorderPoint: "10",
     location: "",
   });
+  const [validationErrors, setValidationErrors] = useState({});
 
   useEffect(() => {
     fetchInventory();
@@ -69,8 +70,66 @@ const InventoryManagement = () => {
     }
   };
 
+  const validateForm = () => {
+    const errors = {};
+    
+    // Item name validation
+    if (!formData.itemName.trim()) {
+      errors.itemName = "Item name is required";
+    } else if (formData.itemName.length < 2) {
+      errors.itemName = "Item name must be at least 2 characters";
+    }
+    
+    // Category validation
+    if (!formData.category.trim()) {
+      errors.category = "Category is required";
+    }
+    
+    // Quantity validation
+    if (!formData.quantity) {
+      errors.quantity = "Quantity is required";
+    } else if (isNaN(formData.quantity) || parseInt(formData.quantity) < 0) {
+      errors.quantity = "Quantity must be a non-negative number";
+    }
+    
+    // Price validation
+    if (!formData.price) {
+      errors.price = "Price is required";
+    } else if (isNaN(formData.price) || parseFloat(formData.price) <= 0) {
+      errors.price = "Price must be a positive number";
+    }
+    
+    // Reorder point validation
+    if (formData.reorderPoint && (isNaN(formData.reorderPoint) || parseInt(formData.reorderPoint) < 0)) {
+      errors.reorderPoint = "Reorder point must be a non-negative number";
+    }
+    
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const validateRestockQuantity = () => {
+    if (!restockQuantity) {
+      setError("Quantity is required");
+      return false;
+    }
+    
+    if (isNaN(restockQuantity) || parseInt(restockQuantity) <= 0) {
+      setError("Quantity must be a positive number");
+      return false;
+    }
+    
+    return true;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validate form before submitting
+    if (!validateForm()) {
+      return;
+    }
+    
     try {
       const url = selectedItem
         ? `http://localhost:8080/api/inventory/${selectedItem._id}`
@@ -139,8 +198,9 @@ const InventoryManagement = () => {
 
   const handleRestock = async (e) => {
     e.preventDefault();
-    if (!restockQuantity || isNaN(restockQuantity) || parseInt(restockQuantity) <= 0) {
-      setError("Please enter a valid quantity.");
+    
+    // Validate restock quantity
+    if (!validateRestockQuantity()) {
       return;
     }
 
@@ -207,6 +267,7 @@ const InventoryManagement = () => {
       location: "",
     });
     setSelectedItem(null);
+    setValidationErrors({});
   };
 
   const filteredInventory = inventory.filter((item) => {
@@ -361,9 +422,13 @@ const InventoryManagement = () => {
                     type="text"
                     value={formData.itemName}
                     onChange={(e) => setFormData({ ...formData, itemName: e.target.value })}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
-                    required
+                    className={`mt-1 block w-full rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 ${
+                      validationErrors.itemName ? "border-red-500" : "border-gray-300"
+                    }`}
                   />
+                  {validationErrors.itemName && (
+                    <p className="mt-1 text-xs text-red-500">{validationErrors.itemName}</p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Category</label>
@@ -371,9 +436,13 @@ const InventoryManagement = () => {
                     type="text"
                     value={formData.category}
                     onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
-                    required
+                    className={`mt-1 block w-full rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 ${
+                      validationErrors.category ? "border-red-500" : "border-gray-300"
+                    }`}
                   />
+                  {validationErrors.category && (
+                    <p className="mt-1 text-xs text-red-500">{validationErrors.category}</p>
+                  )}
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -382,10 +451,14 @@ const InventoryManagement = () => {
                       type="number"
                       value={formData.quantity}
                       onChange={(e) => setFormData({ ...formData, quantity: e.target.value })}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
-                      required
+                      className={`mt-1 block w-full rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 ${
+                        validationErrors.quantity ? "border-red-500" : "border-gray-300"
+                      }`}
                       min="0"
                     />
+                    {validationErrors.quantity && (
+                      <p className="mt-1 text-xs text-red-500">{validationErrors.quantity}</p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700">Price</label>
@@ -394,10 +467,14 @@ const InventoryManagement = () => {
                       step="0.01"
                       value={formData.price}
                       onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
-                      required
+                      className={`mt-1 block w-full rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 ${
+                        validationErrors.price ? "border-red-500" : "border-gray-300"
+                      }`}
                       min="0"
                     />
+                    {validationErrors.price && (
+                      <p className="mt-1 text-xs text-red-500">{validationErrors.price}</p>
+                    )}
                   </div>
                 </div>
                 <div>
@@ -430,9 +507,14 @@ const InventoryManagement = () => {
                     type="number"
                     value={formData.reorderPoint}
                     onChange={(e) => setFormData({ ...formData, reorderPoint: e.target.value })}
-                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
+                    className={`mt-1 block w-full rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 ${
+                      validationErrors.reorderPoint ? "border-red-500" : "border-gray-300"
+                    }`}
                     min="0"
                   />
+                  {validationErrors.reorderPoint && (
+                    <p className="mt-1 text-xs text-red-500">{validationErrors.reorderPoint}</p>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">Description</label>
