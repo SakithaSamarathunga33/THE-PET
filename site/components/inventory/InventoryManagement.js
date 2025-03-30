@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { FiEdit2, FiTrash2, FiPlus, FiDownload, FiPackage, FiSearch } from "react-icons/fi";
+import { FiEdit2, FiTrash2, FiPlus, FiDownload, FiPackage, FiSearch, FiBox, FiAlertTriangle } from "react-icons/fi";
 
 const InventoryManagement = () => {
+  // State declarations
   const [inventory, setInventory] = useState([]);
   const [suppliers, setSuppliers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -24,6 +25,11 @@ const InventoryManagement = () => {
   });
   const [validationErrors, setValidationErrors] = useState({});
 
+  // Calculate summary metrics
+  const totalItems = inventory.length;
+  const lowStockItems = inventory.filter(item => item.quantity <= item.reorderPoint).length;
+
+  // Fetch data on component mount
   useEffect(() => {
     fetchInventory();
     fetchSuppliers();
@@ -40,6 +46,7 @@ const InventoryManagement = () => {
     }
   }, [error, success]);
 
+  // Fetch inventory from API
   const fetchInventory = async () => {
     try {
       const response = await fetch("http://localhost:8080/api/inventory", {
@@ -56,6 +63,7 @@ const InventoryManagement = () => {
     }
   };
 
+  // Fetch suppliers from API
   const fetchSuppliers = async () => {
     try {
       const response = await fetch("http://localhost:8080/api/suppliers", {
@@ -70,44 +78,47 @@ const InventoryManagement = () => {
     }
   };
 
+  // Validate form inputs
   const validateForm = () => {
     const errors = {};
     
-    // Item name validation
     if (!formData.itemName.trim()) {
       errors.itemName = "Item name is required";
     } else if (formData.itemName.length < 2) {
       errors.itemName = "Item name must be at least 2 characters";
     }
     
-    // Category validation
     if (!formData.category.trim()) {
       errors.category = "Category is required";
     }
     
-    // Quantity validation
     if (!formData.quantity) {
       errors.quantity = "Quantity is required";
     } else if (isNaN(formData.quantity) || parseInt(formData.quantity) < 0) {
       errors.quantity = "Quantity must be a non-negative number";
     }
     
-    // Price validation
     if (!formData.price) {
       errors.price = "Price is required";
-    } else if (isNaN(formData.price) || parseFloat(formData.price) <= 0) {
-      errors.price = "Price must be a positive number";
+    } else {
+      const priceValue = parseFloat(formData.price);
+      if (isNaN(priceValue)) {
+        errors.price = "Price must be a number";
+      } else if (priceValue <= 0) {
+        errors.price = "Price must be a positive number";
+      } else if (!/^\d+(\.\d{1,2})?$/.test(formData.price)) {
+        errors.price = "Price can have up to 2 decimal places";
+      }
     }
     
-    // Reorder point validation
-    if (formData.reorderPoint && (isNaN(formData.reorderPoint) || parseInt(formData.reorderPoint) < 0)) {
-      errors.reorderPoint = "Reorder point must be a non-negative number";
-    }
-    
+  if (formData.reorderPoint && (isNaN(formData.reorderPoint) || parseInt(formData.reorderPoint) < 0)) {
+    errors.reorderPoint = "Reorder point must be a non-negative number";
+  }
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
+  // Validate restock quantity
   const validateRestockQuantity = () => {
     if (!restockQuantity) {
       setError("Quantity is required");
@@ -122,13 +133,11 @@ const InventoryManagement = () => {
     return true;
   };
 
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Validate form before submitting
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
     
     try {
       const url = selectedItem
@@ -137,11 +146,16 @@ const InventoryManagement = () => {
 
       const method = selectedItem ? "PUT" : "POST";
 
+      const dataToSend = {
+        ...formData,
+        price: parseFloat(formData.price)
+      };
+
       const response = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify(formData),
+        body: JSON.stringify(dataToSend),
       });
 
       const data = await response.json();
@@ -156,6 +170,7 @@ const InventoryManagement = () => {
     }
   };
 
+  // Handle item deletion
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this item?")) return;
 
@@ -175,13 +190,14 @@ const InventoryManagement = () => {
     }
   };
 
+  // Handle edit button click
   const handleEdit = (item) => {
     setSelectedItem(item);
     setFormData({
       itemName: item.itemName || "",
       category: item.category || "",
       quantity: item.quantity || "",
-      price: item.price || "",
+      price: item.price ? item.price.toString() : "",
       supplier: item.supplier?._id || "",
       description: item.description || "",
       reorderPoint: item.reorderPoint || "10",
@@ -190,19 +206,18 @@ const InventoryManagement = () => {
     setShowModal(true);
   };
 
+  // Open restock modal
   const openRestockModal = (item) => {
     setSelectedItem(item);
     setRestockQuantity("");
     setShowRestockModal(true);
   };
 
+  // Handle restock form submission
   const handleRestock = async (e) => {
     e.preventDefault();
     
-    // Validate restock quantity
-    if (!validateRestockQuantity()) {
-      return;
-    }
+    if (!validateRestockQuantity()) return;
 
     try {
       const response = await fetch(`http://localhost:8080/api/inventory/${selectedItem._id}/restock`, {
@@ -223,6 +238,7 @@ const InventoryManagement = () => {
     }
   };
 
+  // Generate CSV report
   const generateReport = () => {
     if (inventory.length === 0) {
       setError("No inventory data to generate a report.");
@@ -233,10 +249,11 @@ const InventoryManagement = () => {
       "Item Name": item.itemName,
       Category: item.category,
       Quantity: item.quantity,
-      Price: `$${item.price}`,
+      Price: `LKR ${item.price}`,
       Supplier: item.supplier?.name || "N/A",
       Location: item.location || "N/A",
       "Reorder Point": item.reorderPoint,
+      Status: item.quantity <= item.reorderPoint ? "Low Stock" : "In Stock"
     }));
 
     const csv = [
@@ -255,6 +272,7 @@ const InventoryManagement = () => {
     window.URL.revokeObjectURL(url);
   };
 
+  // Reset form to initial state
   const resetForm = () => {
     setFormData({
       itemName: "",
@@ -270,6 +288,7 @@ const InventoryManagement = () => {
     setValidationErrors({});
   };
 
+  // Filter inventory based on search term
   const filteredInventory = inventory.filter((item) => {
     if (!item) return false;
     const searchLower = searchTerm.toLowerCase();
@@ -281,6 +300,15 @@ const InventoryManagement = () => {
     );
   });
 
+  // Format price with LKR currency
+  const formatPrice = (price) => {
+    return `LKR ${parseFloat(price).toLocaleString(undefined, { 
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    })}`;
+  };
+
+  // Loading state
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -303,7 +331,39 @@ const InventoryManagement = () => {
         </div>
       )}
 
-      {/* Header */}
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+        {/* Total Inventory Items Card */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center">
+            <div className="p-3 rounded-full bg-blue-100 text-blue-600 mr-4">
+              <FiBox className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-lg font-medium text-gray-500">Total Inventory Items</h3>
+              <p className="text-2xl font-bold text-gray-900">{totalItems}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Low Stock Items Card */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center">
+            <div className={`p-3 rounded-full ${lowStockItems > 0 ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'} mr-4`}>
+              <FiAlertTriangle className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-lg font-medium text-gray-500">Low Stock Items</h3>
+              <p className="text-2xl font-bold text-gray-900">{lowStockItems}</p>
+              {lowStockItems > 0 && (
+                <p className="text-sm text-red-500 mt-1">Items below reorder point</p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Header with search and action buttons */}
       <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
         <div className="flex items-center w-full sm:w-auto">
           <div className="relative w-full sm:w-64">
@@ -335,7 +395,7 @@ const InventoryManagement = () => {
         </div>
       </div>
 
-      {/* Table */}
+      {/* Inventory Table */}
       <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
@@ -344,7 +404,7 @@ const InventoryManagement = () => {
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Item Name</th>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Category</th>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Quantity</th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Price</th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Price (LKR)</th>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Supplier</th>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Location</th>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Actions</th>
@@ -368,7 +428,7 @@ const InventoryManagement = () => {
                       </span>
                     )}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.price}</td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{formatPrice(item.price)}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.supplier?.name || "N/A"}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.location || "N/A"}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -461,17 +521,25 @@ const InventoryManagement = () => {
                     )}
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Price</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={formData.price}
-                      onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                      className={`mt-1 block w-full rounded-md shadow-sm focus:ring-orange-500 focus:border-orange-500 ${
-                        validationErrors.price ? "border-red-500" : "border-gray-300"
-                      }`}
-                      min="0"
-                    />
+                    <label className="block text-sm font-medium text-gray-700">Price (LKR)</label>
+                    <div className={`mt-1 flex rounded-md shadow-sm ${
+                      validationErrors.price ? "border border-red-500" : ""
+                    }`}>
+                      <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                        LKR
+                      </span>
+                      <input
+                        type="number"
+                        step="0.01"
+                        value={formData.price}
+                        onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                        className={`flex-1 min-w-0 block w-full px-3 py-2 rounded-none rounded-r-md focus:ring-orange-500 focus:border-orange-500 ${
+                          validationErrors.price ? "border-red-500" : "border-gray-300"
+                        }`}
+                        min="0"
+                        placeholder="0.00"
+                      />
+                    </div>
                     {validationErrors.price && (
                       <p className="mt-1 text-xs text-red-500">{validationErrors.price}</p>
                     )}
