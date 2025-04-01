@@ -118,7 +118,47 @@ npm install
 npm run dev
 ```
 
-Visit `http://localhost:3000` to see the application running!
+### Running the Application
+There are multiple ways to start the application:
+
+#### Option 1: Starting the Server with Python Environment
+```bash
+# Navigate to the server directory
+cd server
+
+# Run the start script (activates Python venv and starts server)
+.\start-with-venv.bat
+
+# This script activates the Python virtual environment and starts the Node.js server
+```
+
+#### Option 2: Starting the Server Manually
+```bash
+# Navigate to the server directory
+cd server
+
+# Activate the Python virtual environment
+venv\Scripts\activate.bat  # Windows
+# OR
+source venv/bin/activate  # Mac/Linux
+
+# Start the server
+npm run dev
+```
+
+#### Option 3: Starting the Frontend
+```bash
+# In a separate terminal, navigate to the site directory
+cd site
+
+# Start the Next.js frontend
+npm run dev
+```
+
+For the complete application, you need to run both the server (Option 1 or 2) and the frontend (Option 3) in separate terminal windows.
+
+Visit `http://localhost:3000` to use the application with the frontend.
+API endpoints will be available at `http://localhost:8080`.
 
 ## 📊 API Endpoints
 
