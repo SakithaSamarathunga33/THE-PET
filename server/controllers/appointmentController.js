@@ -1,5 +1,5 @@
 const Appointment = require("../models/Appointment");
-const User = require("../models/user");
+const User = require("../models/User"); // Fixed casing to match actual file
 const Pet = require("../models/Pet");
 
 const VALID_BRANCHES = ['Colombo Branch', 'Kandy Branch', 'Galle Branch', 'Jaffna Branch'];
