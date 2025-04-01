@@ -17,7 +17,7 @@ export default function OurPets() {
   const [showAppointmentModal, setShowAppointmentModal] = useState(false)
   const [selectedPet, setSelectedPet] = useState(null)
   const [appointmentForm, setAppointmentForm] = useState({
-    petName: '',
+    petType: '',
     ownerName: '',
     contactNumber: '',
     appointmentDate: '',
@@ -196,7 +196,7 @@ export default function OurPets() {
     setSelectedPet(pet)
     setAppointmentForm(prev => ({
       ...prev,
-      petName: pet.breed,
+      petType: pet.type,
       reason: `Interested in ${pet.type}: ${pet.breed} (Rs ${pet.price})`,
       ownerName: currentUser?.name || '',
       contactNumber: currentUser?.phoneNumber || '',
@@ -224,7 +224,7 @@ export default function OurPets() {
     try {
       // Prepare appointment data, omitting ownerName as it will be set by the server
       const appointmentData = {
-        petName: appointmentForm.petName,
+        petType: appointmentForm.petType,
         contactNumber: appointmentForm.contactNumber,
         appointmentDate: appointmentForm.appointmentDate,
         reason: appointmentForm.reason,
@@ -247,7 +247,7 @@ export default function OurPets() {
       setSuccess('Your appointment request has been sent. We will contact you soon!')
       setShowAppointmentModal(false)
       setAppointmentForm({
-        petName: '',
+        petType: '',
         ownerName: '',
         contactNumber: '',
         appointmentDate: '',
@@ -618,6 +618,16 @@ export default function OurPets() {
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#4F959D] focus:ring-[#4F959D]"
                     value={appointmentForm.ownerName}
                     onChange={(e) => setAppointmentForm({...appointmentForm, ownerName: e.target.value})}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700">Pet Type</label>
+                  <input
+                    type="text"
+                    readOnly
+                    className="mt-1 block w-full rounded-md border-gray-300 bg-gray-50 shadow-sm"
+                    value={appointmentForm.petType}
                   />
                 </div>
 

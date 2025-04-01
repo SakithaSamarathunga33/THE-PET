@@ -2,12 +2,13 @@ const mongoose = require("mongoose");
 
 const appointmentSchema = new mongoose.Schema(
   {
-    petName: {
+    petType: {
       type: String,
-      required: [true, "Pet name is required"],
-      trim: true,
-      minlength: [2, "Pet name must be at least 2 characters long"],
-      maxlength: [50, "Pet name cannot exceed 50 characters"]
+      required: [true, "Pet type is required"],
+      enum: {
+        values: ['Dog', 'Cat', 'Bird', 'Fish', 'Rabbit'],
+        message: "{VALUE} is not a valid pet type"
+      }
     },
     ownerName: {
       type: String,

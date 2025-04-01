@@ -11,7 +11,7 @@ const AppointmentManagement = () => {
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [formData, setFormData] = useState({
-    petName: '',
+    petType: 'Dog',
     ownerName: '',
     contactNumber: '',
     appointmentDate: '',
@@ -106,12 +106,6 @@ const AppointmentManagement = () => {
 
   // Add validation functions
   const validateAppointmentForm = () => {
-    // Pet name validation
-    if (formData.petName.trim().length < 2) {
-      setError('Pet name must be at least 2 characters long');
-      return false;
-    }
-
     // Contact number validation
     const phoneRegex = /^\+?[\d\s-]{10,}$/;
     if (!phoneRegex.test(formData.contactNumber.trim())) {
@@ -167,10 +161,12 @@ const AppointmentManagement = () => {
       
       const method = selectedAppointment ? 'PUT' : 'POST';
 
-      // Prepare form data without ownerName if not admin (server will use logged-in user name)
+      // Prepare form data
       const requestData = { ...formData };
-      if (!isAdmin && !selectedAppointment) {
-        delete requestData.ownerName; // Remove ownerName from request data
+      
+      // Only remove ownerName if not admin AND no ownerName was provided
+      if (!isAdmin && !selectedAppointment && !requestData.ownerName) {
+        delete requestData.ownerName; // Let server use logged-in user name
       }
       
       const response = await fetch(url, {
@@ -182,7 +178,6 @@ const AppointmentManagement = () => {
         credentials: 'include',
         body: JSON.stringify({
           ...requestData,
-          petName: requestData.petName.trim(),
           contactNumber: requestData.contactNumber.trim(),
           reason: requestData.reason.trim()
         }),
@@ -246,7 +241,7 @@ const AppointmentManagement = () => {
   const handleEdit = (appointment) => {
     setSelectedAppointment(appointment);
     setFormData({
-      petName: appointment.petName || '',
+      petType: appointment.petType || 'Dog',
       ownerName: appointment.ownerName || '',
       contactNumber: appointment.contactNumber || '',
       appointmentDate: new Date(appointment.appointmentDate).toISOString().split('T')[0],
@@ -259,7 +254,7 @@ const AppointmentManagement = () => {
 
   const resetForm = () => {
     setFormData({
-      petName: '',
+      petType: 'Dog',
       ownerName: '',
       contactNumber: '',
       appointmentDate: '',
@@ -272,8 +267,8 @@ const AppointmentManagement = () => {
 
   const generateReport = () => {
     const report = appointments.map(apt => ({
-      'Pet Name': apt.petName,
-      'Owner Name': apt.ownerName,
+      'Pet Type': apt.petType,
+      'Buyer Name': apt.ownerName,
       'Contact': apt.contactNumber,
       'Branch': apt.branch,
       'Date': new Date(apt.appointmentDate).toLocaleDateString(),
@@ -298,7 +293,7 @@ const AppointmentManagement = () => {
   };
 
   const filteredAppointments = appointments.filter(apt => 
-    apt.petName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    apt.petType?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     apt.ownerName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
     apt.reason?.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -372,8 +367,8 @@ const AppointmentManagement = () => {
           <table className="min-w-full divide-y divide-gray-200">
             <thead>
               <tr className="bg-gray-900 text-white">
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Pet Name</th>
-                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Owner</th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Pet Type</th>
+                <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Buyer</th>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Contact</th>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Branch</th>
                 <th className="px-6 py-3 text-left text-xs font-medium uppercase tracking-wider">Date</th>
@@ -392,7 +387,7 @@ const AppointmentManagement = () => {
                       : ''
                   }`}
                 >
-                  <td className="px-6 py-4 whitespace-nowrap">{appointment.petName}</td>
+                  <td className="px-6 py-4 whitespace-nowrap">{appointment.petType || "Unknown"}</td>
                   <td className="px-6 py-4 whitespace-nowrap">{appointment.ownerName}</td>
                   <td className="px-6 py-4 whitespace-nowrap">{appointment.contactNumber}</td>
                   <td className="px-6 py-4 whitespace-nowrap">{appointment.branch}</td>
@@ -438,22 +433,25 @@ const AppointmentManagement = () => {
               </h3>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700">Pet Name</label>
-                  <input
-                    type="text"
-                    name="petName"
+                  <label className="block text-sm font-medium text-gray-700">Pet Type</label>
+                  <select
+                    name="petType"
                     required
-                    minLength="2"
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
-                    value={formData.petName}
+                    value={formData.petType}
                     onChange={handleInputChange}
-                    placeholder="Enter pet name (min. 2 characters)"
-                  />
+                  >
+                    <option value="Dog">Dog</option>
+                    <option value="Cat">Cat</option>
+                    <option value="Bird">Bird</option>
+                    <option value="Fish">Fish</option>
+                    <option value="Rabbit">Rabbit</option>
+                  </select>
                 </div>
-                {/* Only show owner name field for admin users who may need to override */}
+                {/* Only show buyer name field for admin users who may need to override */}
                 {isAdmin && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Owner Name</label>
+                    <label className="block text-sm font-medium text-gray-700">Buyer Name</label>
                     <input
                       type="text"
                       name="ownerName"
@@ -461,7 +459,7 @@ const AppointmentManagement = () => {
                       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500"
                       value={formData.ownerName}
                       onChange={handleInputChange}
-                      placeholder="Enter owner name (min. 2 characters)"
+                      placeholder="Enter buyer name (min. 2 characters)"
                     />
                   </div>
                 )}

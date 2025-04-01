@@ -30,6 +30,16 @@ router.get("/public/setup", async (req, res) => {
     // Clear all appointments
     await require("../models/Appointment").deleteMany({});
     
+    // Get all pets to reference their types
+    const Pet = require('../models/Pet');
+    const pets = await Pet.find().lean();
+    const petTypesMap = {};
+    
+    // Create a mapping of breed to type
+    pets.forEach(pet => {
+      petTypesMap[pet.breed] = pet.type;
+    });
+    
     // Generate sample appointments
     const sampleController = require('../controllers/appointmentController');
     await sampleController.addSampleAppointments({
@@ -49,6 +59,24 @@ router.get("/public/setup", async (req, res) => {
   } catch (error) {
     res.status(500).json({ 
       error: "Failed to reset appointments", 
+      details: error.message 
+    });
+  }
+});
+
+// Public route to clear all appointments for testing
+router.get("/public/clear", async (req, res) => {
+  try {
+    // Clear all appointments
+    const result = await require("../models/Appointment").deleteMany({});
+    
+    res.json({
+      message: "All appointments have been cleared",
+      deletedCount: result.deletedCount
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      error: "Failed to clear appointments", 
       details: error.message 
     });
   }

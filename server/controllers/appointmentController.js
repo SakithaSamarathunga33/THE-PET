@@ -1,5 +1,6 @@
 const Appointment = require("../models/Appointment");
 const User = require("../models/user");
+const Pet = require("../models/Pet");
 
 const VALID_BRANCHES = ['Colombo Branch', 'Kandy Branch', 'Galle Branch', 'Jaffna Branch'];
 
@@ -7,7 +8,7 @@ const VALID_BRANCHES = ['Colombo Branch', 'Kandy Branch', 'Galle Branch', 'Jaffn
 // @route   POST /api/appointments
 exports.createAppointment = async (req, res) => {
   try {
-    const { petName, contactNumber, appointmentDate, reason, branch } = req.body;
+    const { contactNumber, appointmentDate, reason, branch, petType } = req.body;
     
     // Enhanced validation
     
@@ -36,10 +37,11 @@ exports.createAppointment = async (req, res) => {
       });
     }
     
-    // 4. Validate basic fields
-    if (!petName || petName.trim().length < 2) {
+    // 4. Validate pet type
+    const VALID_PET_TYPES = ['Dog', 'Cat', 'Bird', 'Fish', 'Rabbit'];
+    if (!petType || !VALID_PET_TYPES.includes(petType)) {
       return res.status(400).json({
-        error: 'Pet name is required and must be at least 2 characters long'
+        error: 'Valid pet type is required'
       });
     }
     
@@ -49,14 +51,17 @@ exports.createAppointment = async (req, res) => {
       });
     }
     
-    // If a user is logged in, use their name as the owner name
+    // If a user is logged in, use their name as the buyer name
     const appointmentData = { ...req.body };
     
     if (req.user) {
-      appointmentData.ownerName = req.user.name;
+      // Only use user's name if no ownerName was provided
+      if (!appointmentData.ownerName) {
+        appointmentData.ownerName = req.user.name;
+      }
     } else if (!appointmentData.ownerName || appointmentData.ownerName.trim().length < 2) {
       return res.status(400).json({
-        error: 'Owner name is required when not logged in and must be at least 2 characters long'
+        error: 'Buyer name is required when not logged in and must be at least 2 characters long'
       });
     }
 
@@ -181,14 +186,10 @@ exports.clearAllAppointments = async (req, res) => {
 // @route   POST /api/appointments/samples
 exports.addSampleAppointments = async (req, res) => {
   try {
-    // First get all pets to reference in appointments
-    const Pet = require('../models/Pet');
+    // Get all pets from the database
     const pets = await Pet.find();
-    
-    if (pets.length === 0) {
-      return res.status(400).json({ 
-        message: "No pets found in database. Please add pets first." 
-      });
+    if (!pets || pets.length === 0) {
+      return res.status(400).json({ message: 'No pets found in the database' });
     }
 
     // Clear existing appointments if requested
@@ -197,79 +198,65 @@ exports.addSampleAppointments = async (req, res) => {
     }
 
     // Get real user names from the database
-    const users = await User.find({ userType: 'user' });
-    let userNames = users.map(user => user.name);
+    const users = await User.find().select('name');
+    const userNames = users.map(user => user.name);
     
-    // If we don't have enough real users, add some default names
-    if (userNames.length < 10) {
-      const defaultNames = [
-        "Amith Perera", "Kumari Silva", "Nimal Fernando", "Sunil Gunawardena", 
-        "Priya Bandara", "Kamal Rajapaksa", "Dulani Jayasuriya", "Lalith Mendis",
-        "Samanthi De Silva", "Ravi Wijesekera"
-      ];
-      userNames = [...userNames, ...defaultNames.slice(0, 10 - userNames.length)];
-    }
+    // Add some default names if we have fewer than 10 users
+    const defaultNames = [
+      'John Smith', 'Emma Wilson', 'Michael Brown', 'Sarah Davis', 'David Lee',
+      'Lisa Anderson', 'James Wilson', 'Maria Garcia', 'Robert Taylor', 'Jennifer White'
+    ];
+    
+    const allNames = [...new Set([...userNames, ...defaultNames])].slice(0, 10);
 
-    const branches = VALID_BRANCHES;
-    const statuses = ["Pending", "Confirmed", "Completed", "Cancelled"];
-    const contactPrefixes = ["071", "072", "075", "077", "078"];
-    
+    // Define branch distribution
+    const branchDistribution = {
+      'Colombo Branch': 8,
+      'Kandy Branch': 7,
+      'Galle Branch': 7,
+      'Jaffna Branch': 7
+    };
+
     const sampleAppointments = [];
-    
-    // Current date for reference
-    const currentDate = new Date();
-    
-    // Create 25 appointments for each branch (100 total)
-    for (const branch of branches) {
-      for (let i = 0; i < 25; i++) {
-        // Randomly select a pet for this appointment
-        const pet = pets[Math.floor(Math.random() * pets.length)];
+    const today = new Date();
+    const petTypes = ['Dog', 'Cat', 'Bird', 'Fish', 'Rabbit'];
+    const statuses = ['Pending', 'Confirmed', 'Completed', 'Cancelled'];
+
+    // Generate appointments for each branch
+    for (const [branch, count] of Object.entries(branchDistribution)) {
+      for (let i = 0; i < count; i++) {
+        const appointmentDate = new Date(today);
+        appointmentDate.setDate(today.getDate() + Math.floor(Math.random() * 30)); // Random date within next 30 days
         
-        // Create appointment date (between 2 months ago and 1 month in future)
-        const appointmentDate = new Date(currentDate);
-        appointmentDate.setDate(appointmentDate.getDate() - 60 + Math.floor(Math.random() * 90));
+        const randomPet = pets[Math.floor(Math.random() * pets.length)];
+        const randomOwner = allNames[Math.floor(Math.random() * allNames.length)];
+        const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
+        const randomPetType = petTypes[Math.floor(Math.random() * petTypes.length)];
         
-        // For past dates, use any status. For future dates, use only Pending or Confirmed
-        let status;
-        if (appointmentDate < currentDate) {
-          status = statuses[Math.floor(Math.random() * statuses.length)];
-        } else {
-          status = statuses[Math.floor(Math.random() * 2)]; // Only Pending or Confirmed
-        }
-        
-        // Generate random phone number
-        const phonePrefix = contactPrefixes[Math.floor(Math.random() * contactPrefixes.length)];
-        const phoneNumber = `${phonePrefix}${Math.floor(1000000 + Math.random() * 9000000)}`;
-        
-        // Get a random user name from our collection
-        const ownerName = userNames[Math.floor(Math.random() * userNames.length)];
-        
+        // Generate a random phone number
+        const phoneNumber = `+94${Math.floor(Math.random() * 900000000 + 100000000)}`;
+
         sampleAppointments.push({
-          petName: pet.breed,
-          ownerName: ownerName,
+          petType: randomPetType,
+          ownerName: randomOwner,
           contactNumber: phoneNumber,
           appointmentDate: appointmentDate,
-          reason: `Interested in ${pet.type}: ${pet.breed} (₹${pet.price})`,
+          reason: `Sample appointment for ${randomPetType} at ${branch}`,
           branch: branch,
-          status: status
+          status: randomStatus
         });
       }
     }
-    
-    // Insert the sample appointments
-    await Appointment.insertMany(sampleAppointments);
-    
-    res.status(201).json({ 
-      message: "Sample appointments added successfully", 
-      count: sampleAppointments.length,
-      distribution: {
-        "Colombo Branch": 25,
-        "Kandy Branch": 25,
-        "Galle Branch": 25,
-        "Jaffna Branch": 25
-      }
+
+    // Insert all appointments
+    const result = await Appointment.insertMany(sampleAppointments);
+
+    res.status(201).json({
+      message: `Successfully added ${result.length} sample appointments`,
+      distribution: branchDistribution
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.error('Error adding sample appointments:', error);
+    res.status(500).json({ message: 'Error adding sample appointments', error: error.message });
   }
 };
