@@ -81,12 +81,12 @@ const EmployeeManagement = ({ onDataChange }) => {
       const filteredUsers = data.filter(user => user.userType !== 'employee');
       setUsers(filteredUsers);
     } catch (err) {
-      setError('Error fetching users');
-    }
+      setError('Error fetching users'); 
+    } 
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault(); 
     try {
       const url = selectedEmployee
         ? `http://localhost:8080/api/employees/${selectedEmployee._id}`
