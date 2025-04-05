@@ -207,12 +207,12 @@ const EmployeeManagement = ({ onDataChange }) => {
       'Base Salary': emp.baseSalary,
       'Hourly Rate': emp.hourlyRate,
       'Status': emp.status
-    })); 
+    }));  
 
     const csv = [
       Object.keys(report[0]).join(','),
       ...report.map(row => Object.values(row).join(','))
-    ].join('\n'); 
+    ].join('\n');  
 
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
@@ -223,7 +223,7 @@ const EmployeeManagement = ({ onDataChange }) => {
     a.click();
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
-  }; 
+  };  
 
   const handleCalculateSalary = async (employeeId) => {
     try {
@@ -243,7 +243,7 @@ const EmployeeManagement = ({ onDataChange }) => {
       setError(err.message);
     }
   };
-
+ 
   const calculateManualSalary = (baseSalary, leaveDays = 0, overtimeHours = 0, overtimeRate = 1.5) => {
     const dailyRate = baseSalary / 30; // Assuming 30 days in a month for simplicity
     const hourlyRate = dailyRate / 8; // Assuming 8 hours per day
