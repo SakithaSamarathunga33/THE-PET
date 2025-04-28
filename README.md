@@ -1,7 +1,7 @@
 # 🐾 Pet Care Management System
 
 <div align="center">
-  <img src="https://img.shields.io/badge/version-1.0.0-blue.svg?cacheSeconds=2592000" />
+  <img src="https://img.shields.io/badge/version-2.0.0-blue.svg?cacheSeconds=2592000" />
   <img src="https://img.shields.io/badge/license-MIT-yellow.svg" />
   <img src="https://img.shields.io/badge/node-%3E%3D%2014.0.0-green.svg" />
   <img src="https://img.shields.io/badge/made%20with-love-red.svg" />
@@ -11,6 +11,8 @@
   <img src="https://img.shields.io/badge/tailwindcss-%2338B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white" />
   <img src="https://img.shields.io/badge/mongodb-%234ea94b.svg?style=for-the-badge&logo=mongodb&logoColor=white" />
   <img src="https://img.shields.io/badge/express.js-%23404d59.svg?style=for-the-badge&logo=express&logoColor=%2361DAFB" />
+  <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" />
+  <img src="https://img.shields.io/badge/Facebook_Prophet-0467DF?style=for-the-badge&logo=facebook&logoColor=white" />
 </div>
 
 <p align="center">
@@ -19,7 +21,7 @@
 
 ## 📋 Overview
 
-A comprehensive pet care management system that connects pet owners with pet shops and services. This application helps users browse available pets, book appointments, manage their pet ownership journey, and allows administrators to manage inventory, appointments, and analytics.
+A comprehensive pet care management system that connects pet owners with pet shops and services. This application helps users browse available pets, book appointments, manage their pet ownership journey, and allows administrators to manage inventory, appointments, and analytics. The newest version includes advanced AI-powered predictions for appointment trends.
 
 ## ✨ Features
 
@@ -34,7 +36,24 @@ A comprehensive pet care management system that connects pet owners with pet sho
 - **Appointment Tracking**: View, update, and manage all customer appointments
 - **Branch Management**: Track activities across multiple branches
 - **Employee Management**: Manage employee records and assignments
-- **Analytics Dashboard**: Visualize sales, appointments, and popular pet types with predictions
+- **Advanced Analytics**: Visualize sales, appointments, and popular pet types with AI predictions
+- **Time Series Forecasting**: AI-powered predictions of future appointment trends by branch and pet type
+
+## 🧠 AI Prediction System
+
+### Features
+- **Time Series Forecasting**: Uses Facebook Prophet to predict future appointment trends
+- **Segmented Analysis**: Individual predictions for each branch and pet type combination
+- **Intelligent Caching**: Stores predictions for faster retrieval in future sessions
+- **Fallback Mechanism**: Provides estimated predictions if real-time predictions are unavailable
+- **Visualization**: Interactive charts showing predicted appointment distribution by pet type and branch
+
+### Implementation Details
+- **Separate Models**: Individual prediction models for each branch/pet type combination
+- **Parallel Processing**: Concurrent prediction generation for improved performance
+- **Python Backend**: Python scripts for data processing and prediction generation
+- **MongoDB Integration**: Stores and retrieves historical data and predictions
+- **Asynchronous Loading**: Frontend handles loading states with adaptive timeouts
 
 ## 🛠️ Technologies
 
@@ -53,11 +72,18 @@ A comprehensive pet care management system that connects pet owners with pet sho
 - **JWT**: JSON Web Tokens for authentication
 - **Passport.js**: Authentication middleware for Node.js
 
+### AI & Analytics
+- **Python**: Programming language for data analysis and machine learning
+- **Facebook Prophet**: Time series forecasting library for predictive analytics
+- **NumPy/Pandas**: Data manipulation and analysis libraries
+- **MongoDB Aggregation**: Advanced data processing for analytics
+
 ## 🚀 Installation & Setup
 
 ### Prerequisites
 - Node.js (v14 or higher)
 - MongoDB
+- Python 3.8+ (for analytics)
 - npm or yarn
 
 ### Backend Setup
@@ -68,6 +94,9 @@ git clone (https://github.com/SakithaSamarathunga33/THE-PET.git)
 # Install backend dependencies
 cd server
 npm install
+
+# Install Python dependencies for analytics
+pip install -r requirements.txt
 
 # Set up environment variables
 cp .env.example .env
@@ -89,7 +118,47 @@ npm install
 npm run dev
 ```
 
-Visit `http://localhost:3000` to see the application running!
+### Running the Application
+There are multiple ways to start the application:
+
+#### Option 1: Starting the Server with Python Environment
+```bash
+# Navigate to the server directory
+cd server
+
+# Run the start script (activates Python venv and starts server)
+.\start-with-venv.bat
+
+# This script activates the Python virtual environment and starts the Node.js server
+```
+
+#### Option 2: Starting the Server Manually
+```bash
+# Navigate to the server directory
+cd server
+
+# Activate the Python virtual environment
+venv\Scripts\activate.bat  # Windows
+# OR
+source venv/bin/activate  # Mac/Linux
+
+# Start the server
+npm run dev
+```
+
+#### Option 3: Starting the Frontend
+```bash
+# In a separate terminal, navigate to the site directory
+cd site
+
+# Start the Next.js frontend
+npm run dev
+```
+
+For the complete application, you need to run both the server (Option 1 or 2) and the frontend (Option 3) in separate terminal windows.
+
+Visit `http://localhost:3000` to use the application with the frontend.
+API endpoints will be available at `http://localhost:8080`.
 
 ## 📊 API Endpoints
 
@@ -115,9 +184,12 @@ The API provides the following endpoints:
 - `PUT /api/appointments/:id` - Update an appointment
 - `DELETE /api/appointments/:id` - Delete an appointment
 - `GET /api/appointments/branch/:branchName` - Get branch appointments
+- `GET /api/appointments/public/clear` - Clear all appointments (testing)
+- `GET /api/appointments/public/setup` - Generate sample appointments (testing)
 
 ### Analytics
 - `GET /api/analytics/branch` - Get branch analytics and predictions
+- `GET /api/analytics/pet-type-predictions` - Get AI-powered pet type predictions
 
 ## 👥 User Roles
 
@@ -139,7 +211,7 @@ The application uses JWT (JSON Web Tokens) for authentication and supports:
 - **Pet Adoption Process**: Streamline the pet adoption paperwork
 - **Push Notifications**: Send reminders for appointments
 - **Social Sharing**: Share pet listings on social media
-
+- **Enhanced AI Analytics**: Deeper insights into seasonal trends and customer behaviors
 
 ---
 

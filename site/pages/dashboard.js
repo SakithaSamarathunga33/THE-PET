@@ -194,8 +194,10 @@ const Dashboard = () => {
 
   // Fetch analytics data
   const fetchAnalytics = async (token) => {
+    setAnalyticsData(null); // Show loading spinner while fetching
     try {
-      const response = await fetch('http://localhost:8080/api/analytics/branch', {
+      // 1. Fetch current metrics (historical data)
+      const metricsResponse = await fetch('http://localhost:8080/api/analytics/branch', {
         headers: {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
@@ -203,13 +205,178 @@ const Dashboard = () => {
         credentials: 'include'
       });
 
-      if (!response.ok) throw new Error(`Analytics fetch failed: ${response.statusText}`);
+      if (!metricsResponse.ok) {
+        console.error(`Current metrics fetch failed: ${metricsResponse.status} ${metricsResponse.statusText}`);
+        // Still continue to try AI predictions even if current metrics fail
+      }
 
-      const data = await response.json();
-      setAnalyticsData(data);
-      setAnalytics(data);
+      // Default branches to try if no metrics are available
+      const fallbackBranches = ['Colombo Branch', 'Kandy Branch', 'Galle Branch', 'Jaffna Branch'];
+      
+      // Parse metrics data or create empty structure
+      let metricsData = { currentMetrics: {} };
+      try {
+        metricsData = await metricsResponse.json();
+      } catch (error) {
+        console.error("Failed to parse metrics response:", error);
+      }
+      
+      const currentMetrics = metricsData.currentMetrics || {}; // Get metrics, default to empty object
+
+      // 2. Identify branches from metrics or use fallbacks
+      let branches = Object.keys(currentMetrics);
+      if (branches.length === 0) {
+        console.log("No branches found in current metrics, using fallback branches");
+        branches = fallbackBranches;
+        
+        // Initialize empty metrics for fallback branches
+        branches.forEach(branch => {
+          currentMetrics[branch] = {
+            total: 0,
+            monthly: Array(12).fill(0),
+            petTypeStats: {
+              'Dog': 0, 
+              'Cat': 0, 
+              'Bird': 0, 
+              'Fish': 0, 
+              'Rabbit': 0
+            }
+          };
+        });
+      }
+
+      // 3. Fetch AI predictions for each branch
+      console.log("Fetching predictions for branches:", branches);
+      const predictionPromises = branches.map(branch =>
+        fetch(`http://localhost:8080/api/analytics/branch/predictions?branch=${encodeURIComponent(branch)}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          credentials: 'include'
+        }).then(res => {
+          if (!res.ok) {
+            console.error(`Prediction fetch failed for ${branch}: ${res.status} ${res.statusText}`);
+            // Return a default structure on failure for this branch
+            return { branch, total_predicted: 0, error: `Fetch failed: ${res.status}` };
+          }
+          return res.json();
+        }).catch(error => {
+            console.error(`Error fetching prediction for ${branch}:`, error);
+             // Return a default structure on catch
+            return { branch, total_predicted: 0, error: error.message };
+        })
+      );
+
+      const predictionResults = await Promise.all(predictionPromises);
+      console.log("Prediction results:", predictionResults);
+
+      // 4. Structure AI predictions
+      const aiPredictions = {};
+      branches.forEach(branch => {
+        // Initialize with default structure
+        aiPredictions[branch] = {
+          total: 0,
+          byPetType: {
+            'Dog': 0, 
+            'Cat': 0, 
+            'Bird': 0, 
+            'Fish': 0, 
+            'Rabbit': 0
+          },
+          mostPopularType: 'Dog' // Default
+        };
+      });
+
+      // Update with real data where available
+      predictionResults.forEach(result => {
+        if (result && result.branch) {
+          // Calculate the most popular pet type based on the historical data
+          const branch = result.branch;
+          let mostPopularType = 'Dog'; // default
+          
+          if (currentMetrics[branch] && currentMetrics[branch].petTypeStats) {
+            // Find the pet type with the highest count
+            const petTypeStats = currentMetrics[branch].petTypeStats;
+            let maxCount = 0;
+            
+            Object.entries(petTypeStats).forEach(([type, count]) => {
+              if (count > maxCount) {
+                maxCount = count;
+                mostPopularType = type;
+              }
+            });
+          }
+          
+          // Keep existing default structure and just update what we have
+          aiPredictions[result.branch] = {
+            ...aiPredictions[result.branch],
+            total: result.total_predicted !== undefined ? result.total_predicted : 0,
+            forecastData: result.forecast || [],
+            mostPopularType: mostPopularType
+          };
+
+          // If Prophet provides the data, store the error info
+          if (result.error) {
+            console.warn(`Warning for ${result.branch} prediction:`, result.error);
+            aiPredictions[result.branch].error = result.error;
+          }
+        }
+      });
+
+      // 5. Combine metrics and AI predictions & update state
+      const combinedData = {
+        currentMetrics: currentMetrics,
+        predictions: aiPredictions
+      };
+
+      console.log("Final analytics data:", combinedData);
+      setAnalytics(combinedData);
+      setAnalyticsData(combinedData); // Update analyticsData to render
+
     } catch (error) {
-      console.error('Error fetching analytics:', error);
+      console.error('Error fetching analytics data:', error);
+      
+      // Create a minimal fallback structure with empty data that BranchAnalytics can render
+      const fallbackBranches = ['Colombo Branch', 'Kandy Branch', 'Galle Branch', 'Jaffna Branch'];
+      const fallbackPetTypes = ['Dog', 'Cat', 'Bird', 'Fish', 'Rabbit'];
+      
+      const fallbackMetrics = {};
+      const fallbackPredictions = {};
+      
+      fallbackBranches.forEach(branch => {
+        // Create minimal metrics structure
+        fallbackMetrics[branch] = {
+          total: 0,
+          monthly: Array(12).fill(0),
+          petTypeStats: {}
+        };
+        
+        // Add empty pet type stats
+        fallbackPetTypes.forEach(type => {
+          fallbackMetrics[branch].petTypeStats[type] = 0;
+        });
+        
+        // Create minimal predictions structure  
+        fallbackPredictions[branch] = {
+          total: 0,
+          byPetType: {},
+          mostPopularType: 'Unknown'
+        };
+        
+        // Add empty pet type predictions
+        fallbackPetTypes.forEach(type => {
+          fallbackPredictions[branch].byPetType[type] = 0;
+        });
+      });
+      
+      const fallbackData = {
+        currentMetrics: fallbackMetrics,
+        predictions: fallbackPredictions
+      };
+      
+      setAnalytics(fallbackData);
+      setAnalyticsData(fallbackData);
     }
   };
 

@@ -78,7 +78,7 @@ exports.getItemById = async (req, res) => {
   }
 };
 
-// Update inventory item
+// Update an inventory item
 exports.updateItem = async (req, res) => {
   try {
     const { itemName, category, quantity, price, supplier } = req.body;

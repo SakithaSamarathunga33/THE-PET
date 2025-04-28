@@ -12,7 +12,7 @@ const supplierRoutes = require("./routes/supplierRoutes");
 const employeeRoutes = require('./routes/employeeRoutes');
 const chatbotRoutes = require('./routes/chatbotRoutes');
 const forumRoutes = require('./routes/forumRoutes');
-const analyticsRoutes = require('./routes/api/analytics');
+const analyticsRoutes = require('./routes/analytics');
 
 dotenv.config();
 const app = express();
@@ -96,9 +96,9 @@ app.use("/api/suppliers", supplierRoutes);
 app.use('/api/employees', employeeRoutes);
 app.use('/api/chatbot', chatbotRoutes);
 app.use('/api/forum', forumRoutes);
-app.use('/api/analytics', analyticsRoutes); // Add analytics routes
+app.use('/api/analytics', analyticsRoutes);
 
-// 🔹 Home Route
+// �� Home Route
 app.get("/", (req, res) => {
   res.send("🚀 Pet Care System API is Running...");
 });
