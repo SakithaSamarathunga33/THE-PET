@@ -1,7 +1,7 @@
 const Pet = require("../models/Pet");
 
 // Add new pet
-exports.addPet = async (req, res) => {
+exports.addPet = async (req, res) => { 
     try {
         const { type, breed, age, weight, gender, price } = req.body;
         const petData = { ...req.body };
@@ -11,12 +11,12 @@ exports.addPet = async (req, res) => {
         if (!type || !['Dog', 'Cat', 'Bird', 'Fish', 'Rabbit'].includes(type)) {
             return res.status(400).json({ error: 'Invalid pet type' });
         }
-        
+         
         // 2. Validate required fields with length/value checks
         if (!breed || breed.trim().length < 2 || breed.trim().length > 50) {
             return res.status(400).json({ error: 'Breed is required and must be between 2 and 50 characters' });
         }
-        
+         
         // 3. Validate age
         if (age === undefined || age === null || isNaN(age) || age < 0 || age > 100) {
             return res.status(400).json({ error: 'Age is required and must be between 0 and 100' });
