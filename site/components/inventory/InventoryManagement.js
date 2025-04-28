@@ -21,13 +21,19 @@ const InventoryManagement = () => {
   });
 
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
 =======
+=======
+>>>>>>> Stashed changes
   // Calculate summary metric
   const totalItems = inventory.length;
   const lowStockItems = inventory.filter(item => item.quantity <= item.reorderPoint).length;
   const inStockItems = inventory.filter(item => item.quantity > 0).length;
 
   // Fetch data on component mounts
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
   useEffect(() => {
     fetchInventory();
