@@ -20,11 +20,20 @@ const InventoryManagement = () => {
     location: ''
   });
 
+<<<<<<< Updated upstream
+=======
+  // Calculate summary metric
+  const totalItems = inventory.length;
+  const lowStockItems = inventory.filter(item => item.quantity <= item.reorderPoint).length;
+  const inStockItems = inventory.filter(item => item.quantity > 0).length;
+
+  // Fetch data on component mounts
+>>>>>>> Stashed changes
   useEffect(() => {
     fetchInventory();
   }, []);
 
-  // Auto-dismiss notifications
+  // Auto-dismiss notification
   useEffect(() => {
     if (error || success) {
       const timer = setTimeout(() => {
@@ -187,7 +196,57 @@ const InventoryManagement = () => {
         </div>
       )}
 
+<<<<<<< Updated upstream
       {/* Header */}
+=======
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+        {/* Total Inventory Items Card */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center">
+            <div className="p-3 rounded-full bg-blue-100 text-blue-600 mr-4">
+              <FiBox className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-lg font-medium text-gray-500">Total Inventory Items</h3>
+              <p className="text-2xl font-bold text-gray-900">{totalItems}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* In Stock Items Card */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center">
+            <div className="p-3 rounded-full bg-green-100 text-green-600 mr-4">
+              <FiPackage className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-lg font-medium text-gray-500">Items In Stock</h3>
+              <p className="text-2xl font-bold text-gray-900">{inStockItems}</p>
+              <p className="text-sm text-gray-500 mt-1">Available for use</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Low Stock Items Card */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center">
+            <div className={`p-3 rounded-full ${lowStockItems > 0 ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600'} mr-4`}>
+              <FiAlertTriangle className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-lg font-medium text-gray-500">Low Stock Items</h3>
+              <p className="text-2xl font-bold text-gray-900">{lowStockItems}</p>
+              {lowStockItems > 0 && (
+                <p className="text-sm text-red-500 mt-1">Items below reorder point</p>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Header with search and action buttons */}
+>>>>>>> Stashed changes
       <div className="flex flex-col sm:flex-row justify-between items-center gap-4 mb-6">
         <div className="flex items-center w-full sm:w-auto">
           <div className="relative w-full sm:w-64">
