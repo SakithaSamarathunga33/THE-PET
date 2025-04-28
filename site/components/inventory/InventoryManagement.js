@@ -333,7 +333,7 @@ const InventoryManagement = () => {
       )}
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
         {/* Total Inventory Items Card */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="flex items-center">
@@ -343,7 +343,21 @@ const InventoryManagement = () => {
             <div>
               <h3 className="text-lg font-medium text-gray-500">Total Inventory Items</h3>
               <p className="text-2xl font-bold text-gray-900">{totalItems}</p>
-              <p className="text-sm text-gray-500 mt-1">{inStockItems} items in stock</p>
+              <p className="text-sm text-gray-500 mt-1">No of Inventory Items</p>
+            </div>
+          </div>
+        </div>
+
+        {/* In Stock Items Card */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center">
+            <div className="p-3 rounded-full bg-green-100 text-green-600 mr-4">
+              <FiPackage className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-lg font-medium text-gray-500">In Stock Items</h3>
+              <p className="text-2xl font-bold text-gray-900">{inStockItems}</p>
+              <p className="text-sm text-gray-500 mt-1">Items available</p>
             </div>
           </div>
         </div>
@@ -371,7 +385,7 @@ const InventoryManagement = () => {
               <FiPackage className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="text-lg font-medium text-gray-500">Out of Stock</h3>
+              <h3 className="text-lg font-medium text-gray-500">Out of Stock Items</h3>
               <p className="text-2xl font-bold text-gray-900">{totalItems - inStockItems}</p>
               <p className="text-sm text-gray-500 mt-1">Items with zero quantity</p>
             </div>
