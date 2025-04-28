@@ -196,6 +196,7 @@ const EmployeeManagement = ({ onDataChange }) => {
       setError(err.message);
     }
   };
+  
 
   const generateReport = () => {
     const report = employees.map(emp => ({
@@ -206,12 +207,12 @@ const EmployeeManagement = ({ onDataChange }) => {
       'Base Salary': emp.baseSalary,
       'Hourly Rate': emp.hourlyRate,
       'Status': emp.status
-    }));
+    })); 
 
     const csv = [
       Object.keys(report[0]).join(','),
       ...report.map(row => Object.values(row).join(','))
-    ].join('\n');
+    ].join('\n'); 
 
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
@@ -222,7 +223,7 @@ const EmployeeManagement = ({ onDataChange }) => {
     a.click();
     document.body.removeChild(a);
     window.URL.revokeObjectURL(url);
-  };
+  }; 
 
   const handleCalculateSalary = async (employeeId) => {
     try {
@@ -232,7 +233,7 @@ const EmployeeManagement = ({ onDataChange }) => {
         {
           credentials: 'include',
         }
-      );
+      ); 
       
       if (!response.ok) throw new Error('Failed to fetch salary details');
       const data = await response.json();
