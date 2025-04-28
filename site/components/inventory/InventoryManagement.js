@@ -28,6 +28,7 @@ const InventoryManagement = () => {
   // Calculate summary metrics
   const totalItems = inventory.length;
   const lowStockItems = inventory.filter(item => item.quantity <= item.reorderPoint).length;
+  const inStockItems = inventory.filter(item => item.quantity > 0).length;
 
   // Fetch data on component mount
   useEffect(() => {
@@ -332,7 +333,7 @@ const InventoryManagement = () => {
       )}
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         {/* Total Inventory Items Card */}
         <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
           <div className="flex items-center">
@@ -342,6 +343,7 @@ const InventoryManagement = () => {
             <div>
               <h3 className="text-lg font-medium text-gray-500">Total Inventory Items</h3>
               <p className="text-2xl font-bold text-gray-900">{totalItems}</p>
+              <p className="text-sm text-gray-500 mt-1">{inStockItems} items in stock</p>
             </div>
           </div>
         </div>
@@ -358,6 +360,20 @@ const InventoryManagement = () => {
               {lowStockItems > 0 && (
                 <p className="text-sm text-red-500 mt-1">Items below reorder point</p>
               )}
+            </div>
+          </div>
+        </div>
+
+        {/* Out of Stock Items Card */}
+        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+          <div className="flex items-center">
+            <div className="p-3 rounded-full bg-gray-100 text-gray-600 mr-4">
+              <FiPackage className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-lg font-medium text-gray-500">Out of Stock</h3>
+              <p className="text-2xl font-bold text-gray-900">{totalItems - inStockItems}</p>
+              <p className="text-sm text-gray-500 mt-1">Items with zero quantity</p>
             </div>
           </div>
         </div>
