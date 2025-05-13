@@ -2,9 +2,14 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
-    domains: ['images.unsplash.com'],
+    domains: [
+      'images.unsplash.com',
+      'plus.unsplash.com',
+      'images.pexels.com',
+      'i.imgur.com'
+    ],
   },
-  // Ignore ESLint errors during build
+  // For Vercel deployment - ignore ESLint errors during build
   eslint: {
     ignoreDuringBuilds: true,
   },

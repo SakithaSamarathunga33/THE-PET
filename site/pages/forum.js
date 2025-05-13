@@ -7,6 +7,145 @@ import { MdPets, MdForum, MdComment, MdTrendingUp, MdAccessTime } from 'react-ic
 import { FaUser, FaComments, FaHeart, FaPaw, FaReply, FaSearch, FaPlus, FaShare, FaComment } from 'react-icons/fa'
 import { motion } from 'framer-motion'
 
+// Sample data for forum posts
+const SAMPLE_POSTS = [
+  {
+    _id: 'post1',
+    title: 'Tips for first-time dog owners',
+    content: 'I just adopted my first dog and wanted to share some tips that have helped me in the first month...',
+    author: {
+      _id: 'user1',
+      name: 'John Doe'
+    },
+    category: 'Pet Care',
+    createdAt: '2024-10-15T10:30:00Z',
+    likes: ['user2', 'user3', 'user4'],
+    replies: [
+      {
+        _id: 'reply1',
+        content: 'Great tips! I would also add that consistency is key when training a new dog.',
+        author: {
+          _id: 'user2',
+          name: 'Sarah Johnson'
+        },
+        createdAt: '2024-10-15T11:45:00Z'
+      },
+      {
+        _id: 'reply2',
+        content: 'How do you handle separation anxiety? My new puppy gets very upset when I leave for work.',
+        author: {
+          _id: 'user3',
+          name: 'Michael Brown'
+        },
+        createdAt: '2024-10-15T13:20:00Z'
+      }
+    ]
+  },
+  {
+    _id: 'post2',
+    title: 'Best cat breeds for apartments',
+    content: 'Looking for recommendations on cat breeds that do well in smaller spaces...',
+    author: {
+      _id: 'user4',
+      name: 'Emily Wilson'
+    },
+    category: 'General Discussion',
+    createdAt: '2024-10-14T15:20:00Z',
+    likes: ['user1', 'user5'],
+    replies: [
+      {
+        _id: 'reply3',
+        content: 'Persian cats are great for apartments! They\'re quiet and mostly like to lounge around.',
+        author: {
+          _id: 'user5',
+          name: 'David Lee'
+        },
+        createdAt: '2024-10-14T16:30:00Z'
+      }
+    ]
+  },
+  {
+    _id: 'post3',
+    title: 'Dealing with pet allergies',
+    content: 'My son has mild allergies but really wants a pet. Any suggestions for hypoallergenic options?',
+    author: {
+      _id: 'user6',
+      name: 'Amanda Parker'
+    },
+    category: 'Pet Health',
+    createdAt: '2024-10-13T09:15:00Z',
+    likes: ['user2', 'user7', 'user8', 'user9'],
+    replies: [
+      {
+        _id: 'reply4',
+        content: 'Poodles and poodle mixes are great options! They have hair instead of fur which produces less dander.',
+        author: {
+          _id: 'user7',
+          name: 'Robert Taylor'
+        },
+        createdAt: '2024-10-13T10:45:00Z'
+      },
+      {
+        _id: 'reply5',
+        content: 'Some people with allergies do well with Siberian cats or Balinese cats as they produce less of the protein that causes allergies.',
+        author: {
+          _id: 'user8',
+          name: 'Sophia Garcia'
+        },
+        createdAt: '2024-10-13T11:30:00Z'
+      },
+      {
+        _id: 'reply6',
+        content: 'Have you considered reptiles or fish? They can be great pets for people with allergies.',
+        author: {
+          _id: 'user9',
+          name: 'James Wilson'
+        },
+        createdAt: '2024-10-13T14:20:00Z'
+      }
+    ]
+  },
+  {
+    _id: 'post4',
+    title: 'Training tips for stubborn puppies',
+    content: 'My 4-month old beagle is incredibly stubborn during training sessions. Any advice?',
+    author: {
+      _id: 'user10',
+      name: 'Thomas Anderson'
+    },
+    category: 'Training',
+    createdAt: '2024-10-12T16:40:00Z',
+    likes: ['user11', 'user12'],
+    replies: [
+      {
+        _id: 'reply7',
+        content: 'Beagles can be challenging! Try shorter, more frequent training sessions with high-value treats.',
+        author: {
+          _id: 'user11',
+          name: 'Lisa Clark'
+        },
+        createdAt: '2024-10-12T17:30:00Z'
+      },
+      {
+        _id: 'reply8',
+        content: 'Positive reinforcement is key. Never punish for not learning - just keep sessions fun and engaging.',
+        author: {
+          _id: 'user12',
+          name: 'Kevin Martinez'
+        },
+        createdAt: '2024-10-12T18:15:00Z'
+      }
+    ]
+  }
+];
+
+// Sample user data
+const SAMPLE_USER = {
+  _id: 'user1',
+  name: 'John Doe',
+  email: 'john@example.com'
+};
+
 export default function Forum() {
   const router = useRouter()
   const [posts, setPosts] = useState([])
@@ -84,19 +223,12 @@ export default function Forum() {
         const userData = await response.json();
         setUser(userData);
       } else {
-        // Don't remove token on network errors or temporary issues
-        if (response.status === 401) {
-          localStorage.removeItem('token');
-          setUser(null);
-        }
+        // For demo purposes, set sample user
+        setUser(SAMPLE_USER);
       }
     } catch (err) {
-      console.error('Error checking auth status:', err);
-      // Don't remove token on network errors
-      if (err.message.includes('401')) {
-        localStorage.removeItem('token');
-        setUser(null);
-      }
+      console.log('Error checking auth status, using sample user');
+      setUser(SAMPLE_USER);
     }
   };
 
@@ -118,12 +250,7 @@ export default function Forum() {
       });
 
       if (!response.ok) {
-        // Don't throw error on auth issues for public routes
-        if (response.status === 401) {
-          console.warn('Not authenticated, showing public posts');
-        } else {
-          throw new Error('Failed to fetch posts');
-        }
+        throw new Error('Failed to fetch posts');
       }
 
       const data = await response.json();
@@ -135,14 +262,19 @@ export default function Forum() {
         setPosts(sortedPosts);
         setError(null);
       } else {
-        console.error('Invalid posts data received:', data);
-        setPosts([]);
-        setError('Error loading discussions. Invalid data format.');
+        throw new Error('Invalid data format');
       }
     } catch (err) {
-      console.error('Error fetching posts:', err);
-      setError('Failed to load discussions. Please try again later.');
-      setPosts([]);
+      console.log('Using sample forum posts instead of API data');
+      
+      // Filter posts by category if needed
+      let filteredPosts = [...SAMPLE_POSTS];
+      if (activeCategory && activeCategory !== 'all') {
+        filteredPosts = filteredPosts.filter(post => post.category === activeCategory);
+      }
+      
+      setPosts(filteredPosts);
+      setError(null);
     } finally {
       setLoading(false);
     }
@@ -157,30 +289,20 @@ export default function Forum() {
     }
 
     try {
-      const response = await fetch('http://localhost:8080/api/forum/posts', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
-          'Accept': 'application/json'
+      // For Vercel deployment, simulate post creation
+      const newPostData = {
+        _id: `post${Date.now()}`,
+        ...newPost,
+        author: {
+          _id: SAMPLE_USER._id,
+          name: SAMPLE_USER.name
         },
-        credentials: 'include',
-        body: JSON.stringify(newPost)
-      });
-
-      if (!response.ok) {
-        if (response.status === 401) {
-          localStorage.removeItem('token');
-          setUser(null);
-          setError('Your session has expired. Please log in again.');
-          return;
-        }
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to create post');
-      }
-
-      const data = await response.json();
-      setPosts(prevPosts => [data, ...prevPosts]);
+        createdAt: new Date().toISOString(),
+        likes: [],
+        replies: []
+      };
+      
+      setPosts(prevPosts => [newPostData, ...prevPosts]);
       setNewPost({ title: '', content: '', category: 'Pet Care' });
       setShowNewPostForm(false);
       setError(null);
@@ -200,27 +322,30 @@ export default function Forum() {
     }
 
     try {
-      const response = await fetch(`http://localhost:8080/api/forum/posts/${postId}/reply`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+      // For Vercel deployment, simulate adding a reply
+      const newReply = {
+        _id: `reply${Date.now()}`,
+        content: reply,
+        author: {
+          _id: user._id,
+          name: user.name
         },
-        body: JSON.stringify({ content: reply })
-      })
-
-      const data = await response.json()
+        createdAt: new Date().toISOString()
+      };
       
-      if (response.ok) {
-        const updatedPosts = posts.map(post => 
-          post._id === postId ? data : post
-        )
-        setPosts(updatedPosts)
-        setReply('')
-        setSelectedPost(null)
-      } else {
-        setError(data.message)
-      }
+      const updatedPosts = posts.map(post => {
+        if (post._id === postId) {
+          return {
+            ...post,
+            replies: [...(post.replies || []), newReply]
+          };
+        }
+        return post;
+      });
+      
+      setPosts(updatedPosts);
+      setReply('');
+      // Keep the post open to show the new reply
     } catch (err) {
       console.error('Error adding reply:', err)
       setError('Failed to add reply. Please try again.')
@@ -235,20 +360,30 @@ export default function Forum() {
     }
 
     try {
-      const response = await fetch(`http://localhost:8080/api/forum/posts/${postId}/like`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`
+      // For Vercel deployment, simulate liking a post
+      const updatedPosts = posts.map(post => {
+        if (post._id === postId) {
+          // Check if user already liked the post
+          const userLiked = post.likes.includes(user._id);
+          let updatedLikes;
+          
+          if (userLiked) {
+            // Unlike: remove user from likes
+            updatedLikes = post.likes.filter(id => id !== user._id);
+          } else {
+            // Like: add user to likes
+            updatedLikes = [...post.likes, user._id];
+          }
+          
+          return {
+            ...post,
+            likes: updatedLikes
+          };
         }
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        const updatedPosts = posts.map(post => 
-          post._id === postId ? data : post
-        )
-        setPosts(updatedPosts)
-      }
+        return post;
+      });
+      
+      setPosts(updatedPosts);
     } catch (err) {
       console.error('Error liking post:', err)
     }
