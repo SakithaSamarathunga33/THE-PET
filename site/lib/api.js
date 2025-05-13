@@ -1,11 +1,11 @@
 /**
- * API client for communicating with the backend
+ * Frontend API client for making requests to the backend
  */
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
 
 /**
- * Makes a request to the backend API
+ * Base fetch wrapper for API calls
  */
 async function fetchAPI(endpoint, options = {}) {
   const headers = {
@@ -27,26 +27,49 @@ async function fetchAPI(endpoint, options = {}) {
   return res.json();
 }
 
-// Auth APIs
-export async function deleteUser(id, token) {
-  return fetchAPI(`/users/${id}`, {
-    method: 'DELETE',
-    headers: { Authorization: `Bearer ${token}` },
+// User API functions
+export async function getUsers() {
+  return fetchAPI('/users');
+}
+
+export async function getUser(id) {
+  return fetchAPI(`/users/${id}`);
+}
+
+export async function createUser(userData) {
+  return fetchAPI('/users', {
+    method: 'POST',
+    body: userData,
   });
 }
 
-export async function loginUser(credentials) {
+export async function updateUser(id, userData) {
+  return fetchAPI(`/users/${id}`, {
+    method: 'PUT',
+    body: userData,
+  });
+}
+
+export async function deleteUser(id, token) {
+  return fetchAPI(`/users/${id}`, {
+    method: 'DELETE',
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  });
+}
+
+// Auth functions
+export async function login(credentials) {
   return fetchAPI('/auth/login', {
     method: 'POST',
     body: credentials,
   });
 }
 
-export async function registerUser(userData) {
+export async function register(userData) {
   return fetchAPI('/auth/register', {
     method: 'POST',
     body: userData,
   });
 }
 
-// Add other API methods as needed
+// Add any other API functions you need

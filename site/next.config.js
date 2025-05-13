@@ -4,18 +4,14 @@ const nextConfig = {
   images: {
     domains: ['images.unsplash.com'],
   },
+  // Ignore ESLint errors during build
   eslint: {
-    // Warning: This allows production builds to successfully complete even if
-    // your project has ESLint errors.
     ignoreDuringBuilds: true,
   },
+  // Ignore TypeScript errors during build
   typescript: {
-    // !! WARN !!
-    // Dangerously allow production builds to successfully complete even if
-    // your project has type errors.
-    // !! WARN !!
     ignoreBuildErrors: true,
-  },
+  }
 }
 
 module.exports = nextConfig
