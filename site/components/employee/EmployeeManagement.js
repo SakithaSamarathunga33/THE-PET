@@ -863,15 +863,22 @@ const EmployeeManagement = ({ onDataChange }) => {
                     required
                   />
                   {formErrors.email && <p className="mt-1 text-sm text-red-500">{formErrors.email}</p>}
-                </div>
-                <div>
+                </div>                <div>
                   <label className="block text-sm font-medium text-gray-700">Phone Number</label>
                   <input
                     type="tel"
                     value={formData.phoneNumber}
                     onChange={handleInputChange}
+                    onKeyPress={(e) => {
+                      // Only allow digits (0-9)
+                      const charCode = e.which ? e.which : e.keyCode;
+                      if (charCode < 48 || charCode > 57) {
+                        e.preventDefault();
+                      }
+                    }}
                     name="phoneNumber"
                     className={`mt-1 block w-full rounded-md ${formErrors.phoneNumber ? 'border-red-500' : 'border-gray-300'} shadow-sm focus:border-[#4DB6AC] focus:ring-[#4DB6AC]`}
+                    placeholder="1234567890"
                     required
                   />
                   {formErrors.phoneNumber && <p className="mt-1 text-sm text-red-500">{formErrors.phoneNumber}</p>}
