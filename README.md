@@ -15,6 +15,10 @@
   <img src="https://img.shields.io/badge/Facebook_Prophet-0467DF?style=for-the-badge&logo=facebook&logoColor=white" />
 </div>
 
+**[Live Demo](https://the-pet.vercel.app)** · **[Setup Guide](#-installation--setup)** · **[API Docs](#-api-endpoints)**
+
+*If this project helps you, please consider giving it a star ⭐ — it helps others find it too.*
+
 <p align="center">
   <img src="https://images.unsplash.com/photo-1444212477490-ca407925329e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&h=400&q=80" alt="Pet Care Banner" />
 </p>
